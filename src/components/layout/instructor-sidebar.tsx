@@ -1,0 +1,121 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  ChartLineUp,
+  User,
+  CalendarBlank,
+  Star,
+  Clock,
+  GearSix,
+} from "@phosphor-icons/react";
+import { cn } from "@/lib/utils";
+
+const NAV_ITEMS = [
+  { href: "/profile/instructor/dashboard", icon: ChartLineUp, label: "Dashboard" },
+  { href: "/profile/instructor", icon: User, label: "Profile" },
+  { href: "/profile/instructor/classes", icon: CalendarBlank, label: "My Classes" },
+  { href: "/profile/instructor/reviews", icon: Star, label: "Reviews" },
+  { href: "/profile/instructor/schedule", icon: Clock, label: "Schedule" },
+  { href: "/profile/instructor/settings", icon: GearSix, label: "Settings" },
+];
+
+interface InstructorSidebarProps {
+  collapsed: boolean;
+}
+
+export function InstructorSidebar({ collapsed }: InstructorSidebarProps) {
+  const pathname = usePathname();
+
+  return (
+    <aside
+      className={cn(
+        "hidden md:flex flex-col bg-background border-r border-gray-100 pt-4 transition-all duration-300",
+        collapsed ? "w-16" : "w-64"
+      )}
+    >
+      <nav className="flex-1 px-2 space-y-1">
+        {NAV_ITEMS.map((item) => {
+          const isActive =
+            item.href === "/profile/instructor"
+              ? pathname === "/profile/instructor"
+              : pathname.startsWith(item.href);
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
+                isActive
+                  ? "bg-coral/10 text-coral"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+              )}
+            >
+              <item.icon
+                size={20}
+                weight={isActive ? "fill" : "regular"}
+                className="flex-shrink-0"
+              />
+              {!collapsed && <span>{item.label}</span>}
+            </Link>
+          );
+        })}
+      </nav>
+    </aside>
+  );
+}
+
+export function InstructorSidebarMobile({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  const pathname = usePathname();
+
+  if (!open) return null;
+
+  return (
+    <>
+      <div
+        className="fixed inset-0 z-40 bg-black/10 md:hidden"
+        role="presentation"
+        onClick={onClose}
+      />
+      <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-background shadow-xl rounded-r-2xl md:hidden animate-slide-in-right">
+        <div className="pt-20 px-3 space-y-1">
+          {NAV_ITEMS.map((item) => {
+            const isActive =
+              item.href === "/profile/instructor"
+                ? pathname === "/profile/instructor"
+                : pathname.startsWith(item.href);
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={onClose}
+                className={cn(
+                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
+                  isActive
+                    ? "bg-coral/10 text-coral"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                )}
+              >
+                <item.icon
+                  size={20}
+                  weight={isActive ? "fill" : "regular"}
+                  className="flex-shrink-0"
+                />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </aside>
+    </>
+  );
+}

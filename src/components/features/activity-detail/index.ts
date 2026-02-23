@@ -1,0 +1,10 @@
+export { ActivityHeroGallery } from "./activity-hero-gallery";
+export { ActivityHeader } from "./activity-header";
+export { AboutSection } from "./about-section";
+export { WhatYouLearnSection } from "./what-you-learn-section";
+export { CurriculumSection } from "./curriculum-section";
+export { InstructorCard } from "./instructor-card";
+export { BookingSidebar } from "./booking-sidebar";
+export { ReviewSection } from "./review-section";
+export { CtaBand } from "./cta-band";
+export { MobileBottomCta } from "./mobile-bottom-cta";

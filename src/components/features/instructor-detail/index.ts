@@ -1,0 +1,10 @@
+export { InstructorBreadcrumb } from "./instructor-breadcrumb";
+export { InstructorHero } from "./instructor-hero";
+export { InstructorStats } from "./instructor-stats";
+export { InstructorBio } from "./instructor-bio";
+export { InstructorAchievements } from "./instructor-achievements";
+export { InstructorClasses } from "./instructor-classes";
+export { InstructorContactSidebar } from "./instructor-contact-sidebar";
+export { InstructorQuickInfo } from "./instructor-quick-info";
+export { InstructorReviews } from "./instructor-reviews";
+export { InstructorCtaBand } from "./instructor-cta-band";

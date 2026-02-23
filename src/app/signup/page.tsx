@@ -1,0 +1,11 @@
+import type { Metadata } from "next";
+import PageContent from "./_client";
+
+export const metadata: Metadata = {
+  title: "Sign Up | ClassCat",
+  description: "Create your ClassCat account",
+};
+
+export default function Page() {
+  return <PageContent />;
+}

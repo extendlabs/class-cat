@@ -1,0 +1,9 @@
+export { BusinessHeroGallery } from "./business-hero-gallery";
+export { BusinessHeader } from "./business-header";
+export { BusinessStats } from "./business-stats";
+export { BusinessAbout } from "./business-about";
+export { BusinessActivities } from "./business-activities";
+export { BusinessInstructors } from "./business-instructors";
+export { BusinessInfoSidebar } from "./business-info-sidebar";
+export { BusinessReviews } from "./business-reviews";
+export { BusinessCtaBand } from "./business-cta-band";
