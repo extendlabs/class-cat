@@ -1,7 +1,9 @@
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 export function CTASection() {
+  const t = useTranslations("cta");
   return (
     <section className="relative rounded-[40px] p-10 md:p-16 overflow-hidden bg-secondary">
       {/* Decorative blurred shapes */}
@@ -14,7 +16,7 @@ export function CTASection() {
         <div className="relative w-72 h-72 drop-shadow-xl">
           <Image
             src="/cat-mascot.png"
-            alt="ClassCat mascot — a friendly cat in a graduation cap"
+            alt={t("mascotAlt")}
             fill
             className="object-contain"
             sizes="288px"
@@ -24,24 +26,23 @@ export function CTASection() {
 
       <div className="relative z-10 max-w-3xl mx-auto text-center">
         <h2 className="text-4xl font-bold text-gray-900 mb-6 tracking-tight">
-          Ready to start your journey?
+          {t("title")}
         </h2>
         <p className="text-lg text-gray-600 mb-10 leading-relaxed max-w-2xl mx-auto">
-          Join thousands of learners discovering new passions every day. From
-          local workshops to professional courses, find what moves you.
+          {t("description")}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href="/?tab=all"
             className="bg-coral hover:bg-coral-hover text-white px-10 py-4 rounded-full font-bold shadow-sm shadow-coral/20 transition-all hover:-translate-y-0.5 text-center"
           >
-            Explore Classes
+            {t("exploreClasses")}
           </Link>
           <Link
-            href="/business"
+            href="/for-business"
             className="bg-white hover:bg-gray-50 text-gray-900 px-10 py-4 rounded-full font-bold shadow-[var(--shadow-soft)] border border-gray-200 transition-all hover:-translate-y-1 text-center"
           >
-            Teach a Class
+            {t("teachAClass")}
           </Link>
         </div>
       </div>

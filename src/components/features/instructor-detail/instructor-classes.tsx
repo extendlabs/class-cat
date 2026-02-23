@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Star, Clock, CaretRight } from "@phosphor-icons/react";
 import { AnimateIn } from "@/components/ui/animate-in";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import type { Activity } from "@/types/activity";
 
 export function InstructorClasses({ classes }: { classes: Activity[] }) {

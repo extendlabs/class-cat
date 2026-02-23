@@ -1,4 +1,7 @@
-import Link from "next/link";
+"use client";
+
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import {
@@ -6,8 +9,11 @@ import {
   InstagramLogo,
   EnvelopeSimple,
 } from "@phosphor-icons/react";
+import { LanguageSwitcher } from "@/components/features/language-switcher";
 
 export function Footer({ className }: { className?: string }) {
+  const t = useTranslations("footer");
+
   return (
     <footer className={cn("relative overflow-hidden mt-20 pt-16 pb-8 bg-secondary", className)}>
       {/* Decorative blurred shapes */}
@@ -33,8 +39,7 @@ export function Footer({ className }: { className?: string }) {
               />
             </Link>
             <p className="text-gray-500 text-sm leading-relaxed mb-6">
-              Wspieramy lokalne społeczności poprzez naukę i wspólne doświadczenia.
-              Znajdź swoją nową pasję już dziś.
+              {t("tagline")}
             </p>
             <div className="flex gap-3">
               <a
@@ -64,82 +69,62 @@ export function Footer({ className }: { className?: string }) {
             </div>
           </div>
 
-          {/* Odkrywaj */}
+          {/* Discover */}
           <div>
-            <h4 className="font-bold text-gray-900 mb-4">Odkrywaj</h4>
+            <h4 className="font-bold text-gray-900 mb-4">{t("discover")}</h4>
             <ul className="space-y-3 text-sm text-gray-500">
               <li>
-                <Link href="/bezpieczenstwo" className="hover:text-coral transition-colors">
-                  Zaufanie i bezpieczeństwo
+                <Link href="/" className="hover:text-coral transition-colors">
+                  {t("browseClasses")}
                 </Link>
               </li>
               <li>
-                <Link href="/karty-podarunkowe" className="hover:text-coral transition-colors">
-                  Karty podarunkowe
+                <Link href="/how-it-works" className="hover:text-coral transition-colors">
+                  {t("howItWorks")}
                 </Link>
               </li>
               <li>
-                <Link href="/polecane" className="hover:text-coral transition-colors">
-                  Polecane przez ClassCat
-                </Link>
-              </li>
-              <li>
-                <Link href="/aplikacja" className="hover:text-coral transition-colors">
-                  Aplikacja mobilna
+                <Link href="/for-business" className="hover:text-coral transition-colors">
+                  {t("forBusiness")}
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Dla prowadzących */}
+          {/* Company */}
           <div>
-            <h4 className="font-bold text-gray-900 mb-4">Dla prowadzących</h4>
+            <h4 className="font-bold text-gray-900 mb-4">{t("company")}</h4>
             <ul className="space-y-3 text-sm text-gray-500">
               <li>
-                <Link href="/dla-biznesu" className="hover:text-coral transition-colors">
-                  Prowadź zajęcia
+                <Link href="/about" className="hover:text-coral transition-colors">
+                  {t("about")}
                 </Link>
               </li>
               <li>
-                <Link href="/zasoby" className="hover:text-coral transition-colors">
-                  Zasoby dla prowadzących
-                </Link>
-              </li>
-              <li>
-                <Link href="/spolecznosc" className="hover:text-coral transition-colors">
-                  Forum społeczności
-                </Link>
-              </li>
-              <li>
-                <Link href="/ubezpieczenie" className="hover:text-coral transition-colors">
-                  Ubezpieczenie
+                <Link href="/contact" className="hover:text-coral transition-colors">
+                  {t("contact")}
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Pomoc */}
+          {/* Legal & Support */}
           <div>
-            <h4 className="font-bold text-gray-900 mb-4">Pomoc</h4>
+            <h4 className="font-bold text-gray-900 mb-4">{t("legalAndSupport")}</h4>
             <ul className="space-y-3 text-sm text-gray-500">
               <li>
-                <Link href="/pomoc" className="hover:text-coral transition-colors">
-                  Centrum pomocy
+                <Link href="/help" className="hover:text-coral transition-colors">
+                  {t("helpFaq")}
                 </Link>
               </li>
               <li>
-                <Link href="/anulowanie" className="hover:text-coral transition-colors">
-                  Opcje anulowania
+                <Link href="/privacy" className="hover:text-coral transition-colors">
+                  {t("privacy")}
                 </Link>
               </li>
               <li>
-                <Link href="/bezpieczenstwo-informacje" className="hover:text-coral transition-colors">
-                  Informacje o bezpieczeństwie
-                </Link>
-              </li>
-              <li>
-                <Link href="/kontakt" className="hover:text-coral transition-colors">
-                  Kontakt
+                <Link href="/terms" className="hover:text-coral transition-colors">
+                  {t("terms")}
                 </Link>
               </li>
             </ul>
@@ -148,18 +133,21 @@ export function Footer({ className }: { className?: string }) {
 
         {/* Bottom bar */}
         <div className="border-t border-coral/[0.08] pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="text-sm text-gray-400">
-            &copy; 2026 ClassCat. Wszelkie prawa zastrzeżone.
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-gray-400">
+              {t("copyright")}
+            </div>
+            <LanguageSwitcher />
           </div>
           <div className="flex gap-6 text-sm text-gray-500 font-medium">
-            <Link href="/polityka-prywatnosci" className="hover:text-gray-900 transition-colors">
-              Prywatność
+            <Link href="/privacy" className="hover:text-gray-900 transition-colors">
+              {t("privacy")}
             </Link>
-            <Link href="/regulamin" className="hover:text-gray-900 transition-colors">
-              Regulamin
+            <Link href="/terms" className="hover:text-gray-900 transition-colors">
+              {t("terms")}
             </Link>
             <Link href="/sitemap.xml" className="hover:text-gray-900 transition-colors">
-              Mapa strony
+              {t("sitemap")}
             </Link>
           </div>
         </div>

@@ -6,7 +6,7 @@ import {
 } from "@phosphor-icons/react";
 import type { Instructor as InstructorType } from "@/types/activity";
 import { AnimateIn } from "@/components/ui/animate-in";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 export function InstructorCard({
   instructor,

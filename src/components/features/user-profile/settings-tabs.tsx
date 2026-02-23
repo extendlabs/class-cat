@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   Bell,
   Globe,
@@ -32,6 +33,7 @@ import { AnimateIn } from "@/components/ui/animate-in";
 import type { UserSettings } from "@/types/user";
 
 export function SettingsNotifications({ settings }: { settings: UserSettings }) {
+  const t = useTranslations("profile.notifications");
   return (
     <AnimateIn>
       <section className="rounded-2xl bg-white p-5 shadow-[var(--shadow-soft)] border border-gray-100/60">
@@ -40,30 +42,30 @@ export function SettingsNotifications({ settings }: { settings: UserSettings }) 
             <Bell size={16} className="text-coral" />
           </div>
           <h3 className="font-bold text-gray-900">
-            Notifications
+            {t("title")}
           </h3>
         </div>
         <div className="space-y-4">
           {[
             {
               key: "bookingUpdates" as const,
-              label: "Booking updates",
-              desc: "Get notified about booking confirmations and changes",
+              label: t("bookingUpdates"),
+              desc: t("bookingUpdatesDesc"),
             },
             {
               key: "newClasses" as const,
-              label: "New classes nearby",
-              desc: "Be the first to know about new activities",
+              label: t("newClassesNearby"),
+              desc: t("newClassesNearbyDesc"),
             },
             {
               key: "promotions" as const,
-              label: "Promotions & deals",
-              desc: "Special offers and discounts",
+              label: t("promotions"),
+              desc: t("promotionsDesc"),
             },
             {
               key: "reminders" as const,
-              label: "Class reminders",
-              desc: "Reminders before your scheduled classes",
+              label: t("classReminders"),
+              desc: t("classRemindersDesc"),
             },
           ].map((item) => (
             <div
@@ -90,6 +92,7 @@ export function SettingsNotifications({ settings }: { settings: UserSettings }) 
 }
 
 export function SettingsPreferences({ settings }: { settings: UserSettings }) {
+  const t = useTranslations("profile.preferences");
   return (
     <AnimateIn delay={100}>
       <section className="rounded-2xl bg-white p-5 shadow-[var(--shadow-soft)] border border-gray-100/60">
@@ -97,16 +100,16 @@ export function SettingsPreferences({ settings }: { settings: UserSettings }) {
           <div className="w-8 h-8 rounded-full bg-coral/10 flex items-center justify-center">
             <Globe size={16} className="text-coral" />
           </div>
-          <h3 className="font-bold text-gray-900">Preferences</h3>
+          <h3 className="font-bold text-gray-900">{t("title")}</h3>
         </div>
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-4">
             <div>
               <Label className="text-sm font-medium text-gray-900">
-                Default search radius
+                {t("searchRadius")}
               </Label>
               <p className="text-xs text-gray-500 mt-0.5">
-                Maximum distance for search results
+                {t("searchRadiusDesc")}
               </p>
             </div>
             <Select defaultValue={settings.defaultRadius}>
@@ -124,10 +127,10 @@ export function SettingsPreferences({ settings }: { settings: UserSettings }) {
           <div className="flex items-center justify-between gap-4">
             <div>
               <Label className="text-sm font-medium text-gray-900">
-                Language
+                {t("language")}
               </Label>
               <p className="text-xs text-gray-500 mt-0.5">
-                Display language for the app
+                {t("languageDesc")}
               </p>
             </div>
             <Select defaultValue={settings.language}>
@@ -153,6 +156,7 @@ export function SettingsPreferences({ settings }: { settings: UserSettings }) {
 }
 
 export function SettingsPrivacy({ settings }: { settings: UserSettings }) {
+  const t = useTranslations("profile.privacy");
   return (
     <AnimateIn delay={200}>
       <section className="rounded-2xl bg-white p-5 shadow-[var(--shadow-soft)] border border-gray-100/60">
@@ -160,16 +164,16 @@ export function SettingsPrivacy({ settings }: { settings: UserSettings }) {
           <div className="w-8 h-8 rounded-full bg-coral/10 flex items-center justify-center">
             <ShieldCheck size={16} className="text-coral" />
           </div>
-          <h3 className="font-bold text-gray-900">Privacy</h3>
+          <h3 className="font-bold text-gray-900">{t("title")}</h3>
         </div>
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-4">
             <div>
               <Label className="text-sm font-medium text-gray-900">
-                Public profile
+                {t("publicProfile")}
               </Label>
               <p className="text-xs text-gray-500 mt-0.5">
-                Allow others to see your profile
+                {t("publicProfileDesc")}
               </p>
             </div>
             <Switch
@@ -179,10 +183,10 @@ export function SettingsPrivacy({ settings }: { settings: UserSettings }) {
           <div className="flex items-center justify-between gap-4">
             <div>
               <Label className="text-sm font-medium text-gray-900">
-                Show booking history
+                {t("showBookingHistory")}
               </Label>
               <p className="text-xs text-gray-500 mt-0.5">
-                Display your past activities on your profile
+                {t("showBookingHistoryDesc")}
               </p>
             </div>
             <Switch
@@ -196,14 +200,16 @@ export function SettingsPrivacy({ settings }: { settings: UserSettings }) {
 }
 
 export function SettingsAccount({ onLogout }: { onLogout: () => void }) {
+  const t = useTranslations("profile.account");
+  const tCommon = useTranslations("common");
   return (
     <AnimateIn delay={300}>
       <section className="rounded-2xl bg-white p-5 shadow-[var(--shadow-soft)] border border-gray-100/60">
-        <h3 className="font-bold text-gray-900 mb-4">Account</h3>
+        <h3 className="font-bold text-gray-900 mb-4">{t("title")}</h3>
         <div className="space-y-2.5">
           <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-100 bg-gray-50/50 hover:border-coral/20 hover:bg-coral/5 text-sm font-medium text-gray-700 hover:text-coral transition-all">
             <Key size={18} className="text-gray-400" />
-            Change Password
+            {t("changePassword")}
           </button>
 
           <button
@@ -211,7 +217,7 @@ export function SettingsAccount({ onLogout }: { onLogout: () => void }) {
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-100 bg-gray-50/50 hover:border-coral/20 hover:bg-coral/5 text-sm font-medium text-gray-700 hover:text-coral transition-all"
           >
             <SignOut size={18} className="text-gray-400" />
-            Sign Out
+            {t("signOut")}
           </button>
 
           <div className="pt-1">
@@ -219,26 +225,24 @@ export function SettingsAccount({ onLogout }: { onLogout: () => void }) {
               <AlertDialogTrigger asChild>
                 <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-red-100 bg-red-50/50 hover:border-red-200 hover:bg-red-50 text-sm font-medium text-red-500 hover:text-red-600 transition-all">
                   <Trash size={18} className="text-red-400" />
-                  Delete Account
+                  {t("deleteAccount")}
                 </button>
               </AlertDialogTrigger>
               <AlertDialogContent className="rounded-2xl">
                 <AlertDialogHeader>
                   <AlertDialogTitle>
-                    Delete your account?
+                    {t("deleteAccountTitle")}
                   </AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will permanently delete your account,
-                    bookings and all associated data. This
-                    action cannot be undone.
+                    {t("deleteAccountDescription")}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel className="rounded-full">
-                    Cancel
+                    {tCommon("cancel")}
                   </AlertDialogCancel>
                   <AlertDialogAction variant="destructive" className="rounded-full">
-                    Delete Account
+                    {t("deleteAccount")}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

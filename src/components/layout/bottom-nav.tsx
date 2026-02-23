@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 import { House, MagnifyingGlass, UserCircle } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
@@ -9,15 +9,16 @@ import { useAuth } from "@/hooks/use-auth";
 export function BottomNav() {
   const pathname = usePathname();
   const { isAuthenticated } = useAuth();
+  const t = useTranslations("bottomNav");
 
   const profileHref = isAuthenticated ? "/profile" : "/login";
 
   const navItems = [
-    { href: "/", label: "Home", icon: House },
-    { href: "/?tab=all", label: "Search", icon: MagnifyingGlass },
+    { href: "/" as const, label: t("home"), icon: House },
+    { href: "/?tab=all" as const, label: t("search"), icon: MagnifyingGlass },
     {
-      href: profileHref,
-      label: "Profile",
+      href: profileHref as "/" | "/profile" | "/login",
+      label: t("profile"),
       icon: UserCircle,
     },
   ];

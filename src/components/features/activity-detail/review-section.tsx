@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import type { Review, RatingDistribution } from "@/types/activity";
 import { AnimateIn } from "@/components/ui/animate-in";
@@ -24,6 +25,8 @@ export function ReviewSection({
   onSetFilter: (filter: "all" | number) => void;
   onShowMore: () => void;
 }) {
+  const t = useTranslations("activity");
+  const tCommon = useTranslations("common");
   const filteredReviews =
     reviewFilter === "all"
       ? reviews
@@ -44,10 +47,10 @@ export function ReviewSection({
         <AnimateIn>
           <section>
             <span className="uppercase tracking-widest text-coral font-bold text-xs mb-2 block">
-              Testimonials
+              {t("testimonials")}
             </span>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-10 tracking-tight">
-              What students say
+              {t("whatStudentsSay")}
             </h2>
 
             {/* Rating overview */}
@@ -58,7 +61,7 @@ export function ReviewSection({
                 </div>
                 <StarRating rating={rating} size={20} />
                 <div className="text-sm font-medium text-gray-500 uppercase tracking-wider mt-3">
-                  {reviewCount} Reviews
+                  {reviewCount} {t("reviews")}
                 </div>
               </div>
               <div className="md:col-span-8 flex flex-col justify-center space-y-3 bg-white rounded-3xl border border-gray-100 shadow-[var(--shadow-soft)] p-8">
@@ -78,7 +81,7 @@ export function ReviewSection({
                     : "bg-white text-gray-600 border border-gray-200 hover:border-coral/30"
                 }`}
               >
-                All ({reviews.length})
+                {tCommon("all")} ({reviews.length})
               </button>
               {availableStars.map((star) => {
                 const count = reviews.filter(
@@ -135,7 +138,7 @@ export function ReviewSection({
                   className="px-8 py-3 rounded-full font-bold text-sm bg-white hover:bg-gray-50 shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-hover)] transition-all border-gray-200"
                   onClick={onShowMore}
                 >
-                  Show more reviews
+                  {t("showMoreReviews")}
                 </Button>
               </div>
             )}

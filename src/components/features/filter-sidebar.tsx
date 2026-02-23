@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { Faders, NavigationArrow, CaretDown, Star, StarHalf } from "@phosphor-icons/react";
 import {
   Sheet,
@@ -121,6 +122,8 @@ function StarsPicker({
 }
 
 export function FilterSidebar({ filters, onFilterChange, onClear, activeCount }: FilterSidebarProps) {
+  const t = useTranslations("filters");
+  const tCommon = useTranslations("common");
   const [locationGranted, setLocationGranted] = useState(false);
   const [locationLoading, setLocationLoading] = useState(false);
 
@@ -166,14 +169,14 @@ export function FilterSidebar({ filters, onFilterChange, onClear, activeCount }:
         // Show short name in trigger (e.g. "Morning" not "Morning (6:00–12:00)")
         return found ? found.value.charAt(0).toUpperCase() + found.value.slice(1) : t;
       }).join(", ")
-    : "Select times";
+    : t("selectTimes");
 
   // City popover label
   const cityLabel = activeCities.length > 0
     ? activeCities.length <= 2
       ? activeCities.join(", ")
-      : `${activeCities.length} cities`
-    : "Select cities";
+      : t("citiesCount", { count: activeCities.length })
+    : t("selectCities");
 
   return (
     <Sheet>
@@ -183,7 +186,7 @@ export function FilterSidebar({ filters, onFilterChange, onClear, activeCount }:
           className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium border border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 transition-all cursor-pointer"
         >
           <Faders size={18} className="text-gray-600" />
-          <span className="text-gray-700">Filters</span>
+          <span className="text-gray-700">{t("title")}</span>
           {activeCount > 0 && (
             <span className="bg-coral text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
               {activeCount}
@@ -197,14 +200,14 @@ export function FilterSidebar({ filters, onFilterChange, onClear, activeCount }:
         className="rounded-l-2xl border-l-0 shadow-[-8px_0_12px_-10px_rgba(0,0,0,0.1)] overflow-y-auto"
       >
         <SheetHeader>
-          <SheetTitle>Filters</SheetTitle>
-          <SheetDescription>Narrow down your search results</SheetDescription>
+          <SheetTitle>{t("title")}</SheetTitle>
+          <SheetDescription>{t("subtitle")}</SheetDescription>
         </SheetHeader>
 
         <div className="px-4 pb-6 space-y-6">
           {/* 1. Price — dual-thumb slider */}
           <div>
-            <SectionLabel>Price</SectionLabel>
+            <SectionLabel>{t("price")}</SectionLabel>
             <div className="px-1">
               <Slider
                 min={0}
@@ -218,15 +221,15 @@ export function FilterSidebar({ filters, onFilterChange, onClear, activeCount }:
                 className="[&_[data-slot=slider-range]]:bg-coral [&_[data-slot=slider-thumb]]:border-coral"
               />
               <div className="flex justify-between mt-2 text-xs text-gray-500">
-                <span>{priceMin} zł</span>
-                <span>{priceMax === 70 ? "70+ zł" : `${priceMax} zł`}</span>
+                <span>{priceMin} {tCommon("zl")}</span>
+                <span>{priceMax === 70 ? `70+ ${tCommon("zl")}` : `${priceMax} ${tCommon("zl")}`}</span>
               </div>
             </div>
           </div>
 
           {/* 2. Distance — gated behind geolocation */}
           <div>
-            <SectionLabel>Distance</SectionLabel>
+            <SectionLabel>{t("distance")}</SectionLabel>
             {!locationGranted ? (
               <button
                 type="button"
@@ -235,7 +238,7 @@ export function FilterSidebar({ filters, onFilterChange, onClear, activeCount }:
                 className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium border border-gray-200 bg-white hover:border-coral/30 hover:bg-coral/5 text-gray-600 hover:text-coral transition-all cursor-pointer disabled:opacity-50"
               >
                 <NavigationArrow size={16} />
-                {locationLoading ? "Requesting…" : "Share location"}
+                {locationLoading ? t("requesting") : t("shareLocation")}
               </button>
             ) : (
               <div className="flex flex-wrap gap-2">
@@ -255,7 +258,7 @@ export function FilterSidebar({ filters, onFilterChange, onClear, activeCount }:
 
           {/* 3. Time — popover with checkboxes (shows hour ranges) */}
           <div>
-            <SectionLabel>Time</SectionLabel>
+            <SectionLabel>{t("time")}</SectionLabel>
             <Popover>
               <PopoverTrigger asChild>
                 <button
@@ -291,7 +294,7 @@ export function FilterSidebar({ filters, onFilterChange, onClear, activeCount }:
 
           {/* 4. Group Type — radio pills */}
           <div>
-            <SectionLabel>Group Type</SectionLabel>
+            <SectionLabel>{t("groupType")}</SectionLabel>
             <div className="flex flex-wrap gap-2">
               {FILTER_GROUP_TYPES.map((g) => (
                 <FilterPill
@@ -312,7 +315,7 @@ export function FilterSidebar({ filters, onFilterChange, onClear, activeCount }:
 
           {/* 5. Age Range — pills */}
           <div>
-            <SectionLabel>Age Range</SectionLabel>
+            <SectionLabel>{t("ageRange")}</SectionLabel>
             <div className="flex flex-wrap gap-2">
               {FILTER_AGE_RANGES.map((a) => (
                 <FilterPill
@@ -329,7 +332,7 @@ export function FilterSidebar({ filters, onFilterChange, onClear, activeCount }:
 
           {/* 6. Rating — stars picker */}
           <div>
-            <SectionLabel>Rating</SectionLabel>
+            <SectionLabel>{t("rating")}</SectionLabel>
             <StarsPicker
               value={filters.minRating}
               onChange={(v) => onFilterChange("minRating", v)}
@@ -338,7 +341,7 @@ export function FilterSidebar({ filters, onFilterChange, onClear, activeCount }:
 
           {/* 7. City — multi-select dropdown */}
           <div>
-            <SectionLabel>City</SectionLabel>
+            <SectionLabel>{t("city")}</SectionLabel>
             <Popover>
               <PopoverTrigger asChild>
                 <button
@@ -379,7 +382,7 @@ export function FilterSidebar({ filters, onFilterChange, onClear, activeCount }:
               onClick={onClear}
               className="w-full py-2.5 rounded-full border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
             >
-              Clear all filters
+              {t("clearAll")}
             </button>
           )}
         </div>

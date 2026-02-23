@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import {
   ArrowRight,
   Baby,
@@ -15,9 +16,9 @@ import {
 import type { Icon } from "@phosphor-icons/react";
 
 interface CollectionCard {
-  title: string;
-  subtitle: string;
-  description: string;
+  titleKey: string;
+  subtitleKey: string;
+  descriptionKey: string;
   image: string;
   classCount: number;
   icon: Icon;
@@ -26,9 +27,9 @@ interface CollectionCard {
 
 const collections: CollectionCard[] = [
   {
-    title: "Kids",
-    subtitle: "Ages 3\u201310",
-    description: "Playful learning experiences that spark curiosity and creativity.",
+    titleKey: "kids",
+    subtitleKey: "kidsAge",
+    descriptionKey: "kidsDescription",
     classCount: 124,
     icon: Baby,
     accent: "from-amber-400 to-orange-400",
@@ -36,9 +37,9 @@ const collections: CollectionCard[] = [
       "https://lh3.googleusercontent.com/aida-public/AB6AXuDVLt_uh2VcKJ8dF5pT18GVwNuYx0WzynBhUQKUDKdJghuiEds4kcBekazB945Q5yxPhqMP_23Ssc1nDH026clTGMrYx1RAbxxIy2Z277LgJdIZGHKXMibsilAT4gMefX8zN321qX8DWBV32la6KDm7iizwBNEFuXiIkc8BCgDaKjwgXU5vFQK-osyt7jucFvTmg4JRauLmjVg08iqp79Q3q_9TTfysOMDxvntNlpwYqA76ExFO4pRIF1zBbpaGbHr4iwj-qLAm28kH",
   },
   {
-    title: "Youth",
-    subtitle: "Ages 11\u201317",
-    description: "Build independence and discover new passions through hands-on classes.",
+    titleKey: "youth",
+    subtitleKey: "youthAge",
+    descriptionKey: "youthDescription",
     classCount: 98,
     icon: Backpack,
     accent: "from-coral to-coral-hover",
@@ -46,9 +47,9 @@ const collections: CollectionCard[] = [
       "https://lh3.googleusercontent.com/aida-public/AB6AXuAIs3--FhNP-np2Mn2wiayZ87ctqrTTo_Hm8VX_PST0Albw4jdBFfhWVvjDE_RDNBadVm0vc4Kt6ps_e9gvsqz28sq8f9gBWN1wBjZVUAeoQosKpATmnRMJtSWjEtYpp6vhZJPcje1uwOX306Wx3GZkMjixoRd6TpWhF6klD3-lWd0qu7SdwOgiBOPRRMY2GwNFKgbQPE4qS_CEl7fT7m8TzS0RS55upUczPmBWCYOTtewgY6u4lSmlqE5uVCbxm4JZQYZt3AAFSmyD",
   },
   {
-    title: "Families",
-    subtitle: "All Ages",
-    description: "Create lasting memories with activities the whole family enjoys.",
+    titleKey: "families",
+    subtitleKey: "familiesAge",
+    descriptionKey: "familiesDescription",
     classCount: 76,
     icon: Users,
     accent: "from-teal-400 to-emerald-400",
@@ -56,10 +57,9 @@ const collections: CollectionCard[] = [
       "https://lh3.googleusercontent.com/aida-public/AB6AXuAtpg4bmnzXbxm5HLEtGV2VP8NPdG33pgs5EaVxXCrhNRz8faVuWR66-klwan5Z8kD395GXXvRRuU2O3Nn74esQjOr9OEDofKdQW9QOZN7r2R7gSD6DmZ4EDCJK5O-APLieBhuD50sOj17Rlh0iPIeYbmcl1z7PuBrMmBgEDftQz2Jtr_Nj-7zj608ZLba5PbKnxB4AcZqZlzVSZ0jhOClyUy1tTu1mYjqA3n2ifI6VkEnkuXe80mRVzN_LfHiw4-1pEWec3S3JdZI_",
   },
   {
-    title: "Adults",
-    subtitle: "18+",
-    description:
-      "Master a new skill, advance your career, or rediscover an old passion with expert-led courses.",
+    titleKey: "adults",
+    subtitleKey: "adultsAge",
+    descriptionKey: "adultsDescription",
     classCount: 215,
     icon: Briefcase,
     accent: "from-violet-400 to-indigo-400",
@@ -68,7 +68,7 @@ const collections: CollectionCard[] = [
   },
 ];
 
-function CollectionCardItem({ col, className }: { col: CollectionCard; className?: string }) {
+function CollectionCardItem({ col, className, t, tCommon }: { col: CollectionCard; className?: string; t: ReturnType<typeof useTranslations>; tCommon: ReturnType<typeof useTranslations> }) {
   const Icon = col.icon;
   return (
     <Link
@@ -79,7 +79,7 @@ function CollectionCardItem({ col, className }: { col: CollectionCard; className
       <div className="relative h-48 overflow-hidden flex-shrink-0">
 
         <Image
-          alt={col.title}
+          alt={t(col.titleKey)}
           fill
           sizes="(max-width: 640px) 50vw, 25vw"
           className="object-cover group-hover:scale-105 transition-transform duration-700"
@@ -92,7 +92,7 @@ function CollectionCardItem({ col, className }: { col: CollectionCard; className
         </div>
         {/* Class count */}
         <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-          {col.classCount} classes
+          {col.classCount} {tCommon("classes")}
         </div>
       </div>
 
@@ -100,15 +100,15 @@ function CollectionCardItem({ col, className }: { col: CollectionCard; className
       <div className="p-5 flex flex-col flex-1">
         <div className="flex items-baseline gap-2 mb-1.5">
           <h3 className="font-bold text-gray-900 text-lg tracking-tight group-hover:text-coral transition-colors">
-            {col.title}
+            {t(col.titleKey)}
           </h3>
-          <span className="text-xs font-medium text-gray-400">{col.subtitle}</span>
+          <span className="text-xs font-medium text-gray-400">{t(col.subtitleKey)}</span>
         </div>
         <p className="text-sm text-gray-500 leading-relaxed flex-1">
-          {col.description}
+          {t(col.descriptionKey)}
         </p>
         <div className="mt-4 flex items-center text-coral font-semibold text-sm">
-          Browse activities
+          {t("browseActivities")}
           <ArrowRight
             size={14}
             className="ml-1.5 group-hover:translate-x-1 transition-transform duration-200"
@@ -120,25 +120,27 @@ function CollectionCardItem({ col, className }: { col: CollectionCard; className
 }
 
 export function CollectionsGrid() {
+  const t = useTranslations("collections");
+  const tCommon = useTranslations("common");
   return (
     <section>
       {/* Header */}
       <div className="mb-10 max-w-2xl">
         <span className="uppercase tracking-widest text-coral font-bold text-xs mb-2 block">
-          Curated Collections
+          {t("title")}
         </span>
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight text-wrap-balance">
-          Find your perfect fit
+          {t("subtitle")}
         </h2>
         <p className="text-gray-500 mt-3">
-          Tailored learning experiences for every age and stage of life.
+          {t("description")}
         </p>
       </div>
 
       {/* Bento grid — 2 cols top, featured bottom */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {collections.map((col) => (
-          <CollectionCardItem key={col.title} col={col} />
+          <CollectionCardItem key={col.titleKey} col={col} t={t} tCommon={tCommon} />
         ))}
       </div>
 
@@ -147,18 +149,18 @@ export function CollectionsGrid() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <TrustItem
             icon={ShieldCheck}
-            title="Secure Booking"
-            description="Guaranteed safe payment & data protection."
+            title={t("secureBooking")}
+            description={t("secureBookingDescription")}
           />
           <TrustItem
             icon={GraduationCap}
-            title="Verified Instructors"
-            description="Every teacher is vetted for quality & safety."
+            title={t("verifiedInstructors")}
+            description={t("verifiedInstructorsDescription")}
           />
           <TrustItem
             icon={ChatCircleText}
-            title="Real Reviews"
-            description="Trusted feedback from our community."
+            title={t("realReviews")}
+            description={t("realReviewsDescription")}
           />
         </div>
       </div>

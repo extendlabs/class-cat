@@ -1,7 +1,9 @@
+import { useTranslations } from "next-intl";
 import { Sparkle, CheckCircle } from "@phosphor-icons/react";
 import { AnimateIn } from "@/components/ui/animate-in";
 
 export function WhatYouLearnSection({ items }: { items: string[] }) {
+  const t = useTranslations("activity");
   return (
     <AnimateIn delay={200} className="mt-10">
       <div className="bg-white rounded-3xl border border-gray-100 shadow-[var(--shadow-soft)] p-8 md:p-10">
@@ -10,7 +12,7 @@ export function WhatYouLearnSection({ items }: { items: string[] }) {
             <Sparkle size={18} weight="fill" />
           </div>
           <h3 className="text-xl font-bold text-gray-900 tracking-tight">
-            What you&apos;ll learn
+            {t("whatYoullLearn")}
           </h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">

@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 import {
   ChartLineUp,
   SquaresFour,
@@ -9,14 +9,21 @@ import {
   Megaphone,
   GearSix,
 } from "@phosphor-icons/react";
+import type { Icon } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
-const NAV_ITEMS = [
-  { href: "/profile/business/dashboard", icon: ChartLineUp, label: "Dashboard" },
-  { href: "/profile/business", icon: SquaresFour, label: "Profile" },
-  { href: "/profile/business/activities", icon: CalendarBlank, label: "Activities" },
-  { href: "/profile/business/marketing", icon: Megaphone, label: "Promotions" },
-  { href: "/profile/business/settings", icon: GearSix, label: "Settings" },
+interface NavItem {
+  href: string;
+  icon: Icon;
+  key: "dashboard" | "profile" | "activities" | "promotions" | "settings";
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { href: "/profile/business/dashboard", icon: ChartLineUp, key: "dashboard" },
+  { href: "/profile/business", icon: SquaresFour, key: "profile" },
+  { href: "/profile/business/activities", icon: CalendarBlank, key: "activities" },
+  { href: "/profile/business/marketing", icon: Megaphone, key: "promotions" },
+  { href: "/profile/business/settings", icon: GearSix, key: "settings" },
 ];
 
 interface BusinessSidebarProps {
@@ -25,6 +32,7 @@ interface BusinessSidebarProps {
 
 export function BusinessSidebar({ collapsed }: BusinessSidebarProps) {
   const pathname = usePathname();
+  const t = useTranslations("businessSidebar");
 
   return (
     <aside
@@ -56,7 +64,7 @@ export function BusinessSidebar({ collapsed }: BusinessSidebarProps) {
                 weight={isActive ? "fill" : "regular"}
                 className="flex-shrink-0"
               />
-              {!collapsed && <span>{item.label}</span>}
+              {!collapsed && <span>{t(item.key)}</span>}
             </Link>
           );
         })}
@@ -73,6 +81,7 @@ export function BusinessSidebarMobile({
   onClose: () => void;
 }) {
   const pathname = usePathname();
+  const t = useTranslations("businessSidebar");
 
   if (!open) return null;
 
@@ -110,7 +119,7 @@ export function BusinessSidebarMobile({
                   weight={isActive ? "fill" : "regular"}
                   className="flex-shrink-0"
                 />
-                <span>{item.label}</span>
+                <span>{t(item.key)}</span>
               </Link>
             );
           })}

@@ -369,13 +369,15 @@ export function MapView({ activities, activeId, onMarkerClick }: MapViewProps) {
     return () => { cleanup?.then((fn) => fn?.()); };
   }, [initMap]);
 
+  // Re-run when featureCollection changes OR when mapLoaded flips to true
+  // (catches updates that were skipped while the source wasn't ready yet).
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !sourceReadyRef.current) return;
     const source = map.getSource("activities") as GeoJSONSource | undefined;
     if (!source) return;
     source.setData(featureCollection);
-  }, [featureCollection]);
+  }, [featureCollection, mapLoaded]);
 
   useEffect(() => {
     const map = mapRef.current;

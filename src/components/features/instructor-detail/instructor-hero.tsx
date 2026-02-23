@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, ShieldCheck, Buildings } from "@phosphor-icons/react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import type { InstructorDetail } from "@/types/instructor";
 import { InstructorStats } from "./instructor-stats";
 

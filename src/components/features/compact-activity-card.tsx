@@ -1,9 +1,14 @@
+"use client";
+
 import { Star } from "@phosphor-icons/react";
 import type { Activity } from "@/types/activity";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 export function CompactActivityCard({ activity }: { activity: Activity }) {
+  const t = useTranslations("browse");
+  const currency = activity.currency ?? "zł";
   return (
     <Link
       href={`/activity/${activity.id}`}
@@ -19,7 +24,7 @@ export function CompactActivityCard({ activity }: { activity: Activity }) {
         />
         {activity.priceAmount !== undefined && (
           <div className="absolute top-2 right-2 bg-white/95 backdrop-blur-sm px-2 py-0.5 rounded-full text-xs font-bold text-gray-900 shadow-sm">
-            {activity.priceAmount === 0 ? "Free" : `$${activity.priceAmount}`}
+            {activity.priceAmount === 0 ? t("free") : `${activity.priceAmount} ${currency}`}
           </div>
         )}
       </div>

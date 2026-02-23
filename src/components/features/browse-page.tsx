@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { useUrlSearchParams } from "@/hooks/use-url-search-params";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Navbar } from "@/components/layout/navbar";
@@ -20,14 +21,15 @@ import {
 import { trendingClasses, ALL_ACTIVITIES, PROMOTED_ACTIVITIES } from "@/api/mock-data";
 import { fetchActivities, fetchPopularActivities, applyBrowseFilters } from "@/api/activities";
 import type { BrowseFilters } from "@/api/activities";
-import { getCategoryLabel } from "@/lib/categories";
-
 interface BrowsePageProps {
   category: string | null;
 }
 
 export function BrowsePage({ category: initialCategory }: BrowsePageProps) {
   const searchParams = useUrlSearchParams();
+  const t = useTranslations("browse");
+  const tCat = useTranslations("categories");
+  const locale = useLocale();
   const [showMobileMap, setShowMobileMap] = useState(false);
   const [activeActivityId, setActiveActivityId] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -37,11 +39,15 @@ export function BrowsePage({ category: initialCategory }: BrowsePageProps) {
   // Derive category from URL pathname (reacts to pushState via searchparams event)
   const currentCategory = useMemo(() => {
     if (typeof window === "undefined") return initialCategory;
-    const path = window.location.pathname.replace(/^\//, "");
+    let path = window.location.pathname.replace(/^\//, "");
+    // Strip locale prefix (e.g. "pl/football" → "football", "pl" → "")
+    if (locale !== "en" && path.startsWith(locale)) {
+      path = path.slice(locale.length).replace(/^\//, "");
+    }
     return path || null;
   // searchParams is included to re-derive when any URL change fires
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, initialCategory]);
+  }, [searchParams, initialCategory, locale]);
 
   // ── URL-driven state ──
   const activeTab = searchParams.get("tab") === "all" ? "all" : "popular";
@@ -69,6 +75,9 @@ export function BrowsePage({ category: initialCategory }: BrowsePageProps) {
     };
   }, [searchParams, currentCategory]);
 
+  // Locale prefix for URL building ("" for default, "/pl" for Polish)
+  const localePrefix = locale === "en" ? "" : `/${locale}`;
+
   const updateParam = useCallback((key: string, value: string | undefined) => {
     const params = new URLSearchParams(window.location.search);
     if (value) {
@@ -76,18 +85,22 @@ export function BrowsePage({ category: initialCategory }: BrowsePageProps) {
     } else {
       params.delete(key);
     }
-    // Read category from current path (not stale server prop)
-    const pathCategory = window.location.pathname.replace(/^\//, "") || null;
-    const base = pathCategory ? `/${pathCategory}` : "/";
+    // Read category from current path (strip locale prefix first)
+    let rawPath = window.location.pathname.replace(/^\//, "");
+    if (locale !== "en" && rawPath.startsWith(locale)) {
+      rawPath = rawPath.slice(locale.length).replace(/^\//, "");
+    }
+    const pathCategory = rawPath || null;
+    const base = pathCategory ? `${localePrefix}/${pathCategory}` : `${localePrefix}/`;
     const qs = params.toString();
     window.history.replaceState(null, "", qs ? `${base}?${qs}` : base);
     window.dispatchEvent(new Event("searchparams"));
-  }, []);
+  }, [locale, localePrefix]);
 
   // Sync category to URL via pushState (no Next.js navigation = no remount)
   const handleCategoryChange = useCallback((cat: string | null) => {
     setActiveActivityId(null);
-    const href = cat ? `/${cat}` : "/";
+    const href = cat ? `${localePrefix}/${cat}` : `${localePrefix}/`;
     const params = new URLSearchParams(window.location.search);
     params.delete("category");
     params.delete("categories");
@@ -95,7 +108,7 @@ export function BrowsePage({ category: initialCategory }: BrowsePageProps) {
     window.history.pushState(null, "", qs ? `${href}?${qs}` : href);
     window.dispatchEvent(new Event("searchparams"));
     listRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
+  }, [localePrefix]);
 
   const handleTabChange = useCallback((tab: string) => {
     updateParam("tab", tab === "popular" ? undefined : tab);
@@ -117,9 +130,9 @@ export function BrowsePage({ category: initialCategory }: BrowsePageProps) {
     const filterKeys = ["category", "categories", "price", "priceMin", "priceMax", "distance", "time", "times", "groupType", "ageRange", "minRating", "city", "cities"];
     for (const k of filterKeys) params.delete(k);
     const qs = params.toString();
-    window.history.pushState(null, "", qs ? `/?${qs}` : "/");
+    window.history.pushState(null, "", qs ? `${localePrefix}/?${qs}` : `${localePrefix}/`);
     window.dispatchEvent(new Event("searchparams"));
-  }, []);
+  }, [localePrefix]);
 
   const handleNavbarSearch = useCallback((query: string) => {
     updateParam("q", query || undefined);
@@ -165,10 +178,11 @@ export function BrowsePage({ category: initialCategory }: BrowsePageProps) {
     [data]
   );
 
-  // Map shows all matching activities (respects every filter, not just category)
+  // Map shows all matching activities (respects every filter, not just category).
+  // Spread ensures a fresh array reference so the MapView GeoJSON source always re-syncs.
   const mapActivities = useMemo(() => {
     const source = activeTab === "popular" ? PROMOTED_ACTIVITIES : ALL_ACTIVITIES;
-    return applyBrowseFilters(source, filters);
+    return [...applyBrowseFilters(source, filters)];
   }, [activeTab, filters]);
 
   // IntersectionObserver for infinite scroll
@@ -201,10 +215,10 @@ export function BrowsePage({ category: initialCategory }: BrowsePageProps) {
       </Navbar>
 
       <main className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16 pb-24 md:pb-8">
-        <h1 className="text-lg font-semibold text-gray-700">
+        <h1 className="sr-only">
           {currentCategory
-            ? getCategoryLabel(currentCategory) ?? currentCategory
-            : "Znajdź zajęcia blisko siebie"}
+            ? tCat(currentCategory as never)
+            : t("heroTitle")}
         </h1>
 
         {/* 3. Activities + Map with Tabs */}

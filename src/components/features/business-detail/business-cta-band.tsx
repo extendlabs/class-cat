@@ -2,7 +2,7 @@
 
 import { AnimateIn } from "@/components/ui/animate-in";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 export function BusinessCtaBand({ businessName }: { businessName: string }) {
   return (

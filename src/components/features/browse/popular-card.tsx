@@ -1,8 +1,10 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { Star } from "@phosphor-icons/react";
+import { useTranslations } from "next-intl";
+import { translateAgeRange } from "@/lib/translate-activity";
 import type { BrowseActivity } from "@/api/mock-data";
 
 interface PopularCardProps {
@@ -18,6 +20,9 @@ export function PopularCard({
   onHover,
   onLeave,
 }: PopularCardProps) {
+  const t = useTranslations("browse");
+  const tAge = useTranslations("ageRange");
+  const currency = activity.currency ?? "zł";
   return (
     <Link
       href={`/activity/${activity.id}`}
@@ -37,7 +42,7 @@ export function PopularCard({
           />
           {activity.spotsLeft != null && activity.spotsLeft <= 8 && (
             <span className="absolute top-1.5 left-1.5 bg-coral text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md">
-              {activity.spotsLeft} spots left
+              {t("spotsLeft", { count: activity.spotsLeft })}
             </span>
           )}
         </div>
@@ -51,14 +56,14 @@ export function PopularCard({
                 {activity.groupType && (
                   <span className="inline-block px-2 py-0.5 bg-secondary rounded text-xs font-medium text-gray-600">
                     {activity.groupType === "both"
-                      ? "Group & Individual"
+                      ? t("groupAndIndividual")
                       : activity.groupType === "group"
-                        ? "Group"
-                        : "Individual"}
+                        ? t("group")
+                        : t("individual")}
                   </span>
                 )}
                 <span className="inline-block px-2 py-0.5 bg-coral/10 rounded text-xs font-bold text-coral">
-                  {activity.ageRange}
+                  {translateAgeRange(activity.ageRange, tAge)}
                 </span>
               </div>
             </div>
@@ -83,10 +88,10 @@ export function PopularCard({
             </div>
             <span className="text-base font-bold text-gray-900">
               {activity.price === 0 ? (
-                <span className="text-sm font-semibold text-green-600">Free</span>
+                <span className="text-sm font-semibold text-green-600">{t("free")}</span>
               ) : (
                 <>
-                  ${activity.price}<span className="text-xs font-normal text-gray-400">/lesson</span>
+                  {activity.price} {currency}<span className="text-xs font-normal text-gray-400">{t("perLesson")}</span>
                 </>
               )}
             </span>

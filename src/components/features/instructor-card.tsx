@@ -1,7 +1,7 @@
 import { Star } from "@phosphor-icons/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Instructor } from "@/types/activity";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 export function InstructorCard({ instructor }: { instructor: Instructor }) {
   return (

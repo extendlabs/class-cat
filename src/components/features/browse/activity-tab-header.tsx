@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FilterSidebar } from "@/components/features/filter-sidebar";
 import type { BrowseFilters } from "@/api/activities";
@@ -19,12 +20,14 @@ export function ActivityTabHeader({
   onFilterChange,
   onClearFilters,
 }: ActivityTabHeaderProps) {
+  const t = useTranslations("browse");
+
   return (
     <div className="mb-4 flex items-center justify-between gap-4">
       <Tabs value={activeTab} onValueChange={onTabChange}>
         <TabsList>
-          <TabsTrigger value="popular">Popular</TabsTrigger>
-          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="popular">{t("popular")}</TabsTrigger>
+          <TabsTrigger value="all">{t("all")}</TabsTrigger>
         </TabsList>
       </Tabs>
       <FilterSidebar

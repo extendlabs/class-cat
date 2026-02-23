@@ -38,6 +38,7 @@ export interface Activity {
   lng?: number;
   businessId?: string;
   instructorId?: string;
+  currency?: string;
 }
 
 interface SearchFilters {

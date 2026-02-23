@@ -1,10 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { AnimateIn } from "@/components/ui/animate-in";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 export function CtaBand() {
+  const t = useTranslations("activity");
   return (
     <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-24">
       <AnimateIn delay={100}>
@@ -27,24 +29,23 @@ export function CtaBand() {
 
           <div className="relative z-10 text-center">
             <h2 className="text-3xl font-bold text-gray-900 mb-4 tracking-tight">
-              Interested in this class?
+              {t("interestedTitle")}
             </h2>
             <p className="text-gray-600 mb-8 leading-relaxed max-w-lg mx-auto">
-              Send an inquiry to the instructor and they&apos;ll get back to you
-              with available dates, pricing, and any questions you may have.
+              {t("interestedDescription")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 className="bg-coral hover:bg-coral-hover text-white px-10 py-4 rounded-full font-bold shadow-sm shadow-coral/20 transition-all hover:-translate-y-0.5"
                 onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
               >
-                Send Inquiry
+                {t("sendInquiry")}
               </button>
               <Link
                 href="/?tab=all"
                 className="bg-white hover:bg-gray-50 text-gray-900 px-10 py-4 rounded-full font-bold shadow-[var(--shadow-soft)] border border-gray-200 transition-all hover:-translate-y-0.5 text-center"
               >
-                Browse More Classes
+                {t("browseMoreClasses")}
               </Link>
             </div>
           </div>

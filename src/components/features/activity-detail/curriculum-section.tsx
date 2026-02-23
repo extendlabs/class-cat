@@ -1,15 +1,17 @@
+import { useTranslations } from "next-intl";
 import type { CurriculumItem } from "@/types/activity";
 import { AnimateIn } from "@/components/ui/animate-in";
 
 export function CurriculumSection({ curriculum }: { curriculum: CurriculumItem[] }) {
+  const t = useTranslations("activity");
   return (
     <AnimateIn delay={300} className="mt-16">
       <div>
         <span className="uppercase tracking-widest text-coral font-bold text-xs mb-2 block">
-          Program
+          {t("program")}
         </span>
         <h3 className="text-2xl font-bold text-gray-900 mb-8 tracking-tight">
-          Curriculum
+          {t("curriculum")}
         </h3>
         <div className="relative space-y-0">
           {curriculum.map((item, i) => {

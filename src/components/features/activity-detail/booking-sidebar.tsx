@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   Star,
   ShieldCheck,
@@ -10,11 +11,13 @@ import {
 import type { Activity, ActivityDetail } from "@/types/activity";
 import { BRAND_ACCENT } from "@/lib/constants";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 const ACCENT = BRAND_ACCENT;
 
 function RelatedCard({ activity }: { activity: Activity }) {
+  const tCommon = useTranslations("common");
+  const currency = activity.currency ?? "zł";
   return (
     <Link
       href={`/activity/${activity.id}`}
@@ -43,9 +46,9 @@ function RelatedCard({ activity }: { activity: Activity }) {
           </span>
         </div>
         <div className="mt-2 text-sm font-bold text-gray-900">
-          ${activity.priceAmount}
+          {activity.priceAmount} {currency}
           <span className="text-[10px] text-gray-400 font-normal">
-            / session
+            {tCommon("perSession")}
           </span>
         </div>
       </div>
@@ -62,6 +65,9 @@ export function BookingSidebar({
   selectedTime: number;
   onSelectTime: (index: number) => void;
 }) {
+  const t = useTranslations("activity");
+  const tCommon = useTranslations("common");
+  const currency = activity.currency ?? "zł";
   return (
     <div className="sticky top-20 space-y-6">
       {/* Booking Card */}
@@ -69,16 +75,16 @@ export function BookingSidebar({
         <div className="flex justify-between items-start mb-6">
           <div>
             <span className="text-3xl font-bold text-gray-900">
-              ${activity.priceAmount}
+              {activity.priceAmount} {currency}
             </span>
             <span className="text-gray-400 text-sm">
-              {" "}/ session
+              {" "}{tCommon("perSession")}
             </span>
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-coral/8">
             <div className="w-1.5 h-1.5 rounded-full bg-coral animate-pulse" />
             <span className="text-[10px] font-bold uppercase text-coral tracking-wide">
-              Quick Response
+              {t("quickResponse")}
             </span>
           </div>
         </div>
@@ -86,7 +92,7 @@ export function BookingSidebar({
         <div className="space-y-4 mb-6">
           <div>
             <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
-              Preferred Date
+              {t("preferredDate")}
             </span>
             <button className="w-full flex items-center justify-between px-4 py-3 border border-gray-200 rounded-xl hover:border-coral/40 hover:shadow-[var(--shadow-hover)] transition-all group">
               <div className="flex items-center gap-3">
@@ -104,7 +110,7 @@ export function BookingSidebar({
 
           <div>
             <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
-              Preferred Time
+              {t("preferredTime")}
             </span>
             <div className="grid grid-cols-2 gap-2 mb-3">
               {activity.availableTimes.map((time, i) => (
@@ -137,7 +143,7 @@ export function BookingSidebar({
                 />
               </div>
               <span className="text-[11px] font-bold whitespace-nowrap text-coral">
-                {activity.slotsRemaining}/{activity.totalSlots} left
+                {activity.slotsRemaining}/{activity.totalSlots} {tCommon("left")}
               </span>
             </div>
           </div>
@@ -149,12 +155,11 @@ export function BookingSidebar({
             boxShadow: `0 10px 25px -5px ${ACCENT}33`,
           }}
         >
-          Send Inquiry
+          {t("sendInquiry")}
         </button>
 
         <p className="text-center text-[12px] text-gray-400 leading-relaxed mb-6 italic">
-          The instructor will contact you to confirm the booking and
-          payment details.
+          {t("inquiryNote")}
         </p>
 
         <div className="border-t border-gray-100 pt-5">
@@ -163,8 +168,7 @@ export function BookingSidebar({
               <BookOpen size={12} className="text-coral" />
             </div>
             <p className="text-xs text-gray-500 leading-relaxed">
-              Choosing a slot indicates your preferred availability. No
-              payment is required to send this inquiry.
+              {t("noPaymentNote")}
             </p>
           </div>
         </div>
@@ -182,10 +186,10 @@ export function BookingSidebar({
           </div>
           <div>
             <h4 className="font-bold text-sm text-gray-900">
-              ClassCat Guarantee
+              {t("guarantee")}
             </h4>
             <p className="text-[11px] text-gray-500 mt-0.5">
-              We verify every instructor for your peace of mind.
+              {t("guaranteeDescription")}
             </p>
           </div>
         </div>
@@ -195,13 +199,13 @@ export function BookingSidebar({
       <div className="space-y-4">
         <div className="flex items-center justify-between px-1">
           <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider">
-            Similar Activities
+            {t("similarActivities")}
           </h3>
           <Link
             href="/?tab=all"
             className="text-xs font-bold text-coral hover:text-coral-hover transition-colors"
           >
-            View all
+            {tCommon("viewAll")}
           </Link>
         </div>
         <div className="space-y-3">

@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { Heart, X, Trash } from "@phosphor-icons/react";
 import {
   Sheet,
@@ -14,6 +15,7 @@ import {
 import { useLikedActivities } from "@/hooks/use-liked-activities";
 
 export function LikedSidebar({ children }: { children: React.ReactNode }) {
+  const t = useTranslations("liked");
   const { likedItems, removeLike, clearAll } = useLikedActivities();
 
   return (
@@ -25,9 +27,9 @@ export function LikedSidebar({ children }: { children: React.ReactNode }) {
         className="rounded-l-2xl border-l-0 shadow-[-8px_0_12px_-10px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col"
       >
         <SheetHeader>
-          <SheetTitle>Saved Activities</SheetTitle>
+          <SheetTitle>{t("title")}</SheetTitle>
           <SheetDescription>
-            Activities you&apos;ve liked ({likedItems.length})
+            {t("countLabel", { count: likedItems.length })}
           </SheetDescription>
         </SheetHeader>
 
@@ -38,10 +40,10 @@ export function LikedSidebar({ children }: { children: React.ReactNode }) {
                 <Heart size={24} className="text-gray-300" />
               </div>
               <p className="text-sm font-medium text-gray-500">
-                No saved activities yet
+                {t("empty")}
               </p>
               <p className="text-xs text-gray-400 mt-1">
-                Tap the heart icon on any activity to save it here.
+                {t("emptyDescription")}
               </p>
             </div>
           ) : (
@@ -86,7 +88,7 @@ export function LikedSidebar({ children }: { children: React.ReactNode }) {
               className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full bg-coral hover:bg-coral-hover text-white text-sm font-medium transition-all active:scale-[0.98] shadow-sm shadow-coral/20"
             >
               <Trash size={16} weight="bold" />
-              Clear All
+              {t("clearAll")}
             </button>
           </div>
         )}

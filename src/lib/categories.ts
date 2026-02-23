@@ -1,4 +1,4 @@
-const VALID_CATEGORIES = [
+export const VALID_CATEGORIES = [
   "football",
   "music",
   "art",

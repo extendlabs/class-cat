@@ -10,6 +10,7 @@ export interface BrowseActivity {
   rating: number;
   reviewCount: number;
   price: number;
+  currency?: string;
   badge?: string;
   category: string;
   lat: number;
@@ -1024,6 +1025,7 @@ export interface TrendingClass {
   description: string;
   ageRange: string;
   price: number;
+  currency?: string;
 }
 
 export const trendingClasses: TrendingClass[] = [

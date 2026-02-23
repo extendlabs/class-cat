@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import {
   SquaresFour,
   SoccerBall,
@@ -29,29 +30,29 @@ import { cn } from "@/lib/utils";
 
 interface CategoryItem {
   id: string | null;
-  label: string;
+  key: string;
   icon: Icon;
 }
 
 const categoryItems: CategoryItem[] = [
-  { id: null, label: "All", icon: SquaresFour },
-  { id: "football", label: "Football", icon: SoccerBall },
-  { id: "music", label: "Music", icon: MusicNote },
-  { id: "art", label: "Art", icon: PaintBrush },
-  { id: "coding", label: "Coding", icon: Code },
-  { id: "yoga", label: "Yoga", icon: Person },
-  { id: "chess", label: "Chess", icon: PuzzlePiece },
-  { id: "cooking", label: "Cooking", icon: CookingPot },
-  { id: "swimming", label: "Swimming", icon: SwimmingPool },
-  { id: "drama", label: "Drama", icon: MaskHappy },
-  { id: "tennis", label: "Tennis", icon: TennisBall },
-  { id: "photo", label: "Photo", icon: Camera },
-  { id: "science", label: "Science", icon: Flask },
-  { id: "fitness", label: "Fitness", icon: Barbell },
-  { id: "cycling", label: "Cycling", icon: Bicycle },
-  { id: "gardening", label: "Gardening", icon: Flower },
-  { id: "reading", label: "Reading", icon: BookOpen },
-  { id: "wellness", label: "Wellness", icon: Heartbeat },
+  { id: null, key: "all", icon: SquaresFour },
+  { id: "football", key: "football", icon: SoccerBall },
+  { id: "music", key: "music", icon: MusicNote },
+  { id: "art", key: "art", icon: PaintBrush },
+  { id: "coding", key: "coding", icon: Code },
+  { id: "yoga", key: "yoga", icon: Person },
+  { id: "chess", key: "chess", icon: PuzzlePiece },
+  { id: "cooking", key: "cooking", icon: CookingPot },
+  { id: "swimming", key: "swimming", icon: SwimmingPool },
+  { id: "drama", key: "drama", icon: MaskHappy },
+  { id: "tennis", key: "tennis", icon: TennisBall },
+  { id: "photo", key: "photo", icon: Camera },
+  { id: "science", key: "science", icon: Flask },
+  { id: "fitness", key: "fitness", icon: Barbell },
+  { id: "cycling", key: "cycling", icon: Bicycle },
+  { id: "gardening", key: "gardening", icon: Flower },
+  { id: "reading", key: "reading", icon: BookOpen },
+  { id: "wellness", key: "wellness", icon: Heartbeat },
 ];
 
 interface CategoryBarProps {
@@ -65,6 +66,7 @@ export function CategoryBar({ activeCategory, onCategoryChange, linkMode, embedd
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const t = useTranslations("categories");
 
   const checkScroll = () => {
     const el = scrollRef.current;
@@ -125,6 +127,7 @@ export function CategoryBar({ activeCategory, onCategoryChange, linkMode, embedd
           {categoryItems.map((cat) => {
             const isActive = cat.id === activeCategory;
             const IconComp = cat.icon;
+            const label = t(cat.key as never);
 
             const content = (
               <div className="relative flex flex-col items-center gap-1 px-4 py-2 group/cat">
@@ -153,7 +156,7 @@ export function CategoryBar({ activeCategory, onCategoryChange, linkMode, embedd
                       : "font-medium text-gray-700 group-hover/cat:text-coral"
                   )}
                 >
-                  {cat.label}
+                  {label}
                 </span>
 
                 {/* Active indicator bar */}

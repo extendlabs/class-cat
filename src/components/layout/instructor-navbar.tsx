@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, useRouter } from "@/i18n/navigation";
 import { List, Bell, ChatCircle, SignOut, ArrowsLeftRight } from "@phosphor-icons/react";
 import { NotificationSidebar } from "@/components/features/notification-sidebar";
 import { ChatSidebar } from "@/components/features/chat-sidebar";
@@ -22,6 +22,9 @@ interface InstructorNavbarProps {
 export function InstructorNavbar({ onToggleSidebar }: InstructorNavbarProps) {
   const router = useRouter();
   const { user, logout } = useAuth();
+  const t = useTranslations("instructorNavbar");
+  const tCommon = useTranslations("common");
+  const tNav = useTranslations("nav");
 
   const handleLogout = async () => {
     await logout();
@@ -49,7 +52,7 @@ export function InstructorNavbar({ onToggleSidebar }: InstructorNavbarProps) {
                 ClassCat
               </span>
               <span className="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full hidden sm:block">
-                Instructor
+                {t("instructor")}
               </span>
             </Link>
           </div>
@@ -58,7 +61,7 @@ export function InstructorNavbar({ onToggleSidebar }: InstructorNavbarProps) {
           <div className="flex items-center gap-1">
             <NotificationSidebar>
               <button
-                aria-label="Notifications"
+                aria-label={tNav("messages")}
                 className="w-9 h-9 flex items-center justify-center rounded-full text-gray-500 hover:text-coral hover:bg-coral/5 transition-all"
               >
                 <Bell size={20} />
@@ -67,7 +70,7 @@ export function InstructorNavbar({ onToggleSidebar }: InstructorNavbarProps) {
 
             <ChatSidebar>
               <button
-                aria-label="Messages"
+                aria-label={tNav("messages")}
                 className="w-9 h-9 flex items-center justify-center rounded-full text-gray-500 hover:text-coral hover:bg-coral/5 transition-all"
               >
                 <ChatCircle size={20} />
@@ -78,7 +81,7 @@ export function InstructorNavbar({ onToggleSidebar }: InstructorNavbarProps) {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
-                    aria-label="Open menu"
+                    aria-label={tNav("openMenu")}
                     className="w-9 h-9 rounded-full overflow-hidden hover:ring-2 hover:ring-coral/20 transition-all ml-1"
                   >
                     <Avatar className="size-9">
@@ -102,14 +105,14 @@ export function InstructorNavbar({ onToggleSidebar }: InstructorNavbarProps) {
                   <DropdownMenuItem asChild>
                     <Link href="/profile" className="cursor-pointer">
                       <ArrowsLeftRight size={16} />
-                      Switch to Consumer
+                      {t("switchToConsumer")}
                     </Link>
                   </DropdownMenuItem>
                   {user.businessId && (
                     <DropdownMenuItem asChild>
                       <Link href="/profile/business" className="cursor-pointer">
                         <ArrowsLeftRight size={16} />
-                        Switch to Business
+                        {t("switchToBusiness")}
                       </Link>
                     </DropdownMenuItem>
                   )}
@@ -119,7 +122,7 @@ export function InstructorNavbar({ onToggleSidebar }: InstructorNavbarProps) {
                     className="cursor-pointer text-red-600 focus:text-red-600"
                   >
                     <SignOut size={16} />
-                    Sign out
+                    {tCommon("signOut")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

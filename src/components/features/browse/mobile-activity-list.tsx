@@ -1,6 +1,7 @@
 "use client";
 
 import { MapTrifold, SpinnerGap } from "@phosphor-icons/react";
+import { useTranslations } from "next-intl";
 import { AnimateIn } from "@/components/ui/animate-in";
 import { MapView } from "@/components/features/map-view";
 import { PopularCard } from "@/components/features/browse/popular-card";
@@ -34,6 +35,7 @@ export function MobileActivityLayout({
   isFetchingNextPage,
   sentinelRef,
 }: MobileActivityLayoutProps) {
+  const t = useTranslations("browse");
   return (
     <div className="lg:hidden">
       <div className="mb-4 flex justify-end">
@@ -42,7 +44,7 @@ export function MobileActivityLayout({
           className="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 text-sm font-medium text-gray-600 hover:text-coral hover:border-coral/30 transition-colors"
         >
           <MapTrifold size={18} />
-          {showMobileMap ? "Hide Map" : "View Map"}
+          {showMobileMap ? t("hideMap") : t("viewMap")}
         </button>
       </div>
       {showMobileMap && (

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, useRouter } from "@/i18n/navigation";
 import {
   MagnifyingGlass,
   UserCircle,
@@ -19,6 +19,7 @@ import { useLikedActivities } from "@/hooks/use-liked-activities";
 import { useAuth } from "@/hooks/use-auth";
 import { LikedSidebar } from "@/components/features/liked-sidebar";
 import { ChatSidebar } from "@/components/features/chat-sidebar";
+import { LanguageSwitcher } from "@/components/features/language-switcher";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,7 +32,6 @@ import {
   AvatarImage,
   AvatarFallback,
 } from "@/components/ui/avatar";
-import Image from "next/image";
 
 interface NavbarProps {
   children?: React.ReactNode;
@@ -40,6 +40,8 @@ interface NavbarProps {
 
 export function Navbar({ children, onSearch }: NavbarProps) {
   const router = useRouter();
+  const t = useTranslations("nav");
+  const tCommon = useTranslations("common");
   const [query, setQuery] = useState("");
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const { likedItems } = useLikedActivities();
@@ -97,12 +99,12 @@ export function Navbar({ children, onSearch }: NavbarProps) {
                 value={query}
                 onChange={(e) => handleQueryChange(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Search classes, activities, instructors..."
+                placeholder={t("searchPlaceholder")}
                 className="flex-1 text-sm text-gray-700 placeholder:text-gray-400 bg-transparent outline-none min-w-0"
               />
               <button
                 onClick={handleSearch}
-                aria-label="Search"
+                aria-label={tCommon("search")}
                 className="ml-2 w-8 h-8 bg-coral hover:bg-coral-hover text-white rounded-full flex items-center justify-center flex-shrink-0 shadow-sm shadow-coral/20 transition-all duration-200 active:scale-95"
               >
                 <MagnifyingGlass size={15} weight="bold" />
@@ -115,7 +117,7 @@ export function Navbar({ children, onSearch }: NavbarProps) {
             {/* Mobile search button */}
             <button
               onClick={() => router.push("/")}
-              aria-label="Search"
+              aria-label={tCommon("search")}
               className="md:hidden w-9 h-9 flex items-center justify-center rounded-full text-gray-500 hover:text-coral hover:bg-coral/5 transition-all"
             >
               <MagnifyingGlass size={20} />
@@ -124,7 +126,7 @@ export function Navbar({ children, onSearch }: NavbarProps) {
             {/* Liked activities */}
             <LikedSidebar>
               <button
-                aria-label="Saved activities"
+                aria-label={t("savedActivities")}
                 className="relative w-9 h-9 flex items-center justify-center rounded-full text-gray-500 hover:text-coral hover:bg-coral/5 transition-all"
               >
                 <Heart size={20} />
@@ -136,13 +138,15 @@ export function Navbar({ children, onSearch }: NavbarProps) {
               </button>
             </LikedSidebar>
 
+            <LanguageSwitcher />
+
             {/* Auth */}
             {isAuthenticated && user ? (
               <>
                 {/* Chat button */}
                 <ChatSidebar>
                   <button
-                    aria-label="Messages"
+                    aria-label={t("messages")}
                     className="w-9 h-9 flex items-center justify-center rounded-full text-gray-500 hover:text-coral hover:bg-coral/5 transition-all"
                   >
                     <ChatCircle size={20} />
@@ -152,7 +156,7 @@ export function Navbar({ children, onSearch }: NavbarProps) {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button
-                      aria-label="Open menu"
+                      aria-label={t("openMenu")}
                       className="w-9 h-9 rounded-full overflow-hidden hover:ring-2 hover:ring-coral/20 transition-all"
                     >
                       <Avatar className="size-9">
@@ -178,21 +182,21 @@ export function Navbar({ children, onSearch }: NavbarProps) {
                     <DropdownMenuItem asChild>
                       <Link href="/profile" className="cursor-pointer">
                         <GearSix size={16} />
-                        Dashboard
+                        {t("dashboard")}
                       </Link>
                     </DropdownMenuItem>
                     {user.businessId ? (
                       <DropdownMenuItem asChild>
                         <Link href="/profile/business" className="cursor-pointer">
                           <Buildings size={16} />
-                          Business Portal
+                          {t("businessPortal")}
                         </Link>
                       </DropdownMenuItem>
                     ) : (
                       <DropdownMenuItem asChild>
                         <Link href="/onboarding/business" className="cursor-pointer">
                           <Storefront size={16} />
-                          List Your Business
+                          {t("listYourBusiness")}
                         </Link>
                       </DropdownMenuItem>
                     )}
@@ -200,7 +204,7 @@ export function Navbar({ children, onSearch }: NavbarProps) {
                       <DropdownMenuItem asChild>
                         <Link href="/profile/instructor" className="cursor-pointer">
                           <GraduationCap size={16} />
-                          Instructor Portal
+                          {t("instructorPortal")}
                         </Link>
                       </DropdownMenuItem>
                     )}
@@ -210,7 +214,7 @@ export function Navbar({ children, onSearch }: NavbarProps) {
                       className="cursor-pointer text-red-600 focus:text-red-600"
                     >
                       <SignOut size={16} />
-                      Sign out
+                      {tCommon("signOut")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -221,7 +225,7 @@ export function Navbar({ children, onSearch }: NavbarProps) {
                 className="h-9 px-4 inline-flex items-center gap-1.5 rounded-full bg-coral text-white text-sm font-medium hover:bg-coral-hover transition-colors shadow-sm shadow-coral/20 active:scale-95"
               >
                 <UserCircle size={18} weight="bold" />
-                <span className="hidden sm:inline">Sign In</span>
+                <span className="hidden sm:inline">{t("signIn")}</span>
               </Link>
             )}
           </div>

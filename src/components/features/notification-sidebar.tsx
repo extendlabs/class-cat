@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Bell,
   CalendarBlank,
@@ -39,17 +40,18 @@ const ICON_COLOR: Record<BusinessNotification["type"], string> = {
   promotion: "text-coral bg-coral/10",
 };
 
-function relativeTime(timestamp: string) {
+function relativeTime(timestamp: string, t: ReturnType<typeof useTranslations>) {
   const diff = Date.now() - new Date(timestamp).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 60) return t("minutesAgo", { count: mins });
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
+  if (hrs < 24) return t("hoursAgo", { count: hrs });
   const days = Math.floor(hrs / 24);
-  return `${days}d ago`;
+  return t("daysAgo", { count: days });
 }
 
 export function NotificationSidebar({ children }: { children: React.ReactNode }) {
+  const t = useTranslations("notifications");
   const [notifications, setNotifications] = useState<BusinessNotification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -93,21 +95,23 @@ export function NotificationSidebar({ children }: { children: React.ReactNode })
         <div className="flex flex-col h-full">
           <SheetHeader className="p-4 pb-0">
             <div className="flex items-center justify-between">
-              <SheetTitle>Notifications</SheetTitle>
+              <SheetTitle>{t("title")}</SheetTitle>
               {unreadCount > 0 && (
                 <button
                   onClick={handleMarkAllRead}
                   className="text-xs font-medium text-coral hover:text-coral-hover transition-colors flex items-center gap-1"
                 >
                   <CheckCircle size={14} />
-                  Mark all read
+                  {t("markAllRead")}
                 </button>
               )}
             </div>
             <SheetDescription>
               {unreadCount > 0
-                ? `${unreadCount} unread notification${unreadCount > 1 ? "s" : ""}`
-                : "All caught up!"}
+                ? unreadCount > 1
+                  ? t("unreadMany", { count: unreadCount })
+                  : t("unreadOne")
+                : t("allCaughtUp")}
             </SheetDescription>
           </SheetHeader>
 
@@ -118,7 +122,7 @@ export function NotificationSidebar({ children }: { children: React.ReactNode })
                   <Bell size={24} className="text-gray-300" />
                 </div>
                 <p className="text-sm font-medium text-gray-500">
-                  No notifications yet
+                  {t("empty")}
                 </p>
               </div>
             ) : (
@@ -154,7 +158,7 @@ export function NotificationSidebar({ children }: { children: React.ReactNode })
                             <span className="w-2 h-2 rounded-full bg-coral" />
                           )}
                           <span className="text-[10px] text-gray-400">
-                            {relativeTime(notification.timestamp)}
+                            {relativeTime(notification.timestamp, t)}
                           </span>
                         </div>
                       </div>

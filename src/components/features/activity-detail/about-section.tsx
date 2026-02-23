@@ -1,16 +1,18 @@
+import { useTranslations } from "next-intl";
 import { Lightbulb, Package } from "@phosphor-icons/react";
 import type { ActivityDetail } from "@/types/activity";
 import { AnimateIn } from "@/components/ui/animate-in";
 
 export function AboutSection({ activity }: { activity: ActivityDetail }) {
+  const t = useTranslations("activity");
   return (
     <AnimateIn delay={100} className="mt-16">
       <div>
         <span className="uppercase tracking-widest text-coral font-bold text-xs mb-2 block">
-          Overview
+          {t("overview")}
         </span>
         <h3 className="text-2xl font-bold text-gray-900 mb-4 tracking-tight">
-          About this class
+          {t("aboutThisClass")}
         </h3>
         <p className="text-gray-600 leading-relaxed mb-8">
           {activity.description}
@@ -22,7 +24,7 @@ export function AboutSection({ activity }: { activity: ActivityDetail }) {
             </div>
             <div>
               <p className="font-bold text-sm text-gray-900">
-                Skill Level
+                {t("skillLevel")}
               </p>
               <p className="text-xs text-gray-500 mt-0.5">
                 {activity.skillLevel}
@@ -35,7 +37,7 @@ export function AboutSection({ activity }: { activity: ActivityDetail }) {
             </div>
             <div>
               <p className="font-bold text-sm text-gray-900">
-                Materials Included
+                {t("materialsIncluded")}
               </p>
               <p className="text-xs text-gray-500 mt-0.5">
                 {activity.materialsIncluded}

@@ -38,7 +38,7 @@ export function ActivityListItem({
               {activity.title}
             </p>
             <p className="text-xs text-gray-400 mt-0.5">
-              ${activity.priceAmount ?? 0}
+              {activity.priceAmount ?? 0} {activity.currency ?? "zł"}
             </p>
           </div>
         </div>

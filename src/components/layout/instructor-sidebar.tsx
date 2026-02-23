@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Link, usePathname } from "@/i18n/navigation";
 import {
   ChartLineUp,
   User,
@@ -10,15 +10,22 @@ import {
   Clock,
   GearSix,
 } from "@phosphor-icons/react";
+import type { Icon } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
-const NAV_ITEMS = [
-  { href: "/profile/instructor/dashboard", icon: ChartLineUp, label: "Dashboard" },
-  { href: "/profile/instructor", icon: User, label: "Profile" },
-  { href: "/profile/instructor/classes", icon: CalendarBlank, label: "My Classes" },
-  { href: "/profile/instructor/reviews", icon: Star, label: "Reviews" },
-  { href: "/profile/instructor/schedule", icon: Clock, label: "Schedule" },
-  { href: "/profile/instructor/settings", icon: GearSix, label: "Settings" },
+interface NavItem {
+  href: string;
+  icon: Icon;
+  key: "dashboard" | "profile" | "myClasses" | "reviews" | "schedule" | "settings";
+}
+
+const NAV_ITEMS: NavItem[] = [
+  { href: "/profile/instructor/dashboard", icon: ChartLineUp, key: "dashboard" },
+  { href: "/profile/instructor", icon: User, key: "profile" },
+  { href: "/profile/instructor/classes", icon: CalendarBlank, key: "myClasses" },
+  { href: "/profile/instructor/reviews", icon: Star, key: "reviews" },
+  { href: "/profile/instructor/schedule", icon: Clock, key: "schedule" },
+  { href: "/profile/instructor/settings", icon: GearSix, key: "settings" },
 ];
 
 interface InstructorSidebarProps {
@@ -27,6 +34,7 @@ interface InstructorSidebarProps {
 
 export function InstructorSidebar({ collapsed }: InstructorSidebarProps) {
   const pathname = usePathname();
+  const t = useTranslations("instructorSidebar");
 
   return (
     <aside
@@ -58,7 +66,7 @@ export function InstructorSidebar({ collapsed }: InstructorSidebarProps) {
                 weight={isActive ? "fill" : "regular"}
                 className="flex-shrink-0"
               />
-              {!collapsed && <span>{item.label}</span>}
+              {!collapsed && <span>{t(item.key)}</span>}
             </Link>
           );
         })}
@@ -75,6 +83,7 @@ export function InstructorSidebarMobile({
   onClose: () => void;
 }) {
   const pathname = usePathname();
+  const t = useTranslations("instructorSidebar");
 
   if (!open) return null;
 
@@ -110,7 +119,7 @@ export function InstructorSidebarMobile({
                   weight={isActive ? "fill" : "regular"}
                   className="flex-shrink-0"
                 />
-                <span>{item.label}</span>
+                <span>{t(item.key)}</span>
               </Link>
             );
           })}

@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import {
   Star,
@@ -6,9 +9,11 @@ import {
   Users,
   ShieldCheck,
 } from "@phosphor-icons/react";
+import { translateAgeRange } from "@/lib/translate-activity";
 import type { ActivityDetail } from "@/types/activity";
 
 export function ActivityHeader({ activity }: { activity: ActivityDetail }) {
+  const tAge = useTranslations("ageRange");
   return (
     <div>
       <div className="flex flex-wrap items-center gap-3 mb-4">
@@ -49,7 +54,7 @@ export function ActivityHeader({ activity }: { activity: ActivityDetail }) {
         </div>
         <div className="flex items-center gap-1.5 bg-secondary px-3 py-1.5 rounded-full text-sm text-gray-700">
           <Users size={14} className="text-gray-700" />
-          <span className="font-medium">{activity.ageRange}</span>
+          <span className="font-medium">{translateAgeRange(activity.ageRange, tAge)}</span>
         </div>
         <div className="flex items-center gap-1.5 bg-secondary px-3 py-1.5 rounded-full text-sm text-gray-700">
           <Clock size={14} className="text-gray-700" />

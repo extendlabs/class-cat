@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { ArrowLeft, ArrowRight, Check } from "@phosphor-icons/react";
 import { OnboardingStepIndicator } from "./onboarding-step-indicator";
 import { Button } from "@/components/ui/button";
@@ -16,8 +17,6 @@ import {
 } from "./onboarding";
 import type { BusinessCategory, BusinessOnboardingData } from "@/types/business-portal";
 
-const STEPS = ["Category", "Company", "Address", "Map", "Hours", "Team"];
-
 const DEFAULT_HOURS = [
   { day: "Monday", open: "08:00", close: "18:00", closed: false },
   { day: "Tuesday", open: "08:00", close: "18:00", closed: false },
@@ -30,6 +29,8 @@ const DEFAULT_HOURS = [
 
 export function OnboardingWizard() {
   const router = useRouter();
+  const t = useTranslations("onboarding");
+  const tCommon = useTranslations("common");
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [data, setData] = useState<BusinessOnboardingData>({
@@ -47,21 +48,30 @@ export function OnboardingWizard() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const STEPS = [
+    t("steps.category"),
+    t("steps.company"),
+    t("steps.address"),
+    t("steps.map"),
+    t("steps.hours"),
+    t("steps.team"),
+  ];
+
   const validateStep = (): boolean => {
     const errs: Record<string, string> = {};
 
     if (step === 0 && !data.category) {
-      errs.category = "Please select a category";
+      errs.category = t("validation.selectCategory");
     }
     if (step === 1) {
-      if (!data.companyName.trim()) errs.companyName = "Required";
-      if (!data.ownerFirstName.trim()) errs.ownerFirstName = "Required";
-      if (!data.ownerLastName.trim()) errs.ownerLastName = "Required";
-      if (!data.phone.trim()) errs.phone = "Required";
-      if (!data.acceptedPrivacy) errs.acceptedPrivacy = "You must accept privacy policy";
+      if (!data.companyName.trim()) errs.companyName = t("validation.required");
+      if (!data.ownerFirstName.trim()) errs.ownerFirstName = t("validation.required");
+      if (!data.ownerLastName.trim()) errs.ownerLastName = t("validation.required");
+      if (!data.phone.trim()) errs.phone = t("validation.required");
+      if (!data.acceptedPrivacy) errs.acceptedPrivacy = t("validation.acceptPolicy");
     }
     if (step === 2 && !data.address.trim()) {
-      errs.address = "Please enter an address";
+      errs.address = t("validation.enterAddress");
     }
 
     setErrors(errs);
@@ -146,7 +156,7 @@ export function OnboardingWizard() {
           disabled={step === 0}
         >
           <ArrowLeft size={14} />
-          Back
+          {tCommon("back")}
         </Button>
 
         <div className="flex gap-3">
@@ -157,7 +167,7 @@ export function OnboardingWizard() {
               onClick={handleSubmit}
               disabled={submitting}
             >
-              Skip & Finish
+              {t("skipAndFinish")}
             </Button>
           )}
           <Button
@@ -166,15 +176,15 @@ export function OnboardingWizard() {
             disabled={submitting}
           >
             {submitting ? (
-              "Creating..."
+              t("creating")
             ) : isLastStep ? (
               <>
                 <Check size={14} weight="bold" />
-                Complete Setup
+                {t("completeSetup")}
               </>
             ) : (
               <>
-                Next
+                {tCommon("next")}
                 <ArrowRight size={14} />
               </>
             )}

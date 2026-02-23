@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { ChatCircle, ArrowLeft, Plus } from "@phosphor-icons/react";
 import {
   Sheet,
@@ -29,6 +30,7 @@ import {
 } from "./chat";
 
 export function ChatSidebar({ children }: { children: React.ReactNode }) {
+  const t = useTranslations("chat");
   const [state, dispatch] = useChatReducer();
   const { contacts, activeChat, messages, newMessage, isOpen, view, searchQuery, newChatQuery, newChatResults } = state;
 
@@ -122,9 +124,9 @@ export function ChatSidebar({ children }: { children: React.ReactNode }) {
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-gray-50/50">
               {messages.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <p className="text-sm text-gray-400">No messages yet</p>
+                  <p className="text-sm text-gray-400">{t("noMessages")}</p>
                   <p className="text-xs text-gray-400 mt-1">
-                    Say hello to start the conversation!
+                    {t("sayHello")}
                   </p>
                 </div>
               )}
@@ -153,22 +155,22 @@ export function ChatSidebar({ children }: { children: React.ReactNode }) {
                 <ArrowLeft size={18} weight="bold" />
               </button>
               <p className="text-sm font-semibold text-gray-900">
-                New Conversation
+                {t("newConversation")}
               </p>
             </div>
 
             <SearchInput
               value={newChatQuery}
               onChange={(v) => dispatch({ type: "SET_NEW_CHAT_QUERY", query: v })}
-              placeholder="Search places or instructors..."
+              placeholder={t("searchPlacesOrInstructors")}
             />
 
             <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-2">
               {newChatResults.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <p className="text-sm text-gray-500">No results found</p>
+                  <p className="text-sm text-gray-500">{t("noResults")}</p>
                   <p className="text-xs text-gray-400 mt-1">
-                    Try a different search term.
+                    {t("tryDifferentSearch")}
                   </p>
                 </div>
               ) : (
@@ -185,12 +187,12 @@ export function ChatSidebar({ children }: { children: React.ReactNode }) {
         ) : (
           <div className="flex flex-col h-full">
             <SheetHeader className="p-4 pb-0">
-              <SheetTitle>Messages</SheetTitle>
+              <SheetTitle>{t("title")}</SheetTitle>
               <SheetDescription>
-                Your conversations ({contacts.length})
+                {t("conversationsCount", { count: contacts.length })}
                 {totalUnread > 0 && (
                   <span className="ml-1.5 text-coral font-medium">
-                    &middot; {totalUnread} unread
+                    &middot; {totalUnread} {t("unread")}
                   </span>
                 )}
               </SheetDescription>
@@ -199,7 +201,7 @@ export function ChatSidebar({ children }: { children: React.ReactNode }) {
             <SearchInput
               value={searchQuery}
               onChange={(v) => dispatch({ type: "SET_SEARCH_QUERY", query: v })}
-              placeholder="Search conversations..."
+              placeholder={t("searchConversations")}
             />
 
             <div className="flex-1 overflow-y-auto px-4 pb-3 space-y-2">
@@ -209,17 +211,17 @@ export function ChatSidebar({ children }: { children: React.ReactNode }) {
                     <ChatCircle size={24} className="text-gray-300" />
                   </div>
                   <p className="text-sm font-medium text-gray-500">
-                    No messages yet
+                    {t("noMessages")}
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
-                    Start a conversation with a place or instructor.
+                    {t("startConversation")}
                   </p>
                 </div>
               ) : filteredContacts.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <p className="text-sm text-gray-500">No conversations found</p>
+                  <p className="text-sm text-gray-500">{t("noConversationsFound")}</p>
                   <p className="text-xs text-gray-400 mt-1">
-                    Try a different search term.
+                    {t("tryDifferentSearch")}
                   </p>
                 </div>
               ) : (
@@ -243,7 +245,7 @@ export function ChatSidebar({ children }: { children: React.ReactNode }) {
                 className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full bg-coral hover:bg-coral-hover text-white text-sm font-medium transition-all active:scale-[0.98] shadow-sm shadow-coral/20"
               >
                 <Plus size={16} weight="bold" />
-                New Conversation
+                {t("newConversation")}
               </button>
             </div>
           </div>
