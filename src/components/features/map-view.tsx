@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import {
   MapPin,
   Plus,
@@ -158,21 +158,33 @@ function setupSourceAndLayers(map: MaplibreMap, data: GeoJSON.FeatureCollection<
   });
 
   map.addLayer({
+    id: "clusters-count-bg",
+    type: "circle",
+    source: "activities",
+    filter: ["has", "point_count"],
+    paint: {
+      "circle-color": buildClusterColorExpr() as never,
+      "circle-radius": 9,
+      "circle-stroke-width": 2,
+      "circle-stroke-color": "#ffffff",
+      "circle-translate": [11, -11],
+    },
+  });
+
+  map.addLayer({
     id: "clusters-count",
     type: "symbol",
     source: "activities",
     filter: ["has", "point_count"],
     layout: {
       "text-field": ["get", "point_count_abbreviated"],
-      "text-size": 10,
+      "text-size": 11,
       "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
       "text-allow-overlap": true,
-      "text-offset": [0.8, -0.8],
+      "text-offset": [1, -1],
     },
     paint: {
       "text-color": "#ffffff",
-      "text-halo-color": buildClusterColorExpr() as never,
-      "text-halo-width": 5,
     },
   });
 
@@ -256,121 +268,129 @@ export function MapView({ activities, activeId, onMarkerClick }: MapViewProps) {
   useEffect(() => { activeIdRef.current = activeId; }, [activeId]);
   useEffect(() => { onMarkerClickRef.current = onMarkerClick; }, [onMarkerClick]);
 
-  const initMap = useCallback(async () => {
-    if (!mapContainerRef.current) return;
+  // Initialise MapLibre — uses a `cancelled` flag so that React Strict Mode's
+  // unmount-then-remount cycle cannot leave mapRef.current orphaned / null.
+  useEffect(() => {
+    let cancelled = false;
+    let localMap: MaplibreMap | null = null;
 
-    try {
-      const maplibreModule = await import("maplibre-gl");
-      const { Map: MapClass, Marker: MarkerCls, Popup: PopupCls } = maplibreModule;
-      markerClassRef.current = MarkerCls;
-      popupClassRef.current = PopupCls;
+    (async () => {
+      if (!mapContainerRef.current) return;
 
-      const map = new MapClass({
-        container: mapContainerRef.current,
-        style: "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
-        center: [19.5, 52.0],
-        zoom: 6,
-        minZoom: 5,
-        attributionControl: false,
-      });
+      try {
+        const maplibreModule = await import("maplibre-gl");
+        if (cancelled) return;
 
-      mapRef.current = map;
+        const { Map: MapClass, Marker: MarkerCls, Popup: PopupCls } = maplibreModule;
+        markerClassRef.current = MarkerCls;
+        popupClassRef.current = PopupCls;
 
-      map.on("load", () => {
-        setMapLoaded(true);
+        const map = new MapClass({
+          container: mapContainerRef.current,
+          style: "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
+          center: [19.5, 52.0],
+          zoom: 6,
+          minZoom: 5,
+          attributionControl: false,
+        });
 
-        registerCategoryIcons(map);
+        localMap = map;
+        mapRef.current = map;
 
-        setupSourceAndLayers(map, featureCollectionRef.current);
-        sourceReadyRef.current = true;
-      });
+        map.on("load", () => {
+          if (cancelled) return;
+          setMapLoaded(true);
 
-      const CLUSTER_LAYERS = ["clusters-circle", "clusters-icon"];
-      for (const clusterLayer of CLUSTER_LAYERS) {
-        map.on("click", clusterLayer, (e: MapLayerMouseEvent) => {
-          const features = map.queryRenderedFeatures(e.point, { layers: CLUSTER_LAYERS });
-          if (!features.length) return;
-          const feature = features[0];
-          const clusterId = feature.properties?.cluster_id;
-          if (clusterId == null) return;
+          registerCategoryIcons(map);
 
-          const source = map.getSource("activities") as GeoJSONSource;
-          source.getClusterExpansionZoom(clusterId).then((zoom) => {
-            const coords = (feature.geometry as GeoJSON.Point).coordinates;
-            map.flyTo({ center: [coords[0], coords[1]], zoom, duration: 500 });
+          setupSourceAndLayers(map, featureCollectionRef.current);
+          sourceReadyRef.current = true;
+        });
+
+        const CLUSTER_LAYERS = ["clusters-circle", "clusters-icon", "clusters-count-bg"];
+        for (const clusterLayer of CLUSTER_LAYERS) {
+          map.on("click", clusterLayer, (e: MapLayerMouseEvent) => {
+            const features = map.queryRenderedFeatures(e.point, { layers: CLUSTER_LAYERS });
+            if (!features.length) return;
+            const feature = features[0];
+            const clusterId = feature.properties?.cluster_id;
+            if (clusterId == null) return;
+
+            const source = map.getSource("activities") as GeoJSONSource;
+            source.getClusterExpansionZoom(clusterId).then((zoom) => {
+              const coords = (feature.geometry as GeoJSON.Point).coordinates;
+              map.flyTo({ center: [coords[0], coords[1]], zoom, duration: 500 });
+            });
           });
-        });
+        }
+
+        for (const layerId of MARKER_LAYERS) {
+          map.on("click", layerId, (e: MapLayerMouseEvent) => {
+            const features = map.queryRenderedFeatures(e.point, { layers: [layerId] });
+            if (!features.length) return;
+            const props = features[0].properties;
+            if (!props) return;
+
+            const activity: BrowseActivity = {
+              id: String(props.id),
+              title: String(props.title),
+              image: String(props.image),
+              location: String(props.location),
+              address: String(props.address),
+              distance: String(props.distance),
+              ageRange: String(props.ageRange),
+              rating: Number(props.rating),
+              reviewCount: Number(props.reviewCount),
+              price: Number(props.price),
+              badge: props.badge ? String(props.badge) : undefined,
+              category: String(props.category),
+              lat: Number(props.lat),
+              lng: Number(props.lng),
+              isPromoted: Number(props.isPromoted) === 1,
+              groupType: props.groupType ? String(props.groupType) as BrowseActivity["groupType"] : undefined,
+            };
+
+            popupRef.current?.remove();
+            const popup = new PopupCls({
+              closeButton: true, closeOnClick: true,
+              offset: 14, className: "cf-popup-container", maxWidth: "280px",
+            })
+              .setLngLat([activity.lng, activity.lat])
+              .setHTML(createPopupHTML(activity))
+              .addTo(map);
+            popupRef.current = popup;
+
+            onMarkerClickRef.current?.(activity.id);
+          });
+        }
+
+        const interactiveLayers = ["clusters-circle", "clusters-icon", "clusters-count-bg", ...MARKER_LAYERS];
+        for (const layerId of interactiveLayers) {
+          map.on("mouseenter", layerId, () => { map.getCanvas().style.cursor = "pointer"; });
+          map.on("mouseleave", layerId, () => { map.getCanvas().style.cursor = ""; });
+        }
+
+        map.on("error", () => setMapError(true));
+      } catch {
+        if (!cancelled) setMapError(true);
       }
-
-      for (const layerId of MARKER_LAYERS) {
-        map.on("click", layerId, (e: MapLayerMouseEvent) => {
-          const features = map.queryRenderedFeatures(e.point, { layers: [layerId] });
-          if (!features.length) return;
-          const props = features[0].properties;
-          if (!props) return;
-
-          const activity: BrowseActivity = {
-            id: String(props.id),
-            title: String(props.title),
-            image: String(props.image),
-            location: String(props.location),
-            address: String(props.address),
-            distance: String(props.distance),
-            ageRange: String(props.ageRange),
-            rating: Number(props.rating),
-            reviewCount: Number(props.reviewCount),
-            price: Number(props.price),
-            badge: props.badge ? String(props.badge) : undefined,
-            category: String(props.category),
-            lat: Number(props.lat),
-            lng: Number(props.lng),
-            isPromoted: Number(props.isPromoted) === 1,
-            groupType: props.groupType ? String(props.groupType) as BrowseActivity["groupType"] : undefined,
-          };
-
-          popupRef.current?.remove();
-          const popup = new PopupCls({
-            closeButton: true, closeOnClick: true,
-            offset: 14, className: "cf-popup-container", maxWidth: "280px",
-          })
-            .setLngLat([activity.lng, activity.lat])
-            .setHTML(createPopupHTML(activity))
-            .addTo(map);
-          popupRef.current = popup;
-
-          onMarkerClickRef.current?.(activity.id);
-        });
-      }
-
-      const interactiveLayers = ["clusters-circle", "clusters-icon", ...MARKER_LAYERS];
-      for (const layerId of interactiveLayers) {
-        map.on("mouseenter", layerId, () => { map.getCanvas().style.cursor = "pointer"; });
-        map.on("mouseleave", layerId, () => { map.getCanvas().style.cursor = ""; });
-      }
-
-      map.on("error", () => setMapError(true));
-    } catch {
-      setMapError(true);
-    }
+    })();
 
     return () => {
+      cancelled = true;
       activeMarkerRef.current?.remove();
       activeMarkerRef.current = null;
       popupRef.current?.remove();
       popupRef.current = null;
       sourceReadyRef.current = false;
-      mapRef.current?.remove();
-      mapRef.current = null;
+      if (localMap) {
+        localMap.remove();
+        if (mapRef.current === localMap) mapRef.current = null;
+      }
     };
   }, []);
 
-  useEffect(() => {
-    const cleanup = initMap();
-    return () => { cleanup?.then((fn) => fn?.()); };
-  }, [initMap]);
-
-  // Re-run when featureCollection changes OR when mapLoaded flips to true
-  // (catches updates that were skipped while the source wasn't ready yet).
+  // Sync GeoJSON source whenever the filtered data or map readiness changes.
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !sourceReadyRef.current) return;

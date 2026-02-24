@@ -1,5 +1,6 @@
 export type BusinessPageState = {
   activeCategory: string;
+  activeSection: "activities" | "courts";
   galleryOpen: boolean;
   galleryIndex: number;
   visibleReviewCount: number;
@@ -8,6 +9,7 @@ export type BusinessPageState = {
 
 export type BusinessPageAction =
   | { type: "SET_CATEGORY"; category: string }
+  | { type: "SET_SECTION"; section: "activities" | "courts" }
   | { type: "OPEN_GALLERY"; index: number }
   | { type: "CLOSE_GALLERY" }
   | { type: "SET_GALLERY_INDEX"; index: number }

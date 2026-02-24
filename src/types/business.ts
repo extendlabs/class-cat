@@ -1,4 +1,5 @@
 import type { Activity, Instructor, Review, RatingDistribution, GalleryImage } from "./activity";
+import type { Court } from "./court";
 
 export interface BusinessHours {
   day: string;
@@ -47,4 +48,5 @@ export interface Business {
   ratingDistribution: RatingDistribution[];
   gallery: GalleryImage[];
   locations?: BusinessLocation[];
+  courts?: Court[];
 }

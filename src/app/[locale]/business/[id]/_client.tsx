@@ -18,7 +18,9 @@ import {
   BusinessInfoSidebar,
   BusinessReviews,
   BusinessCtaBand,
+  BusinessCourts,
 } from "@/components/features/business-detail";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageLoadingSkeleton } from "@/components/features/page-loading-skeleton";
 import { businessPageReducer, initialState } from "@/hooks/use-business-page-reducer";
 import { useReducer } from "react";
@@ -28,6 +30,7 @@ export default function BusinessPage({ id }: { id: string }) {
   const t = useTranslations("metadata");
   const tActivity = useTranslations("activity");
   const tCommon = useTranslations("common");
+  const tCourts = useTranslations("courts");
   const router = useRouter();
   const [state, dispatch] = useReducer(businessPageReducer, initialState);
 
@@ -99,11 +102,39 @@ export default function BusinessPage({ id }: { id: string }) {
           <div className="lg:col-span-8">
             <BusinessHeader business={business} />
             <BusinessAbout business={business} />
-            <BusinessActivities
-              activities={business.activities}
-              activeCategory={state.activeCategory}
-              onSetCategory={(category) => dispatch({ type: "SET_CATEGORY", category })}
-            />
+            {business.courts && business.courts.length > 0 ? (
+              <Tabs
+                value={state.activeSection}
+                onValueChange={(v) =>
+                  dispatch({ type: "SET_SECTION", section: v as "activities" | "courts" })
+                }
+                className="mt-16"
+              >
+                <TabsList>
+                  <TabsTrigger value="activities">
+                    {tActivity("overview")}
+                  </TabsTrigger>
+                  <TabsTrigger value="courts">
+                    {tCourts("businessCourtsTitle")}
+                  </TabsTrigger>
+                </TabsList>
+                {state.activeSection === "activities" ? (
+                  <BusinessActivities
+                    activities={business.activities}
+                    activeCategory={state.activeCategory}
+                    onSetCategory={(category) => dispatch({ type: "SET_CATEGORY", category })}
+                  />
+                ) : (
+                  <BusinessCourts courts={business.courts} />
+                )}
+              </Tabs>
+            ) : (
+              <BusinessActivities
+                activities={business.activities}
+                activeCategory={state.activeCategory}
+                onSetCategory={(category) => dispatch({ type: "SET_CATEGORY", category })}
+              />
+            )}
             <BusinessInstructors instructors={business.instructors} />
           </div>
 

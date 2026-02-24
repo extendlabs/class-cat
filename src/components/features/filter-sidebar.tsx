@@ -48,7 +48,7 @@ function FilterPill({
         "rounded-full px-3.5 py-1.5 text-sm font-medium transition-all border cursor-pointer",
         active
           ? "bg-coral text-white border-coral shadow-sm"
-          : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+          : "bg-white text-gray-600 border-gray-200 hover:border-coral/30 hover:text-coral hover:bg-coral/5"
       )}
     >
       {label}
@@ -183,7 +183,7 @@ export function FilterSidebar({ filters, onFilterChange, onClear, activeCount }:
       <SheetTrigger asChild>
         <button
           type="button"
-          className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium border border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50 transition-all cursor-pointer"
+          className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium border border-gray-200 bg-white hover:border-coral/30 hover:text-coral hover:bg-coral/5 transition-all cursor-pointer"
         >
           <Faders size={18} className="text-gray-600" />
           <span className="text-gray-700">{t("title")}</span>

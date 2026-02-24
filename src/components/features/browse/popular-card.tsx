@@ -2,9 +2,10 @@
 
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
-import { Star } from "@phosphor-icons/react";
+import { Star, Heart } from "@phosphor-icons/react";
 import { useTranslations } from "next-intl";
 import { translateAgeRange } from "@/lib/translate-activity";
+import { useLikedActivities } from "@/hooks/use-liked-activities";
 import type { BrowseActivity } from "@/api/mock-data";
 
 interface PopularCardProps {
@@ -23,6 +24,8 @@ export function PopularCard({
   const t = useTranslations("browse");
   const tAge = useTranslations("ageRange");
   const currency = activity.currency ?? "zł";
+  const { toggleLike, isLiked } = useLikedActivities();
+  const liked = isLiked(activity.id);
   return (
     <Link
       href={`/activity/${activity.id}`}
@@ -65,6 +68,21 @@ export function PopularCard({
                 <span className="inline-block px-2 py-0.5 bg-coral/10 rounded text-xs font-bold text-coral">
                   {translateAgeRange(activity.ageRange, tAge)}
                 </span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleLike({ id: activity.id, title: activity.title, image: activity.image });
+                  }}
+                  className="-mr-1 flex items-center justify-center transition-all hover:scale-110"
+                >
+                  <Heart
+                    size={16}
+                    weight={liked ? "fill" : "regular"}
+                    className="text-coral transition-colors"
+                  />
+                </button>
               </div>
             </div>
             {activity.provider && (

@@ -7,6 +7,8 @@ export function businessPageReducer(
   switch (action.type) {
     case "SET_CATEGORY":
       return { ...state, activeCategory: action.category };
+    case "SET_SECTION":
+      return { ...state, activeSection: action.section };
     case "OPEN_GALLERY":
       return { ...state, galleryOpen: true, galleryIndex: action.index };
     case "CLOSE_GALLERY":
@@ -24,6 +26,7 @@ export function businessPageReducer(
 
 export const initialState: BusinessPageState = {
   activeCategory: "all",
+  activeSection: "activities",
   galleryOpen: false,
   galleryIndex: 0,
   visibleReviewCount: 3,

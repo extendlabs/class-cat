@@ -7,3 +7,4 @@ export { BusinessInstructors } from "./business-instructors";
 export { BusinessInfoSidebar } from "./business-info-sidebar";
 export { BusinessReviews } from "./business-reviews";
 export { BusinessCtaBand } from "./business-cta-band";
+export { BusinessCourts } from "./business-courts";

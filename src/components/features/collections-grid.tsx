@@ -23,6 +23,7 @@ interface CollectionCard {
   classCount: number;
   icon: Icon;
   accent: string;
+  ageRange: string;
 }
 
 const collections: CollectionCard[] = [
@@ -33,6 +34,7 @@ const collections: CollectionCard[] = [
     classCount: 124,
     icon: Baby,
     accent: "from-amber-400 to-orange-400",
+    ageRange: "0-6",
     image:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuDVLt_uh2VcKJ8dF5pT18GVwNuYx0WzynBhUQKUDKdJghuiEds4kcBekazB945Q5yxPhqMP_23Ssc1nDH026clTGMrYx1RAbxxIy2Z277LgJdIZGHKXMibsilAT4gMefX8zN321qX8DWBV32la6KDm7iizwBNEFuXiIkc8BCgDaKjwgXU5vFQK-osyt7jucFvTmg4JRauLmjVg08iqp79Q3q_9TTfysOMDxvntNlpwYqA76ExFO4pRIF1zBbpaGbHr4iwj-qLAm28kH",
   },
@@ -43,6 +45,7 @@ const collections: CollectionCard[] = [
     classCount: 98,
     icon: Backpack,
     accent: "from-coral to-coral-hover",
+    ageRange: "12-18",
     image:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuAIs3--FhNP-np2Mn2wiayZ87ctqrTTo_Hm8VX_PST0Albw4jdBFfhWVvjDE_RDNBadVm0vc4Kt6ps_e9gvsqz28sq8f9gBWN1wBjZVUAeoQosKpATmnRMJtSWjEtYpp6vhZJPcje1uwOX306Wx3GZkMjixoRd6TpWhF6klD3-lWd0qu7SdwOgiBOPRRMY2GwNFKgbQPE4qS_CEl7fT7m8TzS0RS55upUczPmBWCYOTtewgY6u4lSmlqE5uVCbxm4JZQYZt3AAFSmyD",
   },
@@ -53,6 +56,7 @@ const collections: CollectionCard[] = [
     classCount: 76,
     icon: Users,
     accent: "from-teal-400 to-emerald-400",
+    ageRange: "all",
     image:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuAtpg4bmnzXbxm5HLEtGV2VP8NPdG33pgs5EaVxXCrhNRz8faVuWR66-klwan5Z8kD395GXXvRRuU2O3Nn74esQjOr9OEDofKdQW9QOZN7r2R7gSD6DmZ4EDCJK5O-APLieBhuD50sOj17Rlh0iPIeYbmcl1z7PuBrMmBgEDftQz2Jtr_Nj-7zj608ZLba5PbKnxB4AcZqZlzVSZ0jhOClyUy1tTu1mYjqA3n2ifI6VkEnkuXe80mRVzN_LfHiw4-1pEWec3S3JdZI_",
   },
@@ -63,6 +67,7 @@ const collections: CollectionCard[] = [
     classCount: 215,
     icon: Briefcase,
     accent: "from-violet-400 to-indigo-400",
+    ageRange: "18+",
     image:
       "https://lh3.googleusercontent.com/aida-public/AB6AXuA8CKbRjPR2edcwnQeqyYLcKNLg9QKI7TST6mV-MabhrEtdwg-2iUoE2_P2ou2BlYQsXN3yC1wN2UAkZiTB892AAmLY48KMhS8eGyNz_sEAaK6a_XO9tKdPsx1nkxvWtpE1ho2ujYyMFXV5Ts0kXrf_o_ff-xW4vW5XQTiGfjwcMeNJKfm0kR4bFbU771X5dykq6DGb0F7V4YFrd8KoLWiGlGwrqhMOwZBFM8YLg5wGju2E-VGPW_X604DGh2h-A25yCJfDC7ygt6BN",
   },
@@ -72,7 +77,7 @@ function CollectionCardItem({ col, className, t, tCommon }: { col: CollectionCar
   const Icon = col.icon;
   return (
     <Link
-      href="/?tab=all"
+      href={`/?tab=all&ageRange=${col.ageRange}`}
       className={`group relative overflow-hidden rounded-2xl bg-white border border-gray-100 shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-hover)] transition-all duration-300 flex flex-col ${className ?? ""}`}
     >
       {/* Image */}

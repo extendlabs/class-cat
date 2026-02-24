@@ -127,7 +127,8 @@
     "cycling": "Kolarstwo",
     "gardening": "Ogrodnictwo",
     "reading": "Czytanie",
-    "wellness": "Wellness"
+    "wellness": "Wellness",
+    "courts": "Korty"
   },
   "browse": {
     "heroTitle": "Znajdź zajęcia blisko siebie",
@@ -155,7 +156,9 @@
     "group": "Grupowe",
     "individual": "Indywidualne",
     "viewMap": "Pokaż mapę",
-    "hideMap": "Ukryj mapę"
+    "hideMap": "Ukryj mapę",
+    "courts": "Korty",
+    "activitiesLink": "Zajęcia"
   },
   "ageRange": {
     "adults": "Dorośli",
@@ -818,6 +821,48 @@
     "changesText": "Możemy aktualizować niniejszy regulamin od czasu do czasu. Dalsze korzystanie z ClassCat po zmianach oznacza akceptację zaktualizowanego regulaminu.",
     "contactTitle": "Kontakt",
     "contactText": "Jeśli masz pytania dotyczące niniejszego Regulaminu, skontaktuj się z nami pod adresem hello@classcat.pl."
+  },
+  "courts": {
+    "pageTitle": "Korty",
+    "pageDescription": "Przeglądaj i rezerwuj korty sportowe w Twojej okolicy. Tenis, padel, badminton, squash i więcej.",
+    "allSports": "Wszystkie",
+    "sport": {
+      "tennis": "Tenis",
+      "padel": "Padel",
+      "badminton": "Badminton",
+      "squash": "Squash",
+      "basketball": "Koszykówka",
+      "volleyball": "Siatkówka",
+      "futsal": "Futsal"
+    },
+    "surface": {
+      "clay": "Mączka",
+      "hard": "Twarda",
+      "grass": "Trawa",
+      "synthetic": "Syntetyczna",
+      "parquet": "Parkiet",
+      "rubber": "Guma"
+    },
+    "surfaceLabel": "Nawierzchnia",
+    "indoorOutdoor": "Hala / Zewnętrzny",
+    "indoor": "Hala",
+    "outdoor": "Zewnętrzny",
+    "all": "Wszystkie",
+    "perHour": "/godz",
+    "selectedHours": "{count} godz. wybrano",
+    "reserve": "Zarezerwuj",
+    "reservationSummary": "Podsumowanie rezerwacji",
+    "confirmDetails": "Sprawdź szczegóły rezerwacji",
+    "priceBreakdown": "Szczegóły ceny",
+    "total": "Suma",
+    "confirmReservation": "Potwierdź rezerwację",
+    "confirming": "Potwierdzanie...",
+    "durationHours": "{count} godz.",
+    "reservationSuccess": "Rezerwacja potwierdzona! Do zobaczenia na korcie.",
+    "reservationError": "Coś poszło nie tak. Spróbuj ponownie.",
+    "businessCourtsTitle": "Korty",
+    "businessCourtsCount": "{count} kortów",
+    "noCourts": "Brak dostępnych kortów."
   },
   "notFound": {
     "title": "Nie znaleziono strony",

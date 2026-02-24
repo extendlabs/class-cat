@@ -1,4 +1,5 @@
 import type { Business } from "@/types/business";
+import { MOCK_COURTS } from "@/api/mock-courts";
 
 const MOCK_BUSINESSES: Record<string, Business> = {
   "biz-1": {
@@ -295,6 +296,7 @@ const MOCK_BUSINESSES: Record<string, Business> = {
         caption: "Energia Społeczności",
       },
     ],
+    courts: MOCK_COURTS.filter((c) => c.businessId === "biz-1"),
   },
   "biz-2": {
     id: "biz-2",

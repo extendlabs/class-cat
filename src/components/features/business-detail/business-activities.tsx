@@ -45,7 +45,7 @@ export function BusinessActivities({
                 className={`px-4 py-2 rounded-full text-sm font-bold capitalize whitespace-nowrap transition-all ${
                   activeCategory === cat
                     ? "bg-coral text-white shadow-sm"
-                    : "bg-white text-gray-600 border border-gray-200 hover:border-coral/30"
+                    : "bg-white text-gray-600 border border-gray-200 hover:border-coral/30 hover:text-coral hover:bg-coral/5"
                 }`}
               >
                 {cat === "all" ? "All" : cat}

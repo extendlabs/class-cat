@@ -127,7 +127,8 @@
     "cycling": "Cycling",
     "gardening": "Gardening",
     "reading": "Reading",
-    "wellness": "Wellness"
+    "wellness": "Wellness",
+    "courts": "Courts"
   },
   "browse": {
     "heroTitle": "Find classes near you",
@@ -155,7 +156,9 @@
     "group": "Group",
     "individual": "Individual",
     "viewMap": "View Map",
-    "hideMap": "Hide Map"
+    "hideMap": "Hide Map",
+    "courts": "Courts",
+    "activitiesLink": "Activities"
   },
   "ageRange": {
     "adults": "Adults",
@@ -818,6 +821,48 @@
     "changesText": "We may update these terms from time to time. Continued use of ClassCat after changes constitutes acceptance of the updated terms.",
     "contactTitle": "Contact",
     "contactText": "If you have questions about these Terms of Service, please contact us at hello@classcat.pl."
+  },
+  "courts": {
+    "pageTitle": "Courts",
+    "pageDescription": "Browse and book sports courts near you. Tennis, padel, badminton, squash and more.",
+    "allSports": "All",
+    "sport": {
+      "tennis": "Tennis",
+      "padel": "Padel",
+      "badminton": "Badminton",
+      "squash": "Squash",
+      "basketball": "Basketball",
+      "volleyball": "Volleyball",
+      "futsal": "Futsal"
+    },
+    "surface": {
+      "clay": "Clay",
+      "hard": "Hard",
+      "grass": "Grass",
+      "synthetic": "Synthetic",
+      "parquet": "Parquet",
+      "rubber": "Rubber"
+    },
+    "surfaceLabel": "Surface",
+    "indoorOutdoor": "Indoor / Outdoor",
+    "indoor": "Indoor",
+    "outdoor": "Outdoor",
+    "all": "All",
+    "perHour": "/hr",
+    "selectedHours": "{count}h selected",
+    "reserve": "Reserve",
+    "reservationSummary": "Reservation Summary",
+    "confirmDetails": "Review your booking details",
+    "priceBreakdown": "Price Breakdown",
+    "total": "Total",
+    "confirmReservation": "Confirm Reservation",
+    "confirming": "Confirming...",
+    "durationHours": "{count} hour(s)",
+    "reservationSuccess": "Reservation confirmed! See you on the court.",
+    "reservationError": "Something went wrong. Please try again.",
+    "businessCourtsTitle": "Courts",
+    "businessCourtsCount": "{count} courts",
+    "noCourts": "No courts available."
   },
   "notFound": {
     "title": "Page Not Found",
