@@ -13,6 +13,7 @@ export async function generateMetadata({
   params: Promise<{ category: string; locale: string }>;
 }): Promise<Metadata> {
   const { category, locale } = await params;
+  if (!isValidCategory(category)) return {};
   const t = await getTranslations({ locale, namespace: "metadata" });
   const tCat = await getTranslations({ locale, namespace: "categories" });
   const label = tCat(category as never);

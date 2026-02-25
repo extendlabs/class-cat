@@ -1,3 +1,5 @@
+export type CourtStatus = "active" | "inactive" | "maintenance";
+
 export type CourtSport =
   | "tennis"
   | "padel"
@@ -33,6 +35,8 @@ export interface Court {
   businessName: string;
   amenities: string[];
   operatingHours: { day: string; open: string; close: string }[];
+  courtCount?: number; // how many physical courts of this type (default 1)
+  status?: CourtStatus;
   isPromoted?: boolean;
 }
 
@@ -40,8 +44,18 @@ export interface TimeSlotAvailability {
   courtId: string;
   date: string; // ISO date string (YYYY-MM-DD)
   hour: number; // 0-23
-  available: boolean;
+  available: boolean; // true if at least 1 court free (consumer view)
   price?: number;
+  availableCount?: number; // how many courts free this slot (business view)
+  totalCount?: number; // total courts of this type
+  bookedCount?: number; // reserved by customers
+  closed?: boolean; // outside operating hours / closed day
+}
+
+export interface CourtSlotDetail {
+  courtIndex: number; // 1-based (e.g. "Court 1")
+  status: "available" | "booked" | "blocked";
+  bookedBy?: string;
 }
 
 export interface CourtReservation {

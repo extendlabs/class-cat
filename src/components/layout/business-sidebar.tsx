@@ -6,6 +6,7 @@ import {
   ChartLineUp,
   SquaresFour,
   CalendarBlank,
+  GridFour,
   Megaphone,
   GearSix,
 } from "@phosphor-icons/react";
@@ -15,13 +16,14 @@ import { cn } from "@/lib/utils";
 interface NavItem {
   href: string;
   icon: Icon;
-  key: "dashboard" | "profile" | "activities" | "promotions" | "settings";
+  key: "dashboard" | "profile" | "activities" | "courts" | "promotions" | "settings";
 }
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/profile/business/dashboard", icon: ChartLineUp, key: "dashboard" },
   { href: "/profile/business", icon: SquaresFour, key: "profile" },
   { href: "/profile/business/activities", icon: CalendarBlank, key: "activities" },
+  { href: "/profile/business/courts", icon: GridFour, key: "courts" },
   { href: "/profile/business/marketing", icon: Megaphone, key: "promotions" },
   { href: "/profile/business/settings", icon: GearSix, key: "settings" },
 ];

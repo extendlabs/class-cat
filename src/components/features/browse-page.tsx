@@ -18,6 +18,7 @@ import {
   DesktopActivityList,
   MobileActivityLayout,
 } from "@/components/features/browse";
+import { isValidCategory } from "@/lib/categories";
 import { trendingClasses, ALL_ACTIVITIES, PROMOTED_ACTIVITIES } from "@/api/mock-data";
 import { fetchActivities, fetchPopularActivities, applyBrowseFilters } from "@/api/activities";
 import type { BrowseFilters } from "@/api/activities";
@@ -44,7 +45,7 @@ export function BrowsePage({ category: initialCategory }: BrowsePageProps) {
     if (locale !== "en" && path.startsWith(locale)) {
       path = path.slice(locale.length).replace(/^\//, "");
     }
-    return path || null;
+    return path && isValidCategory(path) ? path : null;
   // searchParams is included to re-derive when any URL change fires
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, initialCategory, locale]);

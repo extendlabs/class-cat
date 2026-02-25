@@ -1,5 +1,6 @@
 import type { BookingStatus } from "@/types/user";
 import type { BusinessActivityStatus } from "@/types/business-portal";
+import type { CourtStatus } from "@/types/court";
 
 export const BOOKING_STATUS_STYLES: Record<BookingStatus, string> = {
   confirmed: "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -12,4 +13,10 @@ export const ACTIVITY_STATUS_STYLES: Record<BusinessActivityStatus, string> = {
   active: "bg-emerald-50 text-emerald-700 border-emerald-200",
   draft: "bg-gray-100 text-gray-600 border-gray-200",
   paused: "bg-amber-50 text-amber-700 border-amber-200",
+};
+
+export const COURT_STATUS_STYLES: Record<CourtStatus, string> = {
+  active: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  inactive: "bg-gray-100 text-gray-600 border-gray-200",
+  maintenance: "bg-amber-50 text-amber-700 border-amber-200",
 };

@@ -289,6 +289,7 @@ export function generateWeekSlots(
 
   const slots: TimeSlotAvailability[] = [];
   const startDate = new Date(weekStart);
+  const total = court.courtCount ?? 1;
 
   // Seeded-ish random based on courtId + date for consistent results
   const seed =
@@ -314,12 +315,19 @@ export function generateWeekSlots(
           ? Math.round(court.pricePerHour * 1.1)
           : court.pricePerHour;
 
+      // Simulate bookings: random number of courts booked
+      const booked = Math.floor(random() * (total + 1));
+      const avail = total - booked;
+
       slots.push({
         courtId,
         date: dateStr,
         hour,
-        available: random() < 0.7,
+        available: avail > 0,
         price,
+        availableCount: avail,
+        totalCount: total,
+        bookedCount: booked,
       });
     }
   }
