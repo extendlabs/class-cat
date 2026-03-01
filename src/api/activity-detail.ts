@@ -1,4 +1,7 @@
 import type { ActivityDetail } from "@/types/activity";
+import { MOCK_COHORTS } from "./enrollments";
+
+import type { Review, RatingDistribution } from "@/types/activity";
 
 const MOCK_ACTIVITY_DETAIL: ActivityDetail = {
   id: "act-7",
@@ -232,13 +235,65 @@ const MOCK_ACTIVITY_DETAIL: ActivityDetail = {
   nextDate: "Sobota, 26 paź",
 };
 
+// Mutable reviews store keyed by activity id
+const reviewsStore: Record<string, Review[]> = {};
+
+function getReviews(activityId: string): Review[] {
+  if (!reviewsStore[activityId]) {
+    reviewsStore[activityId] = [...MOCK_ACTIVITY_DETAIL.reviews];
+  }
+  return reviewsStore[activityId];
+}
+
+function recalcRating(reviews: Review[]): { rating: number; reviewCount: number; ratingDistribution: RatingDistribution[] } {
+  const reviewCount = reviews.length;
+  const rating = reviewCount > 0 ? Math.round((reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount) * 10) / 10 : 0;
+  const counts = [0, 0, 0, 0, 0]; // index 0 = 1 star
+  for (const r of reviews) counts[Math.min(Math.max(Math.floor(r.rating), 1), 5) - 1]++;
+  const ratingDistribution: RatingDistribution[] = [5, 4, 3, 2, 1].map((stars) => ({
+    stars,
+    percentage: reviewCount > 0 ? Math.round((counts[stars - 1] / reviewCount) * 100) : 0,
+  }));
+  return { rating, reviewCount, ratingDistribution };
+}
+
+export async function submitActivityReview(
+  activityId: string,
+  review: { rating: number; text: string; authorName: string; authorInitials: string }
+): Promise<Review> {
+  await new Promise((resolve) => setTimeout(resolve, 400));
+  const reviews = getReviews(activityId);
+  const newReview: Review = {
+    id: `r-${Date.now()}`,
+    authorName: review.authorName,
+    authorInitials: review.authorInitials,
+    date: new Date().toLocaleDateString("pl-PL", { day: "numeric", month: "long", year: "numeric" }),
+    rating: review.rating,
+    text: review.text,
+  };
+  reviews.unshift(newReview);
+  return newReview;
+}
+
 export async function getActivityById(
   id: string
 ): Promise<ActivityDetail | null> {
   await new Promise((resolve) => setTimeout(resolve, 600));
+  const cohorts = MOCK_COHORTS.filter((c) => c.activityId === (id === MOCK_ACTIVITY_DETAIL.id ? MOCK_ACTIVITY_DETAIL.id : id));
+  const reviews = getReviews(id);
+  const { rating, reviewCount, ratingDistribution } = recalcRating(reviews);
+  const detail = {
+    ...MOCK_ACTIVITY_DETAIL,
+    reviews,
+    rating,
+    reviewCount,
+    ratingDistribution,
+    cohorts: cohorts.length > 0 ? cohorts : MOCK_COHORTS.filter((c) => c.activityId === "act-7"),
+  };
+
   if (id === "act-7" || id === MOCK_ACTIVITY_DETAIL.id) {
-    return MOCK_ACTIVITY_DETAIL;
+    return detail;
   }
   // Return the same data with the requested id for demo purposes
-  return { ...MOCK_ACTIVITY_DETAIL, id };
+  return { ...detail, id };
 }

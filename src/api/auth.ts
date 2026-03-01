@@ -31,6 +31,51 @@ const TEST_INSTRUCTOR: UserProfile = {
   instructorId: "inst-6",
 };
 
+const TEST_CONSUMER: UserProfile = {
+  id: "user-consumer-1",
+  name: "Jan Nowicki",
+  email: "user@classcat.com",
+  phone: "+48 500 123 456",
+  location: "Kraków",
+  avatar:
+    "https://images.unsplash.com/photo-1599566150163-29194dcabd9c?w=200&h=200&fit=crop&crop=face",
+  memberSince: "2025-01-10",
+  totalBookings: 5,
+};
+
+const TEST_DUAL_USER: UserProfile = {
+  id: "user-dual-1",
+  name: "Marta Kowalczyk",
+  email: "dual@classcat.com",
+  phone: "+48 600 333 444",
+  location: "Kraków",
+  avatar:
+    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face",
+  memberSince: "2022-11-01",
+  totalBookings: 12,
+  instructorId: "inst-1",
+  isBusinessInstructor: true,
+};
+
+/** Read the current user from localStorage (for mock API filtering). */
+export function getCurrentUser(): UserProfile | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const stored = localStorage.getItem("classcat-auth");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return parsed.user ?? null;
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
+export function getCurrentUserId(): string {
+  return getCurrentUser()?.id ?? "user-1";
+}
+
 export async function mockLogin(
   email: string,
   password: string
@@ -51,6 +96,20 @@ export async function mockLogin(
     };
   }
 
+  if (email === "user@classcat.com" && password === "password123") {
+    return {
+      user: TEST_CONSUMER,
+      token: "mock-jwt-token-consumer-123",
+    };
+  }
+
+  if (email === "dual@classcat.com" && password === "password123") {
+    return {
+      user: TEST_DUAL_USER,
+      token: "mock-jwt-token-dual-123",
+    };
+  }
+
   throw new Error("Invalid email or password");
 }
 
@@ -61,7 +120,7 @@ export async function mockSignUp(
 ): Promise<AuthResponse> {
   await new Promise((resolve) => setTimeout(resolve, 600));
 
-  if (email === "test@classcat.com" || email === "instructor@classcat.com") {
+  if (email === "test@classcat.com" || email === "instructor@classcat.com" || email === "user@classcat.com" || email === "dual@classcat.com") {
     throw new Error("An account with this email already exists");
   }
 
@@ -93,12 +152,14 @@ export async function mockLookupUserByEmail(
 
   if (email === "test@classcat.com") return TEST_USER;
   if (email === "instructor@classcat.com") return TEST_INSTRUCTOR;
+  if (email === "user@classcat.com") return TEST_CONSUMER;
+  if (email === "dual@classcat.com") return TEST_DUAL_USER;
   return null;
 }
 
 export async function mockInviteAsInstructor(
   userId: string,
-  businessId: string
+  _businessId: string
 ): Promise<UserProfile> {
   await new Promise((resolve) => setTimeout(resolve, 400));
 
@@ -113,7 +174,7 @@ export async function mockInviteAsInstructor(
 export async function mockCreateInstructorAccount(
   name: string,
   email: string,
-  businessId: string
+  _businessId: string
 ): Promise<UserProfile> {
   await new Promise((resolve) => setTimeout(resolve, 400));
 

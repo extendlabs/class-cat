@@ -4,6 +4,7 @@ export type CourtsPageState = {
   selectedSlots: { date: string; hour: number }[];
   showReservationSummary: boolean;
   weekOffset: number;
+  selectedCourtIndex: number | null;
 };
 
 export type CourtsPageAction =
@@ -12,4 +13,5 @@ export type CourtsPageAction =
   | { type: "TOGGLE_SLOT"; date: string; hour: number }
   | { type: "CLEAR_SLOTS" }
   | { type: "SHOW_RESERVATION_SUMMARY"; show: boolean }
-  | { type: "SET_WEEK_OFFSET"; offset: number };
+  | { type: "SET_WEEK_OFFSET"; offset: number }
+  | { type: "SET_COURT_INDEX"; courtIndex: number | null };

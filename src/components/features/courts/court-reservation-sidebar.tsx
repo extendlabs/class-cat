@@ -10,6 +10,13 @@ import {
   SheetDescription,
   SheetFooter,
 } from "@/components/ui/sheet";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { Court, TimeSlotAvailability } from "@/types/court";
 
 interface CourtReservationSidebarProps {
@@ -20,6 +27,10 @@ interface CourtReservationSidebarProps {
   slotMap: Map<string, TimeSlotAvailability>;
   onConfirm: () => void;
   isConfirming?: boolean;
+  availableCourtIndices?: number[];
+  selectedCourtIndex: number | null;
+  onCourtIndexChange: (index: number | null) => void;
+  totalCourts: number;
 }
 
 function formatDateLong(dateStr: string): string {
@@ -40,6 +51,10 @@ export function CourtReservationSidebar({
   slotMap,
   onConfirm,
   isConfirming,
+  availableCourtIndices,
+  selectedCourtIndex,
+  onCourtIndexChange,
+  totalCourts,
 }: CourtReservationSidebarProps) {
   const t = useTranslations("courts");
 
@@ -82,6 +97,33 @@ export function CourtReservationSidebar({
               </span>
             </div>
           </div>
+
+          {/* Court preference */}
+          {totalCourts > 1 && (
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                {t("courtPreference")}
+              </label>
+              <Select
+                value={selectedCourtIndex == null ? "any" : String(selectedCourtIndex)}
+                onValueChange={(v) => onCourtIndexChange(v === "any" ? null : Number(v))}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">{t("anyAvailable")}</SelectItem>
+                  {(availableCourtIndices ?? Array.from({ length: totalCourts }, (_, i) => i + 1)).map(
+                    (idx) => (
+                      <SelectItem key={idx} value={String(idx)}>
+                        {t("courtN", { n: idx })}
+                      </SelectItem>
+                    )
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Details */}
           <div className="space-y-4">

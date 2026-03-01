@@ -4,8 +4,9 @@ import {
   createContext,
   useContext,
   useState,
-  useEffect,
   useCallback,
+  useEffect,
+  useRef,
   type ReactNode,
 } from "react";
 import { createElement } from "react";
@@ -26,39 +27,42 @@ interface AuthContextValue {
   login: (email: string, password: string) => Promise<void>;
   signup: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (updates: Partial<UserProfile>) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AuthState>({ user: null, token: null });
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Hydrate from localStorage on mount
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored) as AuthState;
-        if (parsed.user && parsed.token) {
-          setState(parsed);
-        }
-      }
-    } catch {
-      // ignore corrupted storage
+function readAuthStorage(): AuthState {
+  if (typeof window === "undefined") return { user: null, token: null };
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored) as AuthState;
+      if (parsed.user && parsed.token) return parsed;
     }
-    setIsLoading(false);
-  }, []);
+  } catch {
+    // ignore corrupted storage
+  }
+  return { user: null, token: null };
+}
 
-  // Persist to localStorage on change
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [state, setState] = useState<AuthState>(readAuthStorage);
+  const isLoading = false;
+  const initialRender = useRef(true);
+
+  // Persist to localStorage on change (skip first render)
   useEffect(() => {
-    if (isLoading) return;
+    if (initialRender.current) {
+      initialRender.current = false;
+      return;
+    }
     if (state.user) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } else {
       localStorage.removeItem(STORAGE_KEY);
     }
-  }, [state, isLoading]);
+  }, [state]);
 
   const login = useCallback(async (email: string, password: string) => {
     const { user, token } = await mockLogin(email, password);
@@ -78,6 +82,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState({ user: null, token: null });
   }, []);
 
+  const updateUser = useCallback((updates: Partial<UserProfile>) => {
+    setState((prev) => ({
+      ...prev,
+      user: prev.user ? { ...prev.user, ...updates } : null,
+    }));
+  }, []);
+
   return createElement(
     AuthContext.Provider,
     {
@@ -88,6 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         signup,
         logout,
+        updateUser,
       },
     },
     children

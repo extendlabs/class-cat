@@ -15,7 +15,7 @@ export function InstructorCard({
 }: {
   instructor: InstructorType;
   instructorId: string;
-  businessId: string;
+  businessId?: string;
 }) {
   return (
     <AnimateIn delay={400} className="mt-16">
@@ -68,12 +68,14 @@ export function InstructorCard({
             >
               View Full Profile <CaretRight size={16} />
             </Link>
-            <Link
-              href={`/business/${businessId}`}
-              className="text-sm font-bold transition-colors flex items-center gap-1 text-gray-500 hover:text-gray-700"
-            >
-              Visit Studio <CaretRight size={16} />
-            </Link>
+            {businessId && (
+              <Link
+                href={`/business/${businessId}`}
+                className="text-sm font-bold transition-colors flex items-center gap-1 text-gray-500 hover:text-gray-700"
+              >
+                Visit Studio <CaretRight size={16} />
+              </Link>
+            )}
           </div>
         </div>
       </div>

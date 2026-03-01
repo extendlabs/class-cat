@@ -20,7 +20,11 @@ import { CATEGORIES } from "@/lib/activity-form-schema";
 import type { TabFieldsProps } from "@/lib/activity-form-schema";
 import { ImageUploadZone } from "./image-upload-zone";
 
-export function ActivityBasicInfoFields({ form }: TabFieldsProps) {
+interface BasicInfoFieldsProps extends TabFieldsProps {
+  instructors?: { instructorId: string; name: string }[];
+}
+
+export function ActivityBasicInfoFields({ form, instructors }: BasicInfoFieldsProps) {
   return (
     <div className="space-y-4">
       <FormField
@@ -136,6 +140,37 @@ export function ActivityBasicInfoFields({ form }: TabFieldsProps) {
           </FormItem>
         )}
       />
+
+      {instructors && instructors.length > 0 && (
+        <FormField
+          control={form.control}
+          name="instructorId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Instructor</FormLabel>
+              <Select
+                onValueChange={(v) => field.onChange(v === "none" ? "" : v)}
+                value={field.value || "none"}
+              >
+                <FormControl>
+                  <SelectTrigger className="bg-white">
+                    <SelectValue placeholder="No instructor" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="none">No instructor</SelectItem>
+                  {instructors.map((inst) => (
+                    <SelectItem key={inst.instructorId} value={inst.instructorId}>
+                      {inst.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      )}
     </div>
   );
 }

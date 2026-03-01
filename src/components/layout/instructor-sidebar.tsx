@@ -9,6 +9,8 @@ import {
   Star,
   Clock,
   GearSix,
+  Handshake,
+  Envelope,
 } from "@phosphor-icons/react";
 import type { Icon } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
@@ -16,7 +18,7 @@ import { cn } from "@/lib/utils";
 interface NavItem {
   href: string;
   icon: Icon;
-  key: "dashboard" | "profile" | "myClasses" | "reviews" | "schedule" | "settings";
+  key: "dashboard" | "profile" | "myClasses" | "reviews" | "schedule" | "affiliations" | "proposals" | "settings";
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -25,6 +27,8 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/profile/instructor/classes", icon: CalendarBlank, key: "myClasses" },
   { href: "/profile/instructor/reviews", icon: Star, key: "reviews" },
   { href: "/profile/instructor/schedule", icon: Clock, key: "schedule" },
+  { href: "/profile/instructor/affiliations", icon: Handshake, key: "affiliations" },
+  { href: "/profile/instructor/proposals", icon: Envelope, key: "proposals" },
   { href: "/profile/instructor/settings", icon: GearSix, key: "settings" },
 ];
 

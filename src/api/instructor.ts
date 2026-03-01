@@ -1,4 +1,7 @@
 import type { InstructorDetail, InstructorStats, InstructorScheduleSlot, InstructorSettings } from "@/types/instructor";
+import type { InstructorAffiliation, CalendarEntry, SlotProposal } from "@/types/affiliation";
+import { MOCK_AFFILIATIONS, MOCK_CALENDAR_ENTRIES, MOCK_SLOT_PROPOSALS } from "./mock-affiliations";
+import { getBusinessActivitiesByInstructor } from "./business-portal";
 
 const MOCK_INSTRUCTORS: Record<string, InstructorDetail> = {
   "inst-1": {
@@ -135,6 +138,7 @@ const MOCK_INSTRUCTORS: Record<string, InstructorDetail> = {
     businessId: "biz-1",
     businessName: "Studio Harmonii – Centrum Wellness",
     email: "karolina@studioharmonii.pl",
+    isFreelance: true,
   },
   "inst-6": {
     id: "inst-6",
@@ -253,6 +257,42 @@ const MOCK_INSTRUCTORS: Record<string, InstructorDetail> = {
         businessId: "biz-2",
         instructorId: "inst-6",
       },
+      {
+        id: "act-f1",
+        title: "Indywidualne Lekcje Szachowe",
+        description:
+          "Lekcje jeden na jeden dopasowane do Twojego poziomu. Analiza partii, otwarcia i końcówki.",
+        category: "education",
+        provider: { name: "Aleksander Nowak" },
+        image:
+          "https://images.unsplash.com/photo-1560174038-da43ac74f01b?w=400&h=300&fit=crop",
+        rating: 5.0,
+        reviewCount: 34,
+        price: "$$$",
+        priceAmount: 80,
+        distance: 0,
+        location: "Online / Kraków",
+        timeSlots: ["morning", "afternoon"],
+        instructorId: "inst-6",
+      },
+      {
+        id: "act-f2",
+        title: "Szachy Online – Kurs Strategii",
+        description:
+          "Kurs online dla graczy średniozaawansowanych. Cotygodniowe webinary i zadania treningowe.",
+        category: "education",
+        provider: { name: "Aleksander Nowak" },
+        image:
+          "https://images.unsplash.com/photo-1611195974226-a6a9be9dd763?w=400&h=300&fit=crop",
+        rating: 4.8,
+        reviewCount: 56,
+        price: "$$",
+        priceAmount: 30,
+        distance: 0,
+        location: "Online",
+        timeSlots: ["afternoon", "evening"],
+        instructorId: "inst-6",
+      },
     ],
     reviews: [
       {
@@ -298,24 +338,39 @@ const MOCK_INSTRUCTORS: Record<string, InstructorDetail> = {
     businessId: "biz-2",
     businessName: "Centrum Szachowe Kraków",
     email: "aleksander@szachykrakow.pl",
+    affiliations: [
+      {
+        instructorId: "inst-6",
+        businessId: "biz-2",
+        businessName: "Centrum Szachowe Kraków",
+        status: "active",
+        role: "contractor",
+        startDate: "2023-09-01",
+      },
+    ],
   },
 };
 
 const MOCK_STATS: InstructorStats = {
   totalStudents: 523,
-  activeClasses: 3,
+  activeClasses: 5,
   avgRating: 4.9,
   totalReviews: 128,
-  upcomingClasses: 5,
+  upcomingClasses: 7,
+  freelanceClasses: 2,
+  affiliatedBusinesses: 1,
+  monthlyEarnings: 4850,
+  freelanceEarnings: 2400,
+  businessEarnings: 2450,
 };
 
-const MOCK_SCHEDULE: InstructorScheduleSlot[] = [
-  { id: "s1", dayOfWeek: 1, startTime: "09:00", endTime: "11:00", activityId: "act-7", activityTitle: "Klub Szachowy Mistrzów", recurring: true },
-  { id: "s2", dayOfWeek: 1, startTime: "14:00", endTime: "16:00", activityId: "act-8", activityTitle: "Szachy dla Początkujących", recurring: true },
-  { id: "s3", dayOfWeek: 3, startTime: "09:00", endTime: "11:00", activityId: "act-7", activityTitle: "Klub Szachowy Mistrzów", recurring: true },
-  { id: "s4", dayOfWeek: 3, startTime: "14:00", endTime: "16:00", activityId: "act-8", activityTitle: "Szachy dla Początkujących", recurring: true },
-  { id: "s5", dayOfWeek: 5, startTime: "10:00", endTime: "12:00", recurring: false },
-  { id: "s6", dayOfWeek: 6, startTime: "10:00", endTime: "14:00", activityId: "act-9", activityTitle: "Intensywne Przygotowanie Turniejowe", recurring: true },
+let schedule: InstructorScheduleSlot[] = [
+  { id: "s1", dayOfWeek: 1, startTime: "09:00", endTime: "11:00", activityId: "act-7", activityTitle: "Klub Szachowy Mistrzów", recurring: true, businessId: "biz-1", businessName: "Studio Harmonii" },
+  { id: "s2", dayOfWeek: 1, startTime: "14:00", endTime: "16:00", activityId: "act-8", activityTitle: "Szachy dla Początkujących", recurring: true, businessId: "biz-1", businessName: "Studio Harmonii" },
+  { id: "s3", dayOfWeek: 3, startTime: "09:00", endTime: "11:00", activityId: "act-7", activityTitle: "Klub Szachowy Mistrzów", recurring: true, businessId: "biz-2", businessName: "Centrum Szachowe Kraków" },
+  { id: "s4", dayOfWeek: 3, startTime: "14:00", endTime: "16:00", activityId: "act-8", activityTitle: "Szachy dla Początkujących", recurring: true, businessId: "biz-2", businessName: "Centrum Szachowe Kraków" },
+  { id: "s5", dayOfWeek: 5, startTime: "10:00", endTime: "12:00", activityId: "act-f1", activityTitle: "Indywidualne Lekcje Szachowe", recurring: false },
+  { id: "s6", dayOfWeek: 6, startTime: "10:00", endTime: "14:00", activityId: "act-9", activityTitle: "Intensywne Przygotowanie Turniejowe", recurring: true, businessId: "biz-2", businessName: "Centrum Szachowe Kraków" },
 ];
 
 const MOCK_SETTINGS: InstructorSettings = {
@@ -342,36 +397,252 @@ export async function fetchInstructorProfile(
   id: string
 ): Promise<InstructorDetail> {
   await new Promise((resolve) => setTimeout(resolve, 400));
-  const instructor = MOCK_INSTRUCTORS[id];
-  return instructor ?? { ...MOCK_INSTRUCTORS["inst-6"]!, id };
+  const instructor = MOCK_INSTRUCTORS[id] ?? { ...MOCK_INSTRUCTORS["inst-6"]!, id };
+
+  // Merge dynamically assigned business activities into classes
+  const assignedActivities = getBusinessActivitiesByInstructor(id);
+  const existingIds = new Set(instructor.classes.map((c) => c.id));
+  const newClasses = assignedActivities
+    .filter((a) => !existingIds.has(a.id))
+    .map((a) => ({
+      id: a.id,
+      title: a.title,
+      description: a.description,
+      category: a.category,
+      provider: a.provider,
+      image: a.image,
+      rating: a.rating,
+      reviewCount: a.reviewCount,
+      price: a.price,
+      priceAmount: a.priceAmount,
+      distance: a.distance,
+      location: a.location,
+      timeSlots: a.timeSlots,
+      spotsLeft: a.spotsLeft,
+      businessId: "biz-1",
+      instructorId: id,
+    }));
+
+  return {
+    ...instructor,
+    classes: [...instructor.classes, ...newClasses],
+  };
 }
 
 export async function fetchInstructorStats(
-  id: string
+  _id: string
 ): Promise<InstructorStats> {
   await new Promise((resolve) => setTimeout(resolve, 300));
   return MOCK_STATS;
 }
 
 export async function fetchInstructorSchedule(
-  id: string
+  _id: string
 ): Promise<InstructorScheduleSlot[]> {
   await new Promise((resolve) => setTimeout(resolve, 300));
-  return [...MOCK_SCHEDULE];
+  return [...schedule];
 }
 
 export async function updateInstructorSchedule(
-  id: string,
+  _id: string,
   slots: InstructorScheduleSlot[]
 ): Promise<InstructorScheduleSlot[]> {
   await new Promise((resolve) => setTimeout(resolve, 300));
+  schedule = [...slots];
   return slots;
 }
 
 export async function fetchInstructorSettings(
-  id: string
+  _id: string
 ): Promise<InstructorSettings> {
   await new Promise((resolve) => setTimeout(resolve, 300));
   return { ...MOCK_SETTINGS };
+}
+
+// ── Affiliations ──
+
+let affiliations = [...MOCK_AFFILIATIONS];
+
+export async function fetchInstructorAffiliations(
+  instructorId: string
+): Promise<InstructorAffiliation[]> {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  return affiliations.filter((a) => a.instructorId === instructorId);
+}
+
+export async function respondToAffiliation(
+  instructorId: string,
+  businessId: string,
+  accept: boolean
+): Promise<InstructorAffiliation> {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  affiliations = affiliations.map((a) =>
+    a.instructorId === instructorId && a.businessId === businessId
+      ? { ...a, status: accept ? "active" : "ended" }
+      : a
+  );
+  return affiliations.find(
+    (a) => a.instructorId === instructorId && a.businessId === businessId
+  )!;
+}
+
+// ── Calendar ──
+
+function generateCalendarFromSchedule(
+  instructorId: string,
+  slots: InstructorScheduleSlot[],
+  rangeStart: Date,
+  rangeEnd: Date
+): CalendarEntry[] {
+  const entries: CalendarEntry[] = [];
+  const current = new Date(rangeStart);
+  while (current <= rangeEnd) {
+    const dow = current.getDay();
+    const dateStr = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, "0")}-${String(current.getDate()).padStart(2, "0")}`;
+    for (const slot of slots) {
+      if (slot.dayOfWeek === dow) {
+        entries.push({
+          id: `cal-gen-${dateStr}-${slot.id}`,
+          instructorId,
+          activityId: slot.activityId ?? "",
+          activityTitle: slot.activityTitle ?? "Available",
+          businessId: slot.businessId,
+          businessName: slot.businessName,
+          status: "confirmed",
+          date: dateStr,
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+          recurring: slot.recurring,
+        });
+      }
+    }
+    current.setDate(current.getDate() + 1);
+  }
+  return entries;
+}
+
+export async function fetchInstructorCalendar(
+  instructorId: string
+): Promise<CalendarEntry[]> {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+
+  // Generate from current schedule: ±2 weeks around today
+  const today = new Date();
+  const rangeStart = new Date(today);
+  rangeStart.setDate(rangeStart.getDate() - 14);
+  const rangeEnd = new Date(today);
+  rangeEnd.setDate(rangeEnd.getDate() + 14);
+
+  const generated = generateCalendarFromSchedule(instructorId, schedule, rangeStart, rangeEnd);
+
+  // Get special entries (cancelled, pending_approval) from mock data
+  const specialEntries = MOCK_CALENDAR_ENTRIES.filter(
+    (e) => e.instructorId === instructorId && e.status !== "confirmed"
+  );
+
+  // Special entries override generated entries on same date+time
+  const overrideKeys = new Set(
+    specialEntries.map((e) => `${e.date}|${e.startTime}`)
+  );
+  const filtered = generated.filter(
+    (e) => !overrideKeys.has(`${e.date}|${e.startTime}`)
+  );
+
+  return [...filtered, ...specialEntries];
+}
+
+// ── Cancel Calendar Entry ──
+
+export async function cancelCalendarEntry(
+  entry: CalendarEntry,
+  note?: string
+): Promise<CalendarEntry> {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+
+  const cancelled: CalendarEntry = {
+    ...entry,
+    status: "cancelled",
+    cancellationNote: note || undefined,
+  };
+
+  // Check if an override already exists for this date+time
+  const existingIdx = MOCK_CALENDAR_ENTRIES.findIndex(
+    (e) => e.instructorId === entry.instructorId && e.date === entry.date && e.startTime === entry.startTime
+  );
+  if (existingIdx >= 0) {
+    MOCK_CALENDAR_ENTRIES[existingIdx] = cancelled;
+  } else {
+    MOCK_CALENDAR_ENTRIES.push(cancelled);
+  }
+
+  return cancelled;
+}
+
+// ── Fetch Activity Sessions ──
+
+export async function fetchActivitySessions(
+  activityId: string
+): Promise<CalendarEntry[]> {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+
+  const today = new Date();
+  const rangeEnd = new Date(today);
+  rangeEnd.setDate(rangeEnd.getDate() + 28);
+
+  // Generate entries from schedule for this activity
+  const activitySlots = schedule.filter((s) => s.activityId === activityId);
+  const generated = generateCalendarFromSchedule("inst-6", activitySlots, today, rangeEnd);
+
+  // Get special entries for this activity
+  const specialEntries = MOCK_CALENDAR_ENTRIES.filter(
+    (e) => e.activityId === activityId && e.date >= formatDateLocal(today) && e.date <= formatDateLocal(rangeEnd)
+  );
+
+  // Special entries override generated entries on same date+time
+  const overrideKeys = new Set(
+    specialEntries.map((e) => `${e.date}|${e.startTime}`)
+  );
+  const filtered = generated.filter(
+    (e) => !overrideKeys.has(`${e.date}|${e.startTime}`)
+  );
+
+  return [...filtered, ...specialEntries].sort(
+    (a, b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime)
+  );
+}
+
+function formatDateLocal(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+// ── Slot Proposals ──
+
+let slotProposals = [...MOCK_SLOT_PROPOSALS];
+
+export async function fetchSlotProposals(
+  instructorId: string
+): Promise<SlotProposal[]> {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  return slotProposals.filter((p) => p.instructorId === instructorId);
+}
+
+export async function respondToSlotProposal(
+  proposalId: string,
+  accept: boolean
+): Promise<SlotProposal> {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  slotProposals = slotProposals.map((p) =>
+    p.id === proposalId
+      ? {
+          ...p,
+          status: accept ? "approved" : "rejected",
+          respondedAt: new Date().toISOString(),
+        }
+      : p
+  );
+  return slotProposals.find((p) => p.id === proposalId)!;
 }
 

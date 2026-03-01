@@ -15,6 +15,7 @@ export const courtsInitialState: CourtsPageState = {
   selectedSlots: [],
   showReservationSummary: false,
   weekOffset: 0,
+  selectedCourtIndex: null,
 };
 
 export function courtsPageReducer(
@@ -28,6 +29,7 @@ export function courtsPageReducer(
         selectedCourtId: action.courtId,
         selectedSlots: [],
         showReservationSummary: false,
+        selectedCourtIndex: null,
       };
 
     case "SET_DATE":
@@ -85,7 +87,7 @@ export function courtsPageReducer(
     }
 
     case "CLEAR_SLOTS":
-      return { ...state, selectedSlots: [], showReservationSummary: false };
+      return { ...state, selectedSlots: [], showReservationSummary: false, selectedCourtIndex: null };
 
     case "SHOW_RESERVATION_SUMMARY":
       return { ...state, showReservationSummary: action.show };
@@ -101,6 +103,9 @@ export function courtsPageReducer(
         showReservationSummary: false,
       };
     }
+
+    case "SET_COURT_INDEX":
+      return { ...state, selectedCourtIndex: action.courtIndex };
 
     default:
       return state;

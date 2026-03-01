@@ -1,4 +1,5 @@
 import type { Achievement } from "@/types/instructor";
+import type { InstructorAffiliation } from "@/types/affiliation";
 
 export interface ProfileState {
   editingName: boolean;
@@ -75,6 +76,7 @@ export interface InstructorData {
   languages: string[];
   achievements: Achievement[];
   social: { instagram?: string; youtube?: string; website?: string };
+  affiliations?: InstructorAffiliation[];
 }
 
 import { Trophy, Users, Medal, BookOpen } from "@phosphor-icons/react";

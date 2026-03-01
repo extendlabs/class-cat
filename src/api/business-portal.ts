@@ -8,7 +8,6 @@ import type {
   WeeklyBookingsData,
 } from "@/types/business-portal";
 import type { Business } from "@/types/business";
-import type { Court, TimeSlotAvailability, CourtReservation, CourtSlotDetail } from "@/types/court";
 
 const delay = (ms: number = 300) => new Promise((r) => setTimeout(r, ms));
 
@@ -242,6 +241,12 @@ export async function deleteBusinessActivity(id: string): Promise<void> {
   businessActivities = businessActivities.filter((a) => a.id !== id);
 }
 
+export function getBusinessActivitiesByInstructor(
+  instructorId: string
+): BusinessActivity[] {
+  return businessActivities.filter((a) => a.instructorId === instructorId);
+}
+
 // ── Notifications ──
 
 const MOCK_NOTIFICATIONS: BusinessNotification[] = [
@@ -453,453 +458,92 @@ export async function createPromotion(
   return promo;
 }
 
-// ── Business Courts ──
+// ── Instructors ──
 
-const MOCK_BUSINESS_COURTS: Court[] = [
+export interface BusinessInstructor {
+  instructorId: string;
+  name: string;
+  avatar: string;
+  specialty: string;
+  affiliation: {
+    status: "active" | "pending" | "ended";
+    role: "contractor" | "employee";
+    startDate: string;
+  };
+}
+
+export interface BlockedTimeRange {
+  date: string;
+  startTime: string;
+  endTime: string;
+}
+
+const MOCK_BUSINESS_INSTRUCTORS: BusinessInstructor[] = [
   {
-    id: "bc-1",
-    name: "Kort Tenisowy Centrum",
-    sport: "tennis",
-    surface: "clay",
-    indoor: false,
-    image: "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=400&h=300&fit=crop",
-    address: "ul. Myśliwiecka 4, Warszawa",
-    location: "Studio Harmonii",
-    lat: 52.215,
-    lng: 21.035,
-    pricePerHour: 80,
-    rating: 4.8,
-    reviewCount: 156,
-    businessId: "biz-1",
-    businessName: "Studio Harmonii",
-    amenities: ["szatnia", "prysznice", "parking", "wypożyczalnia rakiet"],
-    operatingHours: [
-      { day: "Poniedziałek", open: "7:00", close: "21:00" },
-      { day: "Wtorek", open: "7:00", close: "21:00" },
-      { day: "Środa", open: "7:00", close: "21:00" },
-      { day: "Czwartek", open: "7:00", close: "21:00" },
-      { day: "Piątek", open: "7:00", close: "20:00" },
-      { day: "Sobota", open: "8:00", close: "20:00" },
-      { day: "Niedziela", open: "8:00", close: "18:00" },
-    ],
-    courtCount: 4,
-    status: "active",
+    instructorId: "inst-6",
+    name: "Aleksander Nowak",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face",
+    specialty: "Szachy Strategiczne",
+    affiliation: { status: "active", role: "contractor", startDate: "2023-09-01" },
   },
   {
-    id: "bc-2",
-    name: "Padel Arena Mokotów",
-    sport: "padel",
-    surface: "synthetic",
-    indoor: true,
-    image: "https://images.unsplash.com/photo-1612534847738-b3af3e5e379c?w=400&h=300&fit=crop",
-    address: "ul. Konstruktorska 8, Warszawa",
-    location: "Studio Harmonii",
-    lat: 52.198,
-    lng: 21.040,
-    pricePerHour: 120,
-    rating: 4.9,
-    reviewCount: 89,
-    businessId: "biz-1",
-    businessName: "Studio Harmonii",
-    amenities: ["szatnia", "prysznice", "sklep sportowy", "bar"],
-    operatingHours: [
-      { day: "Poniedziałek", open: "7:00", close: "22:00" },
-      { day: "Wtorek", open: "7:00", close: "22:00" },
-      { day: "Środa", open: "7:00", close: "22:00" },
-      { day: "Czwartek", open: "7:00", close: "22:00" },
-      { day: "Piątek", open: "7:00", close: "22:00" },
-      { day: "Sobota", open: "8:00", close: "21:00" },
-      { day: "Niedziela", open: "8:00", close: "20:00" },
-    ],
-    courtCount: 6,
-    status: "active",
-  },
-  {
-    id: "bc-3",
-    name: "Hala Badmintona",
-    sport: "badminton",
-    surface: "parquet",
-    indoor: true,
-    image: "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&h=300&fit=crop",
-    address: "ul. Kamieńskiego 3, Warszawa",
-    location: "Studio Harmonii",
-    lat: 52.210,
-    lng: 21.020,
-    pricePerHour: 50,
-    rating: 4.6,
-    reviewCount: 72,
-    businessId: "biz-1",
-    businessName: "Studio Harmonii",
-    amenities: ["szatnia", "prysznice", "parking"],
-    operatingHours: [
-      { day: "Poniedziałek", open: "8:00", close: "22:00" },
-      { day: "Wtorek", open: "8:00", close: "22:00" },
-      { day: "Środa", open: "8:00", close: "22:00" },
-      { day: "Czwartek", open: "8:00", close: "22:00" },
-      { day: "Piątek", open: "8:00", close: "21:00" },
-      { day: "Sobota", open: "9:00", close: "20:00" },
-      { day: "Niedziela", open: "9:00", close: "18:00" },
-    ],
-    courtCount: 3,
-    status: "inactive",
-  },
-  {
-    id: "bc-4",
-    name: "Squash Court Premium",
-    sport: "squash",
-    surface: "parquet",
-    indoor: true,
-    image: "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=400&h=300&fit=crop",
-    address: "ul. Powstańców 12, Warszawa",
-    location: "Studio Harmonii",
-    lat: 52.220,
-    lng: 21.030,
-    pricePerHour: 60,
-    rating: 4.5,
-    reviewCount: 41,
-    businessId: "biz-1",
-    businessName: "Studio Harmonii",
-    amenities: ["szatnia", "prysznice", "sauna"],
-    operatingHours: [
-      { day: "Poniedziałek", open: "10:00", close: "22:00" },
-      { day: "Wtorek", open: "10:00", close: "22:00" },
-      { day: "Środa", open: "10:00", close: "22:00" },
-      { day: "Czwartek", open: "10:00", close: "22:00" },
-      { day: "Piątek", open: "10:00", close: "20:00" },
-      { day: "Sobota", open: "10:00", close: "18:00" },
-      { day: "Niedziela", open: "", close: "" },
-    ],
-    courtCount: 2,
-    status: "maintenance",
+    instructorId: "inst-7",
+    name: "Katarzyna Wiśniewska",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face",
+    specialty: "Szachy dla Dzieci",
+    affiliation: { status: "pending", role: "contractor", startDate: "2026-02-15" },
   },
 ];
 
-let businessCourts = [...MOCK_BUSINESS_COURTS];
-
-export async function fetchBusinessCourts(): Promise<Court[]> {
+export async function fetchBusinessInstructors(
+  _businessId: string
+): Promise<BusinessInstructor[]> {
   await delay(300);
-  return [...businessCourts];
+  return [...MOCK_BUSINESS_INSTRUCTORS];
 }
 
-export async function fetchBusinessCourt(id: string): Promise<Court | undefined> {
-  await delay(200);
-  return businessCourts.find((c) => c.id === id);
+export async function fetchInstructorAvailability(
+  _instructorId: string
+): Promise<BlockedTimeRange[]> {
+  await delay(300);
+  return [
+    { date: "2026-03-03", startTime: "09:00", endTime: "11:00" },
+    { date: "2026-03-03", startTime: "14:00", endTime: "16:00" },
+    { date: "2026-03-05", startTime: "09:00", endTime: "11:00" },
+    { date: "2026-03-06", startTime: "10:00", endTime: "14:00" },
+  ];
 }
 
-export async function createBusinessCourt(data: Partial<Court>): Promise<Court> {
+export async function proposeSlotToInstructor(
+  _businessId: string,
+  _businessName: string,
+  _instructorId: string,
+  _activityId: string,
+  _activityTitle: string,
+  _date: string,
+  _startTime: string,
+  _endTime: string,
+  _recurring?: boolean
+): Promise<{ id: string; status: "pending" }> {
   await delay(400);
-  const court: Court = {
-    id: `bc-${Date.now()}`,
-    name: data.name ?? "New Court",
-    sport: data.sport ?? "tennis",
-    surface: data.surface ?? "hard",
-    indoor: data.indoor ?? false,
-    image: data.image ?? "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=400&h=300&fit=crop",
-    address: data.address ?? "",
-    location: "Studio Harmonii",
-    lat: 52.215,
-    lng: 21.035,
-    pricePerHour: data.pricePerHour ?? 80,
-    rating: 0,
-    reviewCount: 0,
-    businessId: "biz-1",
-    businessName: "Studio Harmonii",
-    amenities: data.amenities ?? [],
-    operatingHours: data.operatingHours ?? [
-      { day: "Poniedziałek", open: "8:00", close: "20:00" },
-      { day: "Wtorek", open: "8:00", close: "20:00" },
-      { day: "Środa", open: "8:00", close: "20:00" },
-      { day: "Czwartek", open: "8:00", close: "20:00" },
-      { day: "Piątek", open: "8:00", close: "20:00" },
-      { day: "Sobota", open: "9:00", close: "18:00" },
-      { day: "Niedziela", open: "9:00", close: "16:00" },
-    ],
-    courtCount: data.courtCount ?? 1,
-    status: data.status ?? "active",
-  };
-  businessCourts = [court, ...businessCourts];
-  return court;
+  return { id: `prop-${Date.now()}`, status: "pending" };
 }
 
-export async function updateBusinessCourt(
-  id: string,
-  data: Partial<Court>
-): Promise<Court> {
-  await delay(300);
-  businessCourts = businessCourts.map((c) =>
-    c.id === id ? { ...c, ...data } : c
-  );
-  return businessCourts.find((c) => c.id === id)!;
-}
+// ── Business Courts (delegated to court-service) ──
 
-export async function deleteBusinessCourt(id: string): Promise<void> {
-  await delay(300);
-  businessCourts = businessCourts.filter((c) => c.id !== id);
-}
-
-// ── Slot generation for business courts ──
-
-const MOCK_BOOKER_NAMES = [
-  "Jan Kowalski", "Anna Nowak", "Piotr Wiśniewski", "Katarzyna Zielińska",
-  "Tomasz Lewandowski", "Magdalena Dąbrowska", "Robert Mazur", "Agnieszka Krawczyk",
-  "Michał Szymański", "Ewa Wójcik", "Łukasz Jabłoński", "Marta Olszewska",
-];
-
-const WEEKDAY_PL = [
-  "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota", "Niedziela",
-];
-
-function getOperatingRange(
-  court: Court,
-  weekdayIndex: number // 0=Mon … 6=Sun
-): { open: number; close: number } | null {
-  const dayName = WEEKDAY_PL[weekdayIndex];
-  const entry = court.operatingHours.find((h) => h.day === dayName);
-  if (!entry || !entry.open || !entry.close) return null; // closed
-  return {
-    open: parseInt(entry.open.split(":")[0], 10),
-    close: parseInt(entry.close.split(":")[0], 10),
-  };
-}
-
-function generateBusinessWeekSlots(courtId: string, weekStart: string): TimeSlotAvailability[] {
-  const court = businessCourts.find((c) => c.id === courtId);
-  if (!court) return [];
-
-  const slots: TimeSlotAvailability[] = [];
-  const startDate = new Date(weekStart);
-  const total = court.courtCount ?? 1;
-
-  const seed = courtId.split("").reduce((a, c) => a + c.charCodeAt(0), 0) + startDate.getTime();
-  let rng = seed;
-  const random = () => {
-    rng = (rng * 1103515245 + 12345) & 0x7fffffff;
-    return (rng % 100) / 100;
-  };
-
-  for (let d = 0; d < 7; d++) {
-    const date = new Date(startDate);
-    date.setDate(date.getDate() + d);
-    const dateStr = date.toISOString().split("T")[0];
-    const range = getOperatingRange(court, d);
-
-    for (let hour = 7; hour <= 21; hour++) {
-      // Outside operating hours or closed day
-      if (!range || hour < range.open || hour >= range.close) {
-        slots.push({
-          courtId,
-          date: dateStr,
-          hour,
-          available: false,
-          price: 0,
-          availableCount: 0,
-          totalCount: total,
-          bookedCount: 0,
-          closed: true,
-        });
-        continue;
-      }
-
-      const isWeekend = d >= 5;
-      const isPeak = hour >= 17 && hour <= 20;
-      const price = isWeekend
-        ? Math.round(court.pricePerHour * 1.2)
-        : isPeak
-          ? Math.round(court.pricePerHour * 1.1)
-          : court.pricePerHour;
-
-      const booked = Math.floor(random() * (total + 1));
-      const avail = total - booked;
-
-      slots.push({
-        courtId,
-        date: dateStr,
-        hour,
-        available: avail > 0,
-        price,
-        availableCount: avail,
-        totalCount: total,
-        bookedCount: booked,
-      });
-    }
-  }
-
-  return slots;
-}
-
-// Slot cache for toggling — keyed by "courtId-weekStart"
-const slotCache = new Map<string, TimeSlotAvailability[]>();
-// Detail cache — keyed by "courtId-date-hour"
-const slotDetailCache = new Map<string, CourtSlotDetail[]>();
-
-function ensureSlotDetails(slot: TimeSlotAvailability): CourtSlotDetail[] {
-  const key = `${slot.courtId}-${slot.date}-${slot.hour}`;
-  if (slotDetailCache.has(key)) return slotDetailCache.get(key)!;
-
-  const total = slot.totalCount ?? 1;
-  const booked = slot.bookedCount ?? 0;
-  const avail = slot.availableCount ?? (slot.available ? 1 : 0);
-  const blocked = total - booked - avail;
-  const seed = key.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-
-  const details: CourtSlotDetail[] = [];
-  let b = 0, bl = 0;
-  for (let i = 0; i < total; i++) {
-    if (b < booked) {
-      details.push({
-        courtIndex: i + 1,
-        status: "booked",
-        bookedBy: MOCK_BOOKER_NAMES[(seed + i) % MOCK_BOOKER_NAMES.length],
-      });
-      b++;
-    } else if (bl < blocked) {
-      details.push({ courtIndex: i + 1, status: "blocked" });
-      bl++;
-    } else {
-      details.push({ courtIndex: i + 1, status: "available" });
-    }
-  }
-
-  slotDetailCache.set(key, details);
-  return details;
-}
-
-export async function fetchCourtWeekSlots(
-  courtId: string,
-  weekStart: string
-): Promise<TimeSlotAvailability[]> {
-  await delay(300);
-  const key = `${courtId}-${weekStart}`;
-  if (!slotCache.has(key)) {
-    slotCache.set(key, generateBusinessWeekSlots(courtId, weekStart));
-  }
-  return [...slotCache.get(key)!];
-}
-
-export async function fetchSlotDetails(
-  courtId: string,
-  weekStart: string,
-  date: string,
-  hour: number
-): Promise<CourtSlotDetail[]> {
-  await delay(150);
-  const cacheKey = `${courtId}-${weekStart}`;
-  if (!slotCache.has(cacheKey)) {
-    slotCache.set(cacheKey, generateBusinessWeekSlots(courtId, weekStart));
-  }
-  const slots = slotCache.get(cacheKey)!;
-  const slot = slots.find((s) => s.date === date && s.hour === hour);
-  if (!slot) return [];
-  return [...ensureSlotDetails(slot)];
-}
-
-export async function toggleSingleCourtSlot(
-  courtId: string,
-  weekStart: string,
-  date: string,
-  hour: number,
-  courtIndex: number,
-  direction: "block" | "unblock"
-): Promise<{ slots: TimeSlotAvailability[]; details: CourtSlotDetail[] }> {
-  await delay(150);
-
-  // Ensure aggregate slots exist
-  const cacheKey = `${courtId}-${weekStart}`;
-  if (!slotCache.has(cacheKey)) {
-    slotCache.set(cacheKey, generateBusinessWeekSlots(courtId, weekStart));
-  }
-  const slots = slotCache.get(cacheKey)!;
-  const slotIdx = slots.findIndex((s) => s.date === date && s.hour === hour);
-  if (slotIdx === -1) return { slots: [...slots], details: [] };
-
-  const slot = slots[slotIdx];
-  const details = ensureSlotDetails(slot);
-  const detail = details.find((d) => d.courtIndex === courtIndex);
-  if (!detail) return { slots: [...slots], details: [...details] };
-
-  if (direction === "block" && detail.status === "available") {
-    detail.status = "blocked";
-    const avail = (slot.availableCount ?? 1) - 1;
-    slots[slotIdx] = { ...slot, availableCount: avail, available: avail > 0 };
-  } else if (direction === "unblock" && detail.status === "blocked") {
-    detail.status = "available";
-    const avail = (slot.availableCount ?? 0) + 1;
-    slots[slotIdx] = { ...slot, availableCount: avail, available: avail > 0 };
-  }
-
-  // Update detail cache
-  slotDetailCache.set(`${courtId}-${date}-${hour}`, [...details]);
-
-  return { slots: [...slots], details: [...details] };
-}
-
-// ── Court Reservations ──
-
-function getMonday(d: Date): Date {
-  const date = new Date(d);
-  const day = date.getDay();
-  const diff = day === 0 ? -6 : 1 - day;
-  date.setDate(date.getDate() + diff);
-  return date;
-}
-
-function toISO(d: Date): string {
-  return d.toISOString().split("T")[0];
-}
-
-function addDays(d: Date, n: number): Date {
-  const r = new Date(d);
-  r.setDate(r.getDate() + n);
-  return r;
-}
-
-const monday = getMonday(new Date());
-
-const MOCK_COURT_RESERVATIONS: CourtReservation[] = [
-  // bc-1 — Tennis, 4 courts
-  { id: "cr-1", courtId: "bc-1", courtName: "Kort Tenisowy Centrum", date: toISO(monday), startHour: 8, durationHours: 1, totalPrice: 80, status: "confirmed", userName: "Jan Kowalski", createdAt: toISO(addDays(monday, -3)) },
-  { id: "cr-2", courtId: "bc-1", courtName: "Kort Tenisowy Centrum", date: toISO(monday), startHour: 9, durationHours: 2, totalPrice: 160, status: "confirmed", userName: "Anna Nowak", createdAt: toISO(addDays(monday, -2)) },
-  { id: "cr-3", courtId: "bc-1", courtName: "Kort Tenisowy Centrum", date: toISO(monday), startHour: 10, durationHours: 1, totalPrice: 80, status: "pending", userName: "Piotr Wiśniewski", createdAt: toISO(addDays(monday, -1)) },
-  { id: "cr-4", courtId: "bc-1", courtName: "Kort Tenisowy Centrum", date: toISO(addDays(monday, 1)), startHour: 7, durationHours: 1, totalPrice: 80, status: "confirmed", userName: "Katarzyna Zielińska", createdAt: toISO(addDays(monday, -2)) },
-  { id: "cr-5", courtId: "bc-1", courtName: "Kort Tenisowy Centrum", date: toISO(addDays(monday, 1)), startHour: 14, durationHours: 2, totalPrice: 160, status: "confirmed", userName: "Tomasz Lewandowski", createdAt: toISO(addDays(monday, -1)) },
-  { id: "cr-6", courtId: "bc-1", courtName: "Kort Tenisowy Centrum", date: toISO(addDays(monday, 2)), startHour: 17, durationHours: 1, totalPrice: 80, status: "confirmed", userName: "Magdalena Dąbrowska", createdAt: toISO(addDays(monday, -4)) },
-  { id: "cr-7", courtId: "bc-1", courtName: "Kort Tenisowy Centrum", date: toISO(addDays(monday, 3)), startHour: 10, durationHours: 1, totalPrice: 80, status: "cancelled", userName: "Robert Mazur", createdAt: toISO(addDays(monday, -5)) },
-  { id: "cr-8", courtId: "bc-1", courtName: "Kort Tenisowy Centrum", date: toISO(addDays(monday, 4)), startHour: 16, durationHours: 2, totalPrice: 160, status: "confirmed", userName: "Agnieszka Krawczyk", createdAt: toISO(addDays(monday, -1)) },
-  { id: "cr-9", courtId: "bc-1", courtName: "Kort Tenisowy Centrum", date: toISO(addDays(monday, 5)), startHour: 9, durationHours: 1, totalPrice: 80, status: "confirmed", userName: "Michał Szymański", createdAt: toISO(addDays(monday, -2)) },
-  { id: "cr-10", courtId: "bc-1", courtName: "Kort Tenisowy Centrum", date: toISO(addDays(monday, 5)), startHour: 11, durationHours: 2, totalPrice: 160, status: "pending", userName: "Ewa Wójcik", createdAt: toISO(addDays(monday, -1)) },
-
-  // bc-2 — Padel, 6 courts
-  { id: "cr-11", courtId: "bc-2", courtName: "Padel Arena Mokotów", date: toISO(monday), startHour: 7, durationHours: 1, totalPrice: 120, status: "confirmed", userName: "Łukasz Jabłoński", createdAt: toISO(addDays(monday, -3)) },
-  { id: "cr-12", courtId: "bc-2", courtName: "Padel Arena Mokotów", date: toISO(monday), startHour: 8, durationHours: 2, totalPrice: 240, status: "confirmed", userName: "Marta Olszewska", createdAt: toISO(addDays(monday, -2)) },
-  { id: "cr-13", courtId: "bc-2", courtName: "Padel Arena Mokotów", date: toISO(monday), startHour: 18, durationHours: 1, totalPrice: 120, status: "confirmed", userName: "Krzysztof Jankowski", createdAt: toISO(addDays(monday, -1)) },
-  { id: "cr-14", courtId: "bc-2", courtName: "Padel Arena Mokotów", date: toISO(monday), startHour: 18, durationHours: 1, totalPrice: 120, status: "confirmed", userName: "Joanna Stępień", createdAt: toISO(addDays(monday, -1)) },
-  { id: "cr-15", courtId: "bc-2", courtName: "Padel Arena Mokotów", date: toISO(addDays(monday, 1)), startHour: 10, durationHours: 1, totalPrice: 120, status: "pending", userName: "Adam Pawlak", createdAt: toISO(addDays(monday, -1)) },
-  { id: "cr-16", courtId: "bc-2", courtName: "Padel Arena Mokotów", date: toISO(addDays(monday, 2)), startHour: 19, durationHours: 2, totalPrice: 240, status: "confirmed", userName: "Natalia Michalska", createdAt: toISO(addDays(monday, -3)) },
-  { id: "cr-17", courtId: "bc-2", courtName: "Padel Arena Mokotów", date: toISO(addDays(monday, 3)), startHour: 12, durationHours: 1, totalPrice: 120, status: "confirmed", userName: "Damian Grabowski", createdAt: toISO(addDays(monday, -2)) },
-  { id: "cr-18", courtId: "bc-2", courtName: "Padel Arena Mokotów", date: toISO(addDays(monday, 4)), startHour: 17, durationHours: 1, totalPrice: 120, status: "cancelled", userName: "Paulina Kozłowska", createdAt: toISO(addDays(monday, -4)) },
-  { id: "cr-19", courtId: "bc-2", courtName: "Padel Arena Mokotów", date: toISO(addDays(monday, 5)), startHour: 10, durationHours: 2, totalPrice: 240, status: "confirmed", userName: "Bartosz Wojciechowski", createdAt: toISO(addDays(monday, -1)) },
-  { id: "cr-20", courtId: "bc-2", courtName: "Padel Arena Mokotów", date: toISO(addDays(monday, 6)), startHour: 14, durationHours: 1, totalPrice: 120, status: "confirmed", userName: "Karolina Kamińska", createdAt: toISO(addDays(monday, -2)) },
-
-  // bc-3 — Badminton, 3 courts
-  { id: "cr-21", courtId: "bc-3", courtName: "Hala Badmintona", date: toISO(monday), startHour: 9, durationHours: 1, totalPrice: 50, status: "confirmed", userName: "Rafał Piotrowski", createdAt: toISO(addDays(monday, -2)) },
-  { id: "cr-22", courtId: "bc-3", courtName: "Hala Badmintona", date: toISO(addDays(monday, 1)), startHour: 16, durationHours: 2, totalPrice: 100, status: "confirmed", userName: "Aleksandra Wróblewska", createdAt: toISO(addDays(monday, -3)) },
-  { id: "cr-23", courtId: "bc-3", courtName: "Hala Badmintona", date: toISO(addDays(monday, 2)), startHour: 11, durationHours: 1, totalPrice: 50, status: "pending", userName: "Grzegorz Kwiatkowski", createdAt: toISO(addDays(monday, -1)) },
-  { id: "cr-24", courtId: "bc-3", courtName: "Hala Badmintona", date: toISO(addDays(monday, 4)), startHour: 18, durationHours: 1, totalPrice: 50, status: "confirmed", userName: "Dorota Malinowska", createdAt: toISO(addDays(monday, -2)) },
-
-  // bc-4 — Squash, 2 courts
-  { id: "cr-25", courtId: "bc-4", courtName: "Squash Court Premium", date: toISO(monday), startHour: 8, durationHours: 1, totalPrice: 60, status: "confirmed", userName: "Paweł Zając", createdAt: toISO(addDays(monday, -1)) },
-  { id: "cr-26", courtId: "bc-4", courtName: "Squash Court Premium", date: toISO(addDays(monday, 1)), startHour: 12, durationHours: 1, totalPrice: 60, status: "confirmed", userName: "Monika Król", createdAt: toISO(addDays(monday, -2)) },
-  { id: "cr-27", courtId: "bc-4", courtName: "Squash Court Premium", date: toISO(addDays(monday, 3)), startHour: 15, durationHours: 2, totalPrice: 120, status: "pending", userName: "Sebastian Sikora", createdAt: toISO(addDays(monday, -1)) },
-  { id: "cr-28", courtId: "bc-4", courtName: "Squash Court Premium", date: toISO(addDays(monday, 5)), startHour: 10, durationHours: 1, totalPrice: 60, status: "cancelled", userName: "Weronika Baran", createdAt: toISO(addDays(monday, -3)) },
-];
-
-export async function fetchBusinessCourtReservations(
-  courtId?: string
-): Promise<CourtReservation[]> {
-  await delay(250);
-  if (courtId) {
-    return MOCK_COURT_RESERVATIONS.filter((r) => r.courtId === courtId);
-  }
-  return [...MOCK_COURT_RESERVATIONS];
-}
-
+export {
+  fetchBusinessCourts,
+  fetchBusinessCourt,
+  createBusinessCourt,
+  updateBusinessCourt,
+  deleteBusinessCourt,
+  fetchCourtWeekSlots,
+  fetchSlotDetails,
+  toggleSingleCourtSlot,
+  fetchBusinessCourtReservations,
+  updateReservationStatus,
+  fetchRecurringBlocks,
+  createRecurringBlock,
+  updateRecurringBlock,
+  deleteRecurringBlock,
+} from "@/api/court-service";

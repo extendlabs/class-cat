@@ -16,6 +16,7 @@ import {
   fetchBusinessNotifications,
   fetchWeeklyBookings,
 } from "@/api/business-portal";
+import { fetchEnrollmentRequests } from "@/api/enrollments";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   DashboardStats,
@@ -23,6 +24,7 @@ import {
   RecentActivity,
   UpcomingClasses,
   TopPerforming,
+  PendingRequestsCard,
 } from "@/components/features/business-dashboard";
 import type { StatCardData } from "@/components/features/business-dashboard";
 
@@ -49,6 +51,13 @@ export default function BusinessDashboardPage() {
     queryKey: ["weekly-bookings"],
     queryFn: fetchWeeklyBookings,
   });
+
+  const { data: enrollmentRequests = [] } = useQuery({
+    queryKey: ["enrollment-requests"],
+    queryFn: () => fetchEnrollmentRequests(),
+  });
+
+  const pendingRequests = enrollmentRequests.filter((r) => r.status === "pending");
 
   const isLoading =
     statsLoading || activitiesLoading || notificationsLoading || bookingsLoading;
@@ -157,6 +166,10 @@ export default function BusinessDashboardPage() {
       </div>
 
       <DashboardStats statCards={statCards} />
+
+      {pendingRequests.length > 0 && (
+        <PendingRequestsCard requests={pendingRequests} />
+      )}
 
       <div className="grid md:grid-cols-2 gap-6">
         <BookingsTrendChart weeklyBookings={weeklyBookings ?? []} maxBookings={maxBookings} />

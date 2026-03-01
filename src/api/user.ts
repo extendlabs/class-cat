@@ -257,6 +257,213 @@ const MOCK_SETTINGS_INSTRUCTOR: UserSettings = {
   privacyShowBookings: true,
 };
 
+// ── Consumer (Jan Nowicki) data ──
+
+const MOCK_USER_CONSUMER: UserProfile = {
+  id: "user-consumer-1",
+  name: "Jan Nowicki",
+  email: "user@classcat.com",
+  phone: "+48 500 123 456",
+  location: "Kraków",
+  avatar:
+    "https://images.unsplash.com/photo-1599566150163-29194dcabd9c?w=200&h=200&fit=crop&crop=face",
+  memberSince: "2025-01-10",
+  totalBookings: 5,
+};
+
+const MOCK_BOOKINGS_CONSUMER: Booking[] = [
+  {
+    id: "bc1",
+    activity: {
+      id: "13",
+      title: "Klub Gier Planszowych",
+      description: "Gry planszowe, strategia i zabawa dla wszystkich grup wiekowych.",
+      category: "education",
+      provider: { name: "Planszówkowy Raj" },
+      image:
+        "https://images.unsplash.com/photo-1632501641765-e568d28b0015?w=400&h=300&fit=crop",
+      rating: 4.9,
+      reviewCount: 88,
+      price: "$",
+      priceAmount: 15,
+      distance: 1.8,
+      location: "Kazimierz, Kraków",
+      timeSlots: ["afternoon", "evening"],
+    },
+    date: "2026-03-08",
+    time: "17:00",
+    status: "confirmed",
+  },
+  {
+    id: "bc2",
+    activity: {
+      id: "pop-1",
+      title: "Poranna Joga Vinyasa",
+      description: "Rozpocznij dzień ożywczą sesją jogi.",
+      category: "fitness",
+      provider: { name: "Studio Jogi Kazimierz" },
+      image:
+        "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop",
+      rating: 4.8,
+      reviewCount: 96,
+      price: "$",
+      priceAmount: 20,
+      distance: 0.3,
+      location: "Kazimierz, Kraków",
+      timeSlots: ["morning"],
+    },
+    date: "2026-03-15",
+    time: "7:00",
+    status: "pending",
+  },
+  {
+    id: "bc3",
+    activity: {
+      id: "trend-1",
+      title: "Spacer Fotograficzny po Mieście",
+      description: "Uchwycić piękno miasta z profesjonalnym przewodnikiem.",
+      category: "education",
+      provider: { name: "Fotoklub Kraków" },
+      image:
+        "https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=400&h=300&fit=crop",
+      rating: 4.9,
+      reviewCount: 67,
+      price: "$$",
+      priceAmount: 45,
+      distance: 0.6,
+      location: "Stare Miasto, Kraków",
+      timeSlots: ["morning", "weekend"],
+    },
+    date: "2026-02-08",
+    time: "10:00",
+    status: "completed",
+  },
+];
+
+const MOCK_REVIEWS_CONSUMER: UserReview[] = [
+  {
+    id: "rc1",
+    activityTitle: "Spacer Fotograficzny po Mieście",
+    activityId: "trend-1",
+    providerName: "Fotoklub Kraków",
+    rating: 5,
+    text: "Świetny spacer! Przewodnik pokazał nam ukryte zakątki Krakowa. Zrobiłem fenomenalne zdjęcia.",
+    date: "2026-02-10",
+  },
+  {
+    id: "rc2",
+    activityTitle: "Klub Gier Planszowych",
+    activityId: "13",
+    providerName: "Planszówkowy Raj",
+    rating: 4,
+    text: "Fajna atmosfera i duży wybór gier. Trochę głośno w piątkowe wieczory, ale warto.",
+    date: "2026-01-20",
+  },
+];
+
+const MOCK_SETTINGS_CONSUMER: UserSettings = {
+  notifications: {
+    bookingUpdates: true,
+    newClasses: true,
+    promotions: true,
+    reminders: true,
+  },
+  defaultRadius: "10km",
+  language: "Polski",
+  privacyProfilePublic: false,
+  privacyShowBookings: false,
+};
+
+// ── Dual role (Marta Kowalczyk) data ──
+
+const MOCK_USER_DUAL: UserProfile = {
+  id: "user-dual-1",
+  name: "Marta Kowalczyk",
+  email: "dual@classcat.com",
+  phone: "+48 600 333 444",
+  location: "Kraków",
+  avatar:
+    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face",
+  memberSince: "2022-11-01",
+  totalBookings: 12,
+  instructorId: "inst-1",
+  isBusinessInstructor: true,
+};
+
+const MOCK_BOOKINGS_DUAL: Booking[] = [
+  {
+    id: "bd1",
+    activity: {
+      id: "pop-1",
+      title: "Poranna Joga Vinyasa",
+      description: "Rozpocznij dzień ożywczą sesją jogi.",
+      category: "fitness",
+      provider: { name: "Studio Jogi Kazimierz" },
+      image:
+        "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop",
+      rating: 4.8,
+      reviewCount: 96,
+      price: "$",
+      priceAmount: 20,
+      distance: 0.3,
+      location: "Kazimierz, Kraków",
+      timeSlots: ["morning"],
+    },
+    date: "2026-03-05",
+    time: "7:00",
+    status: "confirmed",
+  },
+  {
+    id: "bd2",
+    activity: {
+      id: "trend-3",
+      title: "Studio Ceramiki i Gliny",
+      description: "Ubrudź ręce formując glinę na kole garncarskim.",
+      category: "arts",
+      provider: { name: "GlinArt Poznań" },
+      image:
+        "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=400&h=300&fit=crop",
+      rating: 4.9,
+      reviewCount: 88,
+      price: "$$",
+      priceAmount: 55,
+      distance: 1.8,
+      location: "Stary Rynek, Poznań",
+      timeSlots: ["afternoon", "weekend"],
+    },
+    date: "2026-01-20",
+    time: "15:00",
+    status: "completed",
+  },
+];
+
+const MOCK_REVIEWS_DUAL: UserReview[] = [
+  {
+    id: "rd1",
+    activityTitle: "Studio Ceramiki i Gliny",
+    activityId: "trend-3",
+    providerName: "GlinArt Poznań",
+    rating: 5,
+    text: "Wspaniałe warsztaty! Uwielbiam pracę na kole garncarskim. Świetny instruktor.",
+    date: "2026-01-22",
+  },
+];
+
+const MOCK_SETTINGS_DUAL: UserSettings = {
+  notifications: {
+    bookingUpdates: true,
+    newClasses: false,
+    promotions: false,
+    reminders: true,
+  },
+  defaultRadius: "25km",
+  language: "Polski",
+  privacyProfilePublic: true,
+  privacyShowBookings: true,
+};
+
+// ── Reviews for user-1 (Katarzyna) ──
+
 const MOCK_USER_REVIEWS: UserReview[] = [
   {
     id: "r1",
@@ -305,26 +512,33 @@ const MOCK_USER_REVIEWS: UserReview[] = [
   },
 ];
 
+const userDataMap: Record<string, { profile: UserProfile; bookings: Booking[]; reviews: UserReview[]; settings: UserSettings }> = {
+  "user-1": { profile: MOCK_USER, bookings: MOCK_BOOKINGS, reviews: MOCK_USER_REVIEWS, settings: MOCK_SETTINGS },
+  "user-instructor-1": { profile: MOCK_USER_INSTRUCTOR, bookings: MOCK_BOOKINGS_INSTRUCTOR, reviews: MOCK_REVIEWS_INSTRUCTOR, settings: MOCK_SETTINGS_INSTRUCTOR },
+  "user-consumer-1": { profile: MOCK_USER_CONSUMER, bookings: MOCK_BOOKINGS_CONSUMER, reviews: MOCK_REVIEWS_CONSUMER, settings: MOCK_SETTINGS_CONSUMER },
+  "user-dual-1": { profile: MOCK_USER_DUAL, bookings: MOCK_BOOKINGS_DUAL, reviews: MOCK_REVIEWS_DUAL, settings: MOCK_SETTINGS_DUAL },
+};
+
+function getUserData(userId?: string) {
+  return userDataMap[userId ?? "user-1"] ?? userDataMap["user-1"];
+}
+
 export async function fetchUserReviews(userId?: string): Promise<UserReview[]> {
   await new Promise((resolve) => setTimeout(resolve, 300));
-  if (userId === "user-instructor-1") return MOCK_REVIEWS_INSTRUCTOR;
-  return MOCK_USER_REVIEWS;
+  return getUserData(userId).reviews;
 }
 
 export async function fetchUserProfile(userId?: string): Promise<UserProfile> {
   await new Promise((resolve) => setTimeout(resolve, 300));
-  if (userId === "user-instructor-1") return MOCK_USER_INSTRUCTOR;
-  return MOCK_USER;
+  return getUserData(userId).profile;
 }
 
 export async function fetchUserBookings(userId?: string): Promise<Booking[]> {
   await new Promise((resolve) => setTimeout(resolve, 400));
-  if (userId === "user-instructor-1") return MOCK_BOOKINGS_INSTRUCTOR;
-  return MOCK_BOOKINGS;
+  return getUserData(userId).bookings;
 }
 
 export async function fetchUserSettings(userId?: string): Promise<UserSettings> {
   await new Promise((resolve) => setTimeout(resolve, 200));
-  if (userId === "user-instructor-1") return MOCK_SETTINGS_INSTRUCTOR;
-  return MOCK_SETTINGS;
+  return getUserData(userId).settings;
 }

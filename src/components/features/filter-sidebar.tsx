@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Faders, NavigationArrow, CaretDown, Star, StarHalf } from "@phosphor-icons/react";
 import {
@@ -128,7 +128,7 @@ export function FilterSidebar({ filters, onFilterChange, onClear, activeCount }:
   const [locationLoading, setLocationLoading] = useState(false);
 
   // Multiselect times
-  const activeTimes = filters.times ?? (filters.time ? [filters.time] : []);
+  const activeTimes = useMemo(() => filters.times ?? (filters.time ? [filters.time] : []), [filters.times, filters.time]);
   const toggleTime = useCallback((t: string) => {
     const next = activeTimes.includes(t)
       ? activeTimes.filter((v) => v !== t)
@@ -137,7 +137,7 @@ export function FilterSidebar({ filters, onFilterChange, onClear, activeCount }:
   }, [activeTimes, onFilterChange]);
 
   // Multiselect cities
-  const activeCities = filters.cities ?? (filters.city ? [filters.city] : []);
+  const activeCities = useMemo(() => filters.cities ?? (filters.city ? [filters.city] : []), [filters.cities, filters.city]);
   const toggleCity = useCallback((c: string) => {
     const next = activeCities.includes(c)
       ? activeCities.filter((v) => v !== c)

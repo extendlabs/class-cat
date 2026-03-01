@@ -41,19 +41,6 @@ export interface Activity {
   currency?: string;
 }
 
-interface SearchFilters {
-  query: string;
-  category?: Category;
-  distance?: Distance;
-  price?: PriceRange;
-  time?: TimeSlot;
-}
-
-interface SearchResult {
-  activities: Activity[];
-  total: number;
-}
-
 // Detail page types
 
 export interface Review {
@@ -118,4 +105,5 @@ export interface ActivityDetail extends Activity {
   totalSlots: number;
   availableTimes: string[];
   nextDate: string;
+  cohorts?: import("./enrollment").Cohort[];
 }

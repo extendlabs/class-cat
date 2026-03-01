@@ -12,6 +12,9 @@ import {
   Lock,
   LockOpen,
   User,
+  CalendarBlank,
+  ListBullets,
+  Repeat,
 } from "@phosphor-icons/react";
 import {
   Sheet,
@@ -27,7 +30,11 @@ import {
   fetchSlotDetails,
   toggleSingleCourtSlot,
 } from "@/api/business-portal";
-import type { TimeSlotAvailability } from "@/types/court";
+import { DailyAgendaView } from "@/components/features/business-courts/schedule/daily-agenda-view";
+import { RecurringBlocksDialog } from "@/components/features/business-courts/schedule/recurring-blocks-dialog";
+import type { TimeSlotAvailability, CourtSlotDetail } from "@/types/court";
+
+type ViewMode = "week" | "agenda";
 
 const HOURS = Array.from({ length: 15 }, (_, i) => i + 7);
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -72,6 +79,9 @@ export default function PageContent({ courtId }: { courtId: string }) {
     return monday.toISOString().split("T")[0];
   });
   const [selectedSlot, setSelectedSlot] = useState<{ date: string; hour: number } | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>("week");
+  const [agendaDate, setAgendaDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [recurringOpen, setRecurringOpen] = useState(false);
 
   const { data: court, isLoading: courtLoading } = useQuery({
     queryKey: ["business-court", courtId],
@@ -123,6 +133,51 @@ export default function PageContent({ courtId }: { courtId: string }) {
     }
     return map;
   }, [slots]);
+
+  // Agenda view: compute week start for the selected agenda date
+  const agendaWeekStart = useMemo(() => {
+    const d = new Date(agendaDate);
+    const monday = getMonday(d);
+    return monday.toISOString().split("T")[0];
+  }, [agendaDate]);
+
+  const { data: agendaSlots = [] } = useQuery({
+    queryKey: ["court-week-slots", courtId, agendaWeekStart],
+    queryFn: () => fetchCourtWeekSlots(courtId, agendaWeekStart),
+    enabled: !!court && viewMode === "agenda",
+    placeholderData: keepPreviousData,
+  });
+
+  // Detail cache for agenda view — prefetch all hours for the selected day
+  const { data: agendaDayDetails = new Map<number, CourtSlotDetail[]>() } = useQuery({
+    queryKey: ["agenda-day-details", courtId, agendaWeekStart, agendaDate],
+    queryFn: async () => {
+      const daySlots = agendaSlots.filter((s) => s.date === agendaDate && !s.closed);
+      const results = new Map<number, CourtSlotDetail[]>();
+      for (const s of daySlots) {
+        const details = await fetchSlotDetails(courtId, agendaWeekStart, agendaDate, s.hour);
+        results.set(s.hour, details);
+      }
+      return results;
+    },
+    enabled: !!court && viewMode === "agenda" && agendaSlots.length > 0,
+  });
+
+  const getAgendaDetails = (date: string, hour: number): CourtSlotDetail[] => {
+    return agendaDayDetails.get(hour) ?? [];
+  };
+
+  const prevAgendaDay = () => {
+    const d = new Date(agendaDate);
+    d.setDate(d.getDate() - 1);
+    setAgendaDate(d.toISOString().split("T")[0]);
+  };
+
+  const nextAgendaDay = () => {
+    const d = new Date(agendaDate);
+    d.setDate(d.getDate() + 1);
+    setAgendaDate(d.toISOString().split("T")[0]);
+  };
 
   const isToday = (dateStr: string) => {
     const today = new Date().toISOString().split("T")[0];
@@ -176,130 +231,186 @@ export default function PageContent({ courtId }: { courtId: string }) {
       </Link>
 
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-          {court.name}
-        </h1>
-        <p className="text-sm text-gray-500 mt-0.5">
-          {court.sport.charAt(0).toUpperCase() + court.sport.slice(1)} · {court.indoor ? "Indoor" : "Outdoor"} · {totalCourts} {totalCourts === 1 ? "court" : "courts"} · {court.pricePerHour} zł/hr
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+            {court.name}
+          </h1>
+          <p className="text-sm text-gray-500 mt-0.5">
+            {court.sport.charAt(0).toUpperCase() + court.sport.slice(1)} · {court.indoor ? "Indoor" : "Outdoor"} · {totalCourts} {totalCourts === 1 ? "court" : "courts"} · {court.pricePerHour} zł/hr
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {/* View mode toggle */}
+          <div className="flex items-center rounded-lg border border-gray-200 bg-white p-0.5">
+            <button
+              type="button"
+              onClick={() => setViewMode("week")}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
+                viewMode === "week"
+                  ? "bg-coral/10 text-coral"
+                  : "text-gray-500 hover:text-gray-700"
+              )}
+            >
+              <CalendarBlank size={14} />
+              Week
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("agenda")}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
+                viewMode === "agenda"
+                  ? "bg-coral/10 text-coral"
+                  : "text-gray-500 hover:text-gray-700"
+              )}
+            >
+              <ListBullets size={14} />
+              Day
+            </button>
+          </div>
+          {/* Recurring blocks */}
+          <button
+            type="button"
+            onClick={() => setRecurringOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-medium text-gray-600 hover:text-coral hover:border-coral/30 transition-colors"
+          >
+            <Repeat size={14} />
+            Recurring
+          </button>
+        </div>
       </div>
 
       {/* Schedule card */}
       <div className="rounded-2xl bg-white shadow-[var(--shadow-soft)] border border-gray-100/60 overflow-hidden">
-        {/* Week navigation */}
-        <div className="flex items-center justify-center gap-3 px-6 py-3 bg-coral/[0.02] border-b border-coral/[0.06]">
-          <button
-            type="button"
-            onClick={prevWeek}
-            className="w-8 h-8 rounded-full bg-white border border-coral/15 shadow-[var(--shadow-soft)] flex items-center justify-center text-gray-500 hover:text-coral hover:border-coral/30 hover:shadow-[var(--shadow-hover)] transition-all active:scale-95"
-          >
-            <CaretLeft size={14} weight="bold" />
-          </button>
-          <span className="text-sm font-semibold text-gray-800 min-w-[200px] text-center">
-            {formatWeekRange(weekStart)}
-          </span>
-          <button
-            type="button"
-            onClick={nextWeek}
-            className="w-8 h-8 rounded-full bg-white border border-coral/15 shadow-[var(--shadow-soft)] flex items-center justify-center text-gray-500 hover:text-coral hover:border-coral/30 hover:shadow-[var(--shadow-hover)] transition-all active:scale-95"
-          >
-            <CaretRight size={14} weight="bold" />
-          </button>
-        </div>
-
-        {/* Schedule Grid */}
-        <div className="overflow-x-auto no-scrollbar">
-          <div className="min-w-[700px] p-4">
-            {/* Day headers */}
-            <div className="grid grid-cols-[52px_repeat(7,1fr)] gap-1 mb-2 sticky top-0 bg-white z-10 pb-1">
-              <div />
-              {days.map((date, i) => (
-                <button
-                  key={date}
-                  type="button"
-                  onClick={nextWeek}
-                  className={cn(
-                    "text-center rounded-xl py-1.5 transition-colors cursor-pointer",
-                    isToday(date)
-                      ? "bg-coral/5 ring-1 ring-coral/10"
-                      : "hover:bg-gray-50"
-                  )}
-                >
-                  <div className={cn(
-                    "text-[11px] font-medium uppercase tracking-wider",
-                    isToday(date) ? "text-coral" : "text-gray-400"
-                  )}>
-                    {DAY_LABELS[i]}
-                  </div>
-                  <div className={cn(
-                    "text-xs font-bold mt-0.5",
-                    isToday(date) ? "text-coral" : "text-gray-700"
-                  )}>
-                    {formatDate(date)}
-                  </div>
-                </button>
-              ))}
+        {viewMode === "week" ? (
+          <>
+            {/* Week navigation */}
+            <div className="flex items-center justify-center gap-3 px-6 py-3 bg-coral/[0.02] border-b border-coral/[0.06]">
+              <button
+                type="button"
+                onClick={prevWeek}
+                className="w-8 h-8 rounded-full bg-white border border-coral/15 shadow-[var(--shadow-soft)] flex items-center justify-center text-gray-500 hover:text-coral hover:border-coral/30 hover:shadow-[var(--shadow-hover)] transition-all active:scale-95"
+              >
+                <CaretLeft size={14} weight="bold" />
+              </button>
+              <span className="text-sm font-semibold text-gray-800 min-w-[200px] text-center">
+                {formatWeekRange(weekStart)}
+              </span>
+              <button
+                type="button"
+                onClick={nextWeek}
+                className="w-8 h-8 rounded-full bg-white border border-coral/15 shadow-[var(--shadow-soft)] flex items-center justify-center text-gray-500 hover:text-coral hover:border-coral/30 hover:shadow-[var(--shadow-hover)] transition-all active:scale-95"
+              >
+                <CaretRight size={14} weight="bold" />
+              </button>
             </div>
 
-            {/* Hour rows */}
-            {HOURS.map((hour) => (
-              <div key={hour} className="grid grid-cols-[52px_repeat(7,1fr)] gap-1 mb-1">
-                <div className="text-[11px] text-gray-400 font-medium flex items-center justify-end pr-2 tabular-nums">
-                  {String(hour).padStart(2, "0")}:00
-                </div>
-                {days.map((date) => {
-                  const slot = slotMap.get(`${date}-${hour}`);
-                  const hasData = !!slot;
-                  const isClosed = slot?.closed === true;
-                  const avail = slot?.availableCount ?? 0;
-                  const booked = slot?.bookedCount ?? 0;
-                  const allBooked = hasData && !isClosed && booked === totalCourts;
-                  const hasBookings = hasData && !isClosed && booked > 0 && !allBooked;
-                  const noneAvailable = hasData && !isClosed && avail === 0;
-                  const isSelected = selectedSlot?.date === date && selectedSlot?.hour === hour;
-
-                  if (isClosed) {
-                    return (
-                      <div
-                        key={`${date}-${hour}`}
-                        className="h-9 rounded-[10px] bg-gray-100/40 border border-gray-100/40"
-                      />
-                    );
-                  }
-
-                  return (
+            {/* Schedule Grid */}
+            <div className="overflow-x-auto no-scrollbar">
+              <div className="min-w-[700px] p-4">
+                {/* Day headers */}
+                <div className="grid grid-cols-[52px_repeat(7,1fr)] gap-1 mb-2 sticky top-0 bg-white z-10 pb-1">
+                  <div />
+                  {days.map((date, i) => (
                     <button
-                      key={`${date}-${hour}`}
+                      key={date}
                       type="button"
-                      onClick={() => setSelectedSlot({ date, hour })}
+                      onClick={() => { setAgendaDate(date); setViewMode("agenda"); }}
                       className={cn(
-                        "h-9 rounded-[10px] text-[11px] font-semibold transition-all duration-150 tabular-nums cursor-pointer",
-                        isSelected && "ring-2 ring-coral ring-offset-1",
-                        !hasData
-                          ? "bg-gray-50/50 border border-gray-100/60"
-                          : allBooked
-                            ? "bg-coral/15 text-coral/70 border border-coral/15"
-                            : hasBookings && noneAvailable
-                              ? "bg-amber-50/80 text-amber-600/70 border border-dashed border-amber-200 hover:bg-amber-50 hover:border-amber-300"
-                              : hasBookings
-                                ? "bg-amber-50 text-amber-700 border border-amber-200 hover:border-amber-300 hover:bg-amber-100/60 hover:shadow-[var(--shadow-soft)]"
-                                : noneAvailable
-                                  ? "bg-gray-50 text-gray-300 border border-dashed border-gray-200 hover:bg-gray-100/60 hover:border-gray-300"
-                                  : "bg-white text-gray-700 border border-gray-100 hover:border-coral/30 hover:text-coral hover:bg-coral/5 hover:shadow-[var(--shadow-soft)]"
+                        "text-center rounded-xl py-1.5 transition-colors cursor-pointer",
+                        isToday(date)
+                          ? "bg-coral/5 ring-1 ring-coral/10"
+                          : "hover:bg-gray-50"
                       )}
-                      title={hasData ? `${avail} available · ${booked} booked — click to manage` : "Loading…"}
                     >
-                      {hasData && avail > 0 ? (
-                        <span>{avail}</span>
-                      ) : null}
+                      <div className={cn(
+                        "text-[11px] font-medium uppercase tracking-wider",
+                        isToday(date) ? "text-coral" : "text-gray-400"
+                      )}>
+                        {DAY_LABELS[i]}
+                      </div>
+                      <div className={cn(
+                        "text-xs font-bold mt-0.5",
+                        isToday(date) ? "text-coral" : "text-gray-700"
+                      )}>
+                        {formatDate(date)}
+                      </div>
                     </button>
-                  );
-                })}
+                  ))}
+                </div>
+
+                {/* Hour rows */}
+                {HOURS.map((hour) => (
+                  <div key={hour} className="grid grid-cols-[52px_repeat(7,1fr)] gap-1 mb-1">
+                    <div className="text-[11px] text-gray-400 font-medium flex items-center justify-end pr-2 tabular-nums">
+                      {String(hour).padStart(2, "0")}:00
+                    </div>
+                    {days.map((date) => {
+                      const slot = slotMap.get(`${date}-${hour}`);
+                      const hasData = !!slot;
+                      const isClosed = slot?.closed === true;
+                      const avail = slot?.availableCount ?? 0;
+                      const booked = slot?.bookedCount ?? 0;
+                      const allBooked = hasData && !isClosed && booked === totalCourts;
+                      const hasBookings = hasData && !isClosed && booked > 0 && !allBooked;
+                      const noneAvailable = hasData && !isClosed && avail === 0;
+                      const isSelected = selectedSlot?.date === date && selectedSlot?.hour === hour;
+
+                      if (isClosed) {
+                        return (
+                          <div
+                            key={`${date}-${hour}`}
+                            className="h-9 rounded-[10px] bg-gray-100/40 border border-gray-100/40"
+                          />
+                        );
+                      }
+
+                      return (
+                        <button
+                          key={`${date}-${hour}`}
+                          type="button"
+                          onClick={() => setSelectedSlot({ date, hour })}
+                          className={cn(
+                            "h-9 rounded-[10px] text-[11px] font-semibold transition-all duration-150 tabular-nums cursor-pointer",
+                            isSelected && "ring-2 ring-coral ring-offset-1",
+                            !hasData
+                              ? "bg-gray-50/50 border border-gray-100/60"
+                              : allBooked
+                                ? "bg-coral/15 text-coral/70 border border-coral/15"
+                                : hasBookings && noneAvailable
+                                  ? "bg-amber-50/80 text-amber-600/70 border border-dashed border-amber-200 hover:bg-amber-50 hover:border-amber-300"
+                                  : hasBookings
+                                    ? "bg-amber-50 text-amber-700 border border-amber-200 hover:border-amber-300 hover:bg-amber-100/60 hover:shadow-[var(--shadow-soft)]"
+                                    : noneAvailable
+                                      ? "bg-gray-50 text-gray-300 border border-dashed border-gray-200 hover:bg-gray-100/60 hover:border-gray-300"
+                                      : "bg-white text-gray-700 border border-gray-100 hover:border-coral/30 hover:text-coral hover:bg-coral/5 hover:shadow-[var(--shadow-soft)]"
+                          )}
+                          title={hasData ? `${avail} available · ${booked} booked — click to manage` : "Loading…"}
+                        >
+                          {hasData && avail > 0 ? (
+                            <span>{avail}</span>
+                          ) : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          </>
+        ) : (
+          <DailyAgendaView
+            date={agendaDate}
+            totalCourts={totalCourts}
+            slots={agendaSlots}
+            getDetails={getAgendaDetails}
+            onPrevDay={prevAgendaDay}
+            onNextDay={nextAgendaDay}
+            onSlotClick={(date, hour) => setSelectedSlot({ date, hour })}
+          />
+        )}
 
         {/* Legend */}
         <div className="flex items-center justify-center gap-6 px-6 py-3.5 border-t border-gray-100/60 bg-secondary/40 flex-wrap">
@@ -426,6 +537,13 @@ export default function PageContent({ courtId }: { courtId: string }) {
           )}
         </SheetContent>
       </Sheet>
+
+      <RecurringBlocksDialog
+        open={recurringOpen}
+        onClose={() => setRecurringOpen(false)}
+        courtId={courtId}
+        totalCourts={totalCourts}
+      />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { LikedActivitiesProvider } from "@/hooks/use-liked-activities";
 import { AuthProvider } from "@/hooks/use-auth";
+import { ChatSidebarProvider } from "@/components/features/chat-sidebar-context";
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
@@ -21,8 +22,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <LikedActivitiesProvider>
-          {children}
-          <Toaster position="bottom-right" />
+          <ChatSidebarProvider>
+            {children}
+            <Toaster position="bottom-right" />
+          </ChatSidebarProvider>
         </LikedActivitiesProvider>
       </AuthProvider>
     </QueryClientProvider>

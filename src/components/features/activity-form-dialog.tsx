@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -42,12 +42,20 @@ export function ActivityFormDialog({
   onSubmit,
   mode,
   activity,
+  instructors,
 }: ActivityFormDialogProps) {
   const [showPreview, setShowPreview] = useState(false);
   const form = useForm<FormValues>({
     resolver: zodResolver(activitySchema),
     defaultValues: getDefaults(activity),
   });
+
+  useEffect(() => {
+    if (open) {
+      form.reset(getDefaults(activity));
+      setShowPreview(false);
+    }
+  }, [open, activity]);
 
   const galleryArray = useFieldArray({ control: form.control, name: "gallery" });
   const learnArray = useFieldArray({ control: form.control, name: "whatYouLearn" });
@@ -79,6 +87,7 @@ export function ActivityFormDialog({
       classType: values.classType,
       materialsIncluded: values.materialsIncluded ?? "",
       location: values.location,
+      instructorId: values.instructorId || undefined,
       timeSlots: [values.timeSlots as TimeSlot],
       availableTimes: values.availableTimes?.map((t) => t.value).filter(Boolean) ?? [],
       nextDate: values.nextDate ?? "",
@@ -105,12 +114,7 @@ export function ActivityFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={(v) => {
-      if (v) {
-        form.reset(getDefaults(activity));
-        setShowPreview(false);
-      } else {
-        onClose();
-      }
+      if (!v) onClose();
     }}>
       <DialogContent className="rounded-2xl max-h-[90vh] overflow-y-auto sm:max-w-2xl p-0">
         <DialogHeader className="px-6 pt-6 pb-0">
@@ -145,7 +149,7 @@ export function ActivityFormDialog({
               </TabsList>
 
               <TabsContent value="basic" className="pt-4">
-                <ActivityBasicInfoFields form={form} />
+                <ActivityBasicInfoFields form={form} instructors={instructors} />
               </TabsContent>
 
               <TabsContent value="details" className="pt-4">

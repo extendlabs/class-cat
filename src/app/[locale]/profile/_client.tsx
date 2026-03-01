@@ -6,7 +6,8 @@ import { useRouter } from "@/i18n/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
   User,
-  CalendarBlank,
+  BookOpen,
+  TennisBall,
   GearSix,
   Star,
 } from "@phosphor-icons/react";
@@ -16,21 +17,21 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/use-auth";
 import {
   fetchUserProfile,
-  fetchUserBookings,
   fetchUserReviews,
   fetchUserSettings,
 } from "@/api/user";
+import { fetchUserEnrollments } from "@/api/enrollments";
+import { fetchUserCourtReservations } from "@/api/court-service";
 import {
   ProfileCard,
   EditProfileDialog,
-  UpcomingBookings,
-  PastBookings,
   ReviewsList,
   SettingsNotifications,
   SettingsPreferences,
   SettingsPrivacy,
   SettingsAccount,
 } from "@/components/features/user-profile";
+import { MyClassesTab, MyCourtsTab } from "@/components/features/consumer-dashboard";
 
 export default function PageContent() {
   const router = useRouter();
@@ -45,9 +46,15 @@ export default function PageContent() {
     enabled: !!user,
   });
 
-  const { data: bookings } = useQuery({
-    queryKey: ["user-bookings", user?.id],
-    queryFn: () => fetchUserBookings(user?.id),
+  const { data: enrollments } = useQuery({
+    queryKey: ["user-enrollments", user?.id],
+    queryFn: () => fetchUserEnrollments(user!.id),
+    enabled: !!user,
+  });
+
+  const { data: courtReservations } = useQuery({
+    queryKey: ["user-court-reservations", user?.name],
+    queryFn: () => fetchUserCourtReservations(user!.name),
     enabled: !!user,
   });
 
@@ -65,13 +72,6 @@ export default function PageContent() {
 
   const visibleReviews = reviews?.filter((r) => !deletedReviewIds.has(r.id));
 
-  const upcomingBookings = bookings?.filter(
-    (b) => b.status === "confirmed" || b.status === "pending"
-  );
-  const pastBookings = bookings?.filter(
-    (b) => b.status === "completed" || b.status === "cancelled"
-  );
-
   const handleLogout = async () => {
     await logout();
     router.push("/");
@@ -81,6 +81,9 @@ export default function PageContent() {
     setDeletedReviewIds((prev) => new Set([...prev, id]));
   };
 
+  const tabTriggerClass =
+    "gap-1.5 rounded-full text-xs sm:text-sm py-1.5 data-[state=active]:bg-white data-[state=active]:shadow-[var(--shadow-soft)] data-[state=active]:text-coral";
+
   return (
     <div className="min-h-screen bg-background font-sans antialiased">
       <Navbar />
@@ -88,32 +91,24 @@ export default function PageContent() {
       <main className="pb-20 md:pb-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <Tabs defaultValue="profile">
-            <TabsList className="w-full grid grid-cols-4 bg-secondary rounded-full p-1 shadow-[var(--shadow-soft)] border border-gray-200/40 group-data-[orientation=horizontal]/tabs:h-11">
-              <TabsTrigger
-                value="profile"
-                className="gap-1.5 rounded-full text-xs sm:text-sm py-1.5 data-[state=active]:bg-white data-[state=active]:shadow-[var(--shadow-soft)] data-[state=active]:text-coral"
-              >
+            <TabsList className="w-full grid grid-cols-5 bg-secondary rounded-full p-1 shadow-[var(--shadow-soft)] border border-gray-200/40 group-data-[orientation=horizontal]/tabs:h-11">
+              <TabsTrigger value="profile" className={tabTriggerClass}>
                 <User size={15} />
                 <span className="hidden sm:inline">{t("tabs.profile")}</span>
               </TabsTrigger>
-              <TabsTrigger
-                value="activities"
-                className="gap-1.5 rounded-full text-xs sm:text-sm py-1.5 data-[state=active]:bg-white data-[state=active]:shadow-[var(--shadow-soft)] data-[state=active]:text-coral"
-              >
-                <CalendarBlank size={15} />
-                <span className="hidden sm:inline">{t("tabs.activities")}</span>
+              <TabsTrigger value="classes" className={tabTriggerClass}>
+                <BookOpen size={15} />
+                <span className="hidden sm:inline">{t("tabs.classes")}</span>
               </TabsTrigger>
-              <TabsTrigger
-                value="reviews"
-                className="gap-1.5 rounded-full text-xs sm:text-sm py-1.5 data-[state=active]:bg-white data-[state=active]:shadow-[var(--shadow-soft)] data-[state=active]:text-coral"
-              >
+              <TabsTrigger value="courts" className={tabTriggerClass}>
+                <TennisBall size={15} />
+                <span className="hidden sm:inline">{t("tabs.courts")}</span>
+              </TabsTrigger>
+              <TabsTrigger value="reviews" className={tabTriggerClass}>
                 <Star size={15} />
                 <span className="hidden sm:inline">{t("tabs.reviews")}</span>
               </TabsTrigger>
-              <TabsTrigger
-                value="settings"
-                className="gap-1.5 rounded-full text-xs sm:text-sm py-1.5 data-[state=active]:bg-white data-[state=active]:shadow-[var(--shadow-soft)] data-[state=active]:text-coral"
-              >
+              <TabsTrigger value="settings" className={tabTriggerClass}>
                 <GearSix size={15} />
                 <span className="hidden sm:inline">{t("tabs.settings")}</span>
               </TabsTrigger>
@@ -135,10 +130,14 @@ export default function PageContent() {
               />
             </TabsContent>
 
-            {/* -- Activities Tab -- */}
-            <TabsContent value="activities" className="mt-6 space-y-8">
-              <UpcomingBookings bookings={upcomingBookings ?? []} />
-              <PastBookings bookings={pastBookings ?? []} />
+            {/* -- My Classes Tab -- */}
+            <TabsContent value="classes" className="mt-6">
+              <MyClassesTab enrollments={enrollments ?? []} />
+            </TabsContent>
+
+            {/* -- My Courts Tab -- */}
+            <TabsContent value="courts" className="mt-6">
+              <MyCourtsTab reservations={courtReservations ?? []} />
             </TabsContent>
 
             {/* -- Reviews Tab -- */}

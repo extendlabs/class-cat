@@ -33,6 +33,7 @@ export const activitySchema = z.object({
   classType: z.string().min(1, "Class type is required"),
   materialsIncluded: z.string().optional(),
   location: z.string().min(1, "Location is required"),
+  instructorId: z.string().optional(),
   timeSlots: z.string().min(1, "Select a time slot"),
   availableTimes: z.array(z.object({ value: z.string().min(1, "Required") })).optional(),
   nextDate: z.string().optional(),
@@ -57,9 +58,9 @@ export interface ActivityFormDialogProps {
   onSubmit: (data: Partial<BusinessActivity>) => void;
   mode: "create" | "edit";
   activity?: BusinessActivity;
+  instructors?: { instructorId: string; name: string }[];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FormInstance = ReturnType<typeof useForm<FormValues>>;
 
 export interface TabFieldsProps {
@@ -93,6 +94,7 @@ export function getDefaults(activity?: BusinessActivity): FormValues {
     classType: activity?.classType ?? "Group Classes",
     materialsIncluded: activity?.materialsIncluded ?? "",
     location: activity?.location ?? "",
+    instructorId: activity?.instructorId ?? "",
     timeSlots: activity?.timeSlots?.[0] ?? "morning",
     availableTimes: activity?.availableTimes?.map((v) => ({ value: v })) ?? [],
     nextDate: activity?.nextDate ?? "",

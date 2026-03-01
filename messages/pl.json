@@ -29,6 +29,14 @@
     "instructorScheduleDescription": "Zarządzaj swoją tygodniową dostępnością.",
     "instructorSettingsTitle": "Ustawienia",
     "instructorSettingsDescription": "Zarządzaj preferencjami instruktora.",
+    "instructorAffiliationsTitle": "Współprace",
+    "instructorAffiliationsDescription": "Zarządzaj współpracami z firmami.",
+    "instructorProposalsTitle": "Propozycje",
+    "instructorProposalsDescription": "Przeglądaj propozycje terminów od firm.",
+    "businessInstructorsTitle": "Instruktorzy",
+    "businessInstructorsDescription": "Zarządzaj powiązanymi instruktorami.",
+    "becomeInstructorTitle": "Zostań instruktorem",
+    "becomeInstructorDescription": "Zacznij uczyć na ClassCat.",
     "onboardingTitle": "Rejestracja firmy",
     "onboardingDescription": "Załóż firmę na ClassCat.",
     "loginTitle": "Logowanie",
@@ -85,6 +93,7 @@
     "businessPortal": "Portal firmy",
     "listYourBusiness": "Dodaj swoją firmę",
     "instructorPortal": "Portal instruktora",
+    "influencerPortal": "Portal instruktora biznesowego",
     "signIn": "Zaloguj się"
   },
   "footer": {
@@ -106,6 +115,7 @@
   "bottomNav": {
     "home": "Start",
     "search": "Szukaj",
+    "messages": "Wiadomości",
     "profile": "Profil"
   },
   "categories": {
@@ -292,7 +302,21 @@
     "bookNow": "Zarezerwuj",
     "interestedTitle": "Zainteresowany tymi zajęciami?",
     "interestedDescription": "Wyślij zapytanie do instruktora, a on odpowie z dostępnymi terminami, cenami i odpowiedziami na Twoje pytania.",
-    "browseMoreClasses": "Przeglądaj więcej zajęć"
+    "browseMoreClasses": "Przeglądaj więcej zajęć",
+    "selectCohort": "Wybierz grupę",
+    "cohortFull": "Komplet",
+    "spotsLeft": "wolnych miejsc",
+    "applyNow": "Aplikuj",
+    "applicationPending": "Oczekuje na akceptację",
+    "enrolledOpenChat": "Otwórz czat",
+    "enrollmentNote": "Aplikując, utworzysz rozmowę z instruktorem. Przejrzy Twoje zgłoszenie i odpowie.",
+    "writeReview": "Napisz opinię",
+    "yourRating": "Twoja ocena",
+    "reviewPlaceholder": "Podziel się swoim doświadczeniem z tymi zajęciami...",
+    "submitReview": "Wyślij opinię",
+    "reviewSubmitted": "Opinia została dodana!",
+    "selectRating": "Wybierz ocenę",
+    "loginToReview": "Zaloguj się, aby dodać opinię"
   },
   "liked": {
     "title": "Zapisane zajęcia",
@@ -301,19 +325,27 @@
     "emptyDescription": "Kliknij ikonę serca przy zajęciach, aby je zapisać.",
     "clearAll": "Wyczyść wszystko"
   },
-  "chat": {
+  "messages": {
     "title": "Wiadomości",
-    "conversationsCount": "Twoje rozmowy ({count})",
+    "conversationsCount": "{count} rozmów",
     "unread": "nieprzeczytane",
+    "tabAll": "Wszystkie",
+    "tabGroups": "Grupy",
     "searchConversations": "Szukaj rozmów...",
     "noMessages": "Brak wiadomości",
-    "startConversation": "Rozpocznij rozmowę z miejscem lub instruktorem.",
+    "noMessagesHint": "Przeglądaj zajęcia i aplikuj, aby rozpocząć rozmowy.",
     "noConversationsFound": "Nie znaleziono rozmów",
     "tryDifferentSearch": "Spróbuj innego zapytania.",
-    "newConversation": "Nowa rozmowa",
-    "searchPlacesOrInstructors": "Szukaj miejsc lub instruktorów...",
-    "noResults": "Brak wyników",
-    "sayHello": "Przywitaj się, aby rozpocząć rozmowę!"
+    "sendPlaceholder": "Napisz wiadomość...",
+    "participantCount": "{count} uczestników",
+    "pendingEnrollment": "Oczekujący zapis",
+    "accept": "Akceptuj",
+    "reject": "Odrzuć",
+    "conversationNotFound": "Nie znaleziono rozmowy",
+    "startTyping": "Wyślij wiadomość, aby rozpocząć rozmowę.",
+    "systemJoined": "{name} dołączył do grupy.",
+    "systemAccepted": "Zapis zaakceptowany.",
+    "systemRejected": "Zapis odrzucony."
   },
   "notifications": {
     "title": "Powiadomienia",
@@ -329,7 +361,8 @@
   "profile": {
     "tabs": {
       "profile": "Profil",
-      "activities": "Aktywności",
+      "classes": "Moje Zajęcia",
+      "courts": "Moje Korty",
       "reviews": "Opinie",
       "settings": "Ustawienia"
     },
@@ -337,6 +370,22 @@
     "past": "Poprzednie",
     "noUpcoming": "Brak nadchodzących rezerwacji",
     "noPast": "Brak poprzednich rezerwacji",
+    "myClasses": {
+      "upcoming": "Nadchodzące zajęcia",
+      "pending": "Oczekujące na akceptację",
+      "past": "Poprzednie zajęcia",
+      "noUpcoming": "Brak nadchodzących zajęć. Przeglądaj aktywności, aby się zapisać!",
+      "openChat": "Otwórz czat"
+    },
+    "myCourts": {
+      "upcoming": "Nadchodzące rezerwacje",
+      "past": "Poprzednie rezerwacje",
+      "noUpcoming": "Brak nadchodzących rezerwacji kortów.",
+      "cancelTitle": "Anulować rezerwację?",
+      "cancelDescription": "Czy na pewno chcesz anulować rezerwację kortu \u201E{court}\u201D? Tej operacji nie można cofnąć.",
+      "keepReservation": "Zachowaj rezerwację",
+      "yesCancel": "Tak, anuluj"
+    },
     "noReviews": "Brak opinii",
     "reviewsWillAppear": "Twoje opinie pojawią się tutaj po uczestnictwie w zajęciach.",
     "editProfile": "Edytuj profil",
@@ -391,15 +440,17 @@
     "dashboard": "Panel",
     "profile": "Profil",
     "activities": "Zajęcia",
+    "instructors": "Instruktorzy",
     "courts": "Korty",
+    "requests": "Zgłoszenia",
     "promotions": "Promocje",
     "settings": "Ustawienia"
   },
   "businessNavbar": {
     "business": "Firma",
-    "instructor": "Instruktor",
+    "instructor": "Instruktor biznesowy",
     "switchToConsumer": "Przełącz na klienta",
-    "switchToInstructor": "Przełącz na instruktora"
+    "switchToInstructor": "Przełącz na instruktora biznesowego"
   },
   "instructorSidebar": {
     "dashboard": "Panel",
@@ -407,10 +458,13 @@
     "myClasses": "Moje zajęcia",
     "reviews": "Opinie",
     "schedule": "Harmonogram",
+    "affiliations": "Współprace",
+    "proposals": "Propozycje",
     "settings": "Ustawienia"
   },
   "instructorNavbar": {
     "instructor": "Instruktor",
+    "influencer": "Instruktor biznesowy",
     "switchToConsumer": "Przełącz na klienta",
     "switchToBusiness": "Przełącz na firmę"
   },
@@ -504,17 +558,97 @@
     "rating": "Ocena",
     "reviews": "Opinie",
     "upcoming": "Nadchodzące",
+    "freelanceClasses": "Własne zajęcia",
+    "partnerships": "Współprace",
+    "pendingProposals": "Oczekujące propozycje",
     "upcomingClasses": "Nadchodzące zajęcia",
     "noUpcoming": "Brak nadchodzących zajęć.",
     "recentReviews": "Ostatnie opinie",
     "noReviews": "Brak opinii.",
     "spotsLeft": "{count} miejsca",
-    "full": "Komplet"
+    "full": "Komplet",
+    "monthlyEarnings": "Zarobki miesięczne",
+    "freelanceIncome": "Dochód freelance",
+    "businessIncome": "Dochód z firm",
+    "pendingActions": "Oczekujące akcje",
+    "pendingProposalsAction": "{count} oczekujących propozycji",
+    "pendingAffiliationsAction": "{count} oczekujących współprac",
+    "viewAll": "Zobacz wszystkie",
+    "noPending": "Brak oczekujących akcji."
   },
   "instructorClasses": {
     "title": "Moje zajęcia",
-    "subtitle": "Zajęcia przypisane przez Twoją firmę.",
+    "subtitle": "Zarządzaj własnymi i firmowymi zajęciami.",
     "noClasses": "Brak przypisanych zajęć."
+  },
+  "instructorAffiliations": {
+    "title": "Współprace",
+    "subtitle": "Twoje partnerstwa biznesowe i współprace.",
+    "noAffiliations": "Brak współprac.",
+    "status": {
+      "active": "Aktywna",
+      "pending": "Oczekująca",
+      "ended": "Zakończona"
+    },
+    "role": {
+      "contractor": "Współpracownik",
+      "employee": "Pracownik"
+    },
+    "accept": "Akceptuj",
+    "decline": "Odrzuć",
+    "since": "Od",
+    "until": "Do"
+  },
+  "instructorProposals": {
+    "title": "Propozycje terminów",
+    "subtitle": "Przeglądaj i odpowiadaj na propozycje harmonogramu od firm.",
+    "noProposals": "Brak propozycji.",
+    "pendingSection": "Do akceptacji",
+    "resolvedSection": "Historia",
+    "approve": "Zatwierdź",
+    "reject": "Odrzuć",
+    "proposedAt": "Zaproponowano",
+    "status": {
+      "pending": "Oczekująca",
+      "approved": "Zatwierdzona",
+      "rejected": "Odrzucona"
+    }
+  },
+  "businessInstructors": {
+    "title": "Instruktorzy",
+    "subtitle": "Zarządzaj współpracującymi instruktorami.",
+    "noInstructors": "Brak instruktorów.",
+    "status": {
+      "active": "Aktywny",
+      "pending": "Oczekujący",
+      "ended": "Zakończony"
+    },
+    "viewSchedule": "Harmonogram",
+    "proposeSlot": "Zaproponuj termin",
+    "availabilityTitle": "Dostępność",
+    "blockedTimesNote": "Poniżej widoczne są zajęte terminy (bez szczegółów).",
+    "unavailable": "Niedostępny",
+    "fullyAvailable": "Brak zajętych terminów.",
+    "proposeSlotTitle": "Zaproponuj termin",
+    "activityName": "Zajęcia",
+    "activityPlaceholder": "Wybierz zajęcia",
+    "noActivitiesAssigned": "Brak zajęć przypisanych do tego instruktora. Najpierw przypisz je na stronie Zajęcia.",
+    "date": "Data",
+    "startTime": "Godzina rozpoczęcia",
+    "endTime": "Godzina zakończenia",
+    "cancel": "Anuluj",
+    "sendProposal": "Wyślij propozycję"
+  },
+  "onboarding": {
+    "becomeInstructorTitle": "Zostań instruktorem",
+    "becomeInstructorSubtitle": "Podziel się swoimi umiejętnościami i zacznij uczyć na ClassCat.",
+    "name": "Imię i nazwisko",
+    "specialty": "Specjalizacja",
+    "specialtyPlaceholder": "np. Joga, Szachy, Malarstwo",
+    "bio": "O sobie",
+    "bioPlaceholder": "Opowiedz uczniom o swoim doświadczeniu i stylu nauczania...",
+    "creating": "Tworzenie profilu...",
+    "createProfile": "Utwórz profil instruktora"
   },
   "instructorReviews": {
     "title": "Opinie",
@@ -860,15 +994,62 @@
     "confirming": "Potwierdzanie...",
     "durationHours": "{count} godz.",
     "reservationSuccess": "Rezerwacja potwierdzona! Do zobaczenia na korcie.",
+    "reservationPending": "Rezerwacja złożona! Oczekuje na potwierdzenie.",
     "reservationError": "Coś poszło nie tak. Spróbuj ponownie.",
+    "courtPreference": "Preferencja kortu",
+    "anyAvailable": "Dowolny dostępny",
+    "courtN": "Kort {n}",
     "businessCourtsTitle": "Korty",
     "businessCourtsCount": "{count} kortów",
     "noCourts": "Brak dostępnych kortów."
+  },
+  "courtReservations": {
+    "title": "Rezerwacje kortów",
+    "subtitle": "Zarządzaj prośbami o rezerwację kortów.",
+    "allStatuses": "Wszystkie statusy",
+    "statusPending": "Oczekujące",
+    "statusConfirmed": "Potwierdzone",
+    "statusRejected": "Odrzucone",
+    "statusCancelled": "Anulowane",
+    "allCourts": "Wszystkie korty",
+    "searchPlaceholder": "Szukaj po nazwisku lub korcie...",
+    "noReservations": "Brak rezerwacji.",
+    "colCourt": "Kort",
+    "colDate": "Data",
+    "colTime": "Czas",
+    "colUser": "Użytkownik",
+    "colPrice": "Cena",
+    "colStatus": "Status",
+    "colActions": "Akcje",
+    "approve": "Zatwierdź",
+    "reject": "Odrzuć",
+    "cancel": "Anuluj",
+    "approved": "Rezerwacja zatwierdzona.",
+    "rejected": "Rezerwacja odrzucona.",
+    "cancelledToast": "Rezerwacja anulowana.",
+    "rejectTitle": "Odrzuć rezerwację",
+    "rejectPlaceholder": "Powód (opcjonalny)...",
+    "cancelAction": "Anuluj",
+    "confirmReject": "Odrzuć"
   },
   "notFound": {
     "title": "Nie znaleziono strony",
     "heading": "Ups! Ta strona nie istnieje",
     "description": "Strona, której szukasz, mogła zostać przeniesiona, usunięta lub nigdy nie istniała. Wróćmy na właściwą ścieżkę.",
     "backHome": "Wróć na stronę główną"
+  },
+  "enrollmentRequests": {
+    "title": "Zgłoszenia zapisów",
+    "subtitle": "Zarządzaj zgłoszeniami na Twoje zajęcia",
+    "pending": "Oczekujące",
+    "resolved": "Rozpatrzone",
+    "viewChat": "Zobacz czat",
+    "accept": "Akceptuj",
+    "reject": "Odrzuć",
+    "accepted": "Zaakceptowane",
+    "rejected": "Odrzucone",
+    "noRequests": "Brak zgłoszeń",
+    "noRequestsHint": "Zgłoszenia pojawią się tutaj, gdy uczniowie zapiszą się na Twoje zajęcia",
+    "viewAll": "Zobacz wszystkie"
   }
 }

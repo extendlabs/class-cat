@@ -12,13 +12,11 @@ Enhance courts reservation for both consumer and business sides: specific court 
 ### Files
 
 ```
-src/
-├── services/
-│   ├── court-store.ts        # Singleton in-memory store
-│   └── court-service.ts      # Facade with clean API-shaped methods
-├── api/
-│   ├── courts.ts             # Consumer API — rewired to use CourtService
-│   └── business-portal.ts    # Business API — rewired to use CourtService
+src/api/
+├── court-store.ts        # Singleton in-memory store
+├── court-service.ts      # Facade with clean API-shaped methods
+├── courts.ts             # Consumer API — rewired to use CourtService
+└── business-portal.ts    # Business API — rewired to use CourtService
 ```
 
 ### CourtStore (singleton)

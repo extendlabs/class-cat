@@ -172,8 +172,8 @@ interface Notification {
 
 | Route | Purpose |
 |---|---|
-| `/dashboard/messages` | Conversation list — All / Groups tabs |
-| `/dashboard/messages/[conversationId]` | Chat thread view |
+| `/profile/messages` | Conversation list — All / Groups tabs |
+| `/profile/messages/[conversationId]` | Chat thread view |
 
 ### Chat List (`/dashboard/messages`)
 

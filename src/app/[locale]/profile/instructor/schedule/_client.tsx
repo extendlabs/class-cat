@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash, PencilSimple, Clock } from "@phosphor-icons/react";
-import { fetchInstructorSchedule, updateInstructorSchedule } from "@/api/instructor";
+import { Plus, Trash, PencilSimple, Clock, CalendarDots, Warning } from "@phosphor-icons/react";
+import { fetchInstructorSchedule, updateInstructorSchedule, fetchInstructorCalendar, cancelCalendarEntry } from "@/api/instructor";
 import { useAuth } from "@/hooks/use-auth";
 import { AnimateIn } from "@/components/ui/animate-in";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { WeekCalendarView } from "@/components/features/instructor-schedule";
 import {
   Dialog,
   DialogContent,
@@ -29,13 +32,125 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import type { InstructorScheduleSlot } from "@/types/instructor";
+import type { CalendarEntry } from "@/types/affiliation";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+function CalendarTab({ instructorId }: { instructorId: string }) {
+  const queryClient = useQueryClient();
+  const { data: entries, isLoading } = useQuery({
+    queryKey: ["instructor-calendar", instructorId],
+    queryFn: () => fetchInstructorCalendar(instructorId),
+  });
+
+  const [cancelTarget, setCancelTarget] = useState<CalendarEntry | null>(null);
+  const [cancelNote, setCancelNote] = useState("");
+
+  const cancelMutation = useMutation({
+    mutationFn: ({ entry, note }: { entry: CalendarEntry; note?: string }) =>
+      cancelCalendarEntry(entry, note),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["instructor-calendar", instructorId] });
+      setCancelTarget(null);
+      setCancelNote("");
+    },
+  });
+
+  const handleEntryClick = (entry: CalendarEntry) => {
+    if (entry.status === "confirmed") {
+      setCancelTarget(entry);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        {[1, 2, 3].map((i) => (
+          <Skeleton key={i} className="h-20 rounded-2xl" />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <WeekCalendarView entries={entries ?? []} onEntryClick={handleEntryClick} />
+
+      {/* Cancel Session Dialog */}
+      <AlertDialog
+        open={!!cancelTarget}
+        onOpenChange={(v) => {
+          if (!v) {
+            setCancelTarget(null);
+            setCancelNote("");
+          }
+        }}
+      >
+        <AlertDialogContent className="rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Warning size={18} className="text-red-500" weight="fill" />
+              Cancel Session
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3 text-sm text-gray-600">
+                <p>Are you sure you want to cancel this session?</p>
+                {cancelTarget && (
+                  <div className="rounded-xl bg-gray-50 border border-gray-100 p-3 space-y-1">
+                    <p className="font-semibold text-gray-900">{cancelTarget.activityTitle}</p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(cancelTarget.date + "T00:00:00").toLocaleDateString("en-US", {
+                        weekday: "long",
+                        month: "long",
+                        day: "numeric",
+                      })}{" "}
+                      &middot; {cancelTarget.startTime} – {cancelTarget.endTime}
+                    </p>
+                  </div>
+                )}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-gray-500">
+                    Cancellation note (optional)
+                  </label>
+                  <Textarea
+                    placeholder="e.g. Not feeling well..."
+                    value={cancelNote}
+                    onChange={(e) => setCancelNote(e.target.value)}
+                    className="rounded-xl resize-none"
+                    rows={2}
+                  />
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-full">Keep Session</AlertDialogCancel>
+            <AlertDialogAction
+              className="rounded-full bg-red-600 hover:bg-red-700 text-white"
+              disabled={cancelMutation.isPending}
+              onClick={() => {
+                if (cancelTarget) {
+                  cancelMutation.mutate({
+                    entry: cancelTarget,
+                    note: cancelNote.trim() || undefined,
+                  });
+                }
+              }}
+            >
+              {cancelMutation.isPending ? "Cancelling..." : "Cancel Session"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
 
 export default function InstructorSchedulePage() {
   const { user } = useAuth();
   const instructorId = user?.instructorId ?? "inst-6";
   const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState<"availability" | "calendar">("availability");
 
   const { data: schedule, isLoading } = useQuery({
     queryKey: ["instructor-schedule", instructorId],
@@ -46,6 +161,7 @@ export default function InstructorSchedulePage() {
     mutationFn: (slots: InstructorScheduleSlot[]) => updateInstructorSchedule(instructorId, slots),
     onSuccess: (data) => {
       queryClient.setQueryData(["instructor-schedule", instructorId], data);
+      queryClient.invalidateQueries({ queryKey: ["instructor-calendar", instructorId] });
     },
   });
 
@@ -113,12 +229,45 @@ export default function InstructorSchedulePage() {
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Schedule</h1>
           <p className="text-sm text-gray-500 mt-1">Manage your weekly availability.</p>
         </div>
-        <Button onClick={openAdd} className="rounded-full bg-coral hover:bg-coral-hover text-white gap-1.5">
-          <Plus size={14} weight="bold" />
-          Add Slot
-        </Button>
+        {activeTab === "availability" && (
+          <Button onClick={openAdd} className="rounded-full bg-coral hover:bg-coral-hover text-white gap-1.5">
+            <Plus size={14} weight="bold" />
+            Add Slot
+          </Button>
+        )}
       </div>
 
+      {/* Tab navigation */}
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+        <button
+          onClick={() => setActiveTab("availability")}
+          className={cn(
+            "px-4 py-2 text-sm font-medium rounded-lg transition-all",
+            activeTab === "availability"
+              ? "bg-white text-gray-900 shadow-sm"
+              : "text-gray-500 hover:text-gray-700"
+          )}
+        >
+          Availability
+        </button>
+        <button
+          onClick={() => setActiveTab("calendar")}
+          className={cn(
+            "px-4 py-2 text-sm font-medium rounded-lg transition-all flex items-center gap-1.5",
+            activeTab === "calendar"
+              ? "bg-white text-gray-900 shadow-sm"
+              : "text-gray-500 hover:text-gray-700"
+          )}
+        >
+          <CalendarDots size={14} />
+          Calendar
+        </button>
+      </div>
+
+      {activeTab === "calendar" ? (
+        <CalendarTab instructorId={instructorId} />
+      ) : (
+      <>
       {/* Weekly view */}
       <div className="space-y-3">
         {slotsByDay.map(({ day, dayIndex, slots }) => (
@@ -237,6 +386,8 @@ export default function InstructorSchedulePage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      </>
+      )}
     </div>
   );
 }

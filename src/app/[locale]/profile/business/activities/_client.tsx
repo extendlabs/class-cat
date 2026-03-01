@@ -1,6 +1,6 @@
 "use client";
 
-import { useReducer } from "react";
+import { useReducer, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "@phosphor-icons/react";
 import {
@@ -8,13 +8,16 @@ import {
   createBusinessActivity,
   updateBusinessActivity,
   deleteBusinessActivity,
+  fetchBusinessInstructors,
 } from "@/api/business-portal";
+import { useAuth } from "@/hooks/use-auth";
 import { ActivityFormDialog } from "@/components/features/activity-form-dialog";
 import {
   ActivityFilters,
   EmptyActivityState,
   ActivityListItem,
   DeleteActivityDialog,
+  ManageSessionsDialog,
 } from "@/components/features/business-activities";
 import { AnimateIn } from "@/components/ui/animate-in";
 import {
@@ -32,13 +35,25 @@ import {
 import type { BusinessActivity } from "@/types/business-portal";
 
 export default function PageContent() {
+  const { user } = useAuth();
+  const businessId = user?.businessId ?? "biz-1";
   const queryClient = useQueryClient();
   const [state, dispatch] = useReducer(activitiesListReducer, activitiesListInitialState);
+  const [sessionsTarget, setSessionsTarget] = useState<BusinessActivity | null>(null);
 
   const { data: activities, isLoading } = useQuery({
     queryKey: ["business-activities"],
     queryFn: fetchBusinessActivities,
   });
+
+  const { data: businessInstructors } = useQuery({
+    queryKey: ["business-instructors", businessId],
+    queryFn: () => fetchBusinessInstructors(businessId),
+  });
+
+  const activeInstructors = (businessInstructors ?? [])
+    .filter((i) => i.affiliation.status === "active")
+    .map((i) => ({ instructorId: i.instructorId, name: i.name }));
 
   const createMutation = useMutation({
     mutationFn: createBusinessActivity,
@@ -117,6 +132,7 @@ export default function PageContent() {
               <TableRow className="bg-secondary/60 hover:bg-secondary/60 border-b border-gray-200/80">
                 <TableHead className="pl-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Title</TableHead>
                 <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Category</TableHead>
+                <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Instructor</TableHead>
                 <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Status</TableHead>
                 <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Enrolled</TableHead>
                 <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Rating</TableHead>
@@ -132,8 +148,10 @@ export default function PageContent() {
                   <ActivityListItem
                     key={activity.id}
                     activity={activity}
+                    instructors={activeInstructors}
                     onEdit={() => dispatch({ type: "OPEN_EDIT_FORM", payload: activity })}
                     onDelete={() => dispatch({ type: "SET_DELETE_TARGET", payload: activity })}
+                    onManageSessions={() => setSessionsTarget(activity)}
                   />
                 ))
               )}
@@ -155,12 +173,18 @@ export default function PageContent() {
         onSubmit={handleFormSubmit}
         mode={state.formMode}
         activity={state.editingActivity}
+        instructors={activeInstructors}
       />
 
       <DeleteActivityDialog
         deleteTarget={state.deleteTarget}
         onConfirm={handleDeleteConfirm}
         onCancel={() => dispatch({ type: "SET_DELETE_TARGET", payload: null })}
+      />
+
+      <ManageSessionsDialog
+        activity={sessionsTarget}
+        onClose={() => setSessionsTarget(null)}
       />
     </div>
   );

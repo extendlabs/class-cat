@@ -21,7 +21,8 @@ import {
   WhatYouLearnSection,
   CurriculumSection,
   InstructorCard,
-  BookingSidebar,
+  EnrollmentSidebar,
+  ReviewForm,
   ReviewSection,
   CtaBand,
   MobileBottomCta,
@@ -105,14 +106,13 @@ export default function ActivityDetailPage({ id }: { id: string }) {
 
           {/* Right Column -- Sticky Sidebar */}
           <div className="lg:col-span-4">
-            <BookingSidebar
-              activity={activity}
-              selectedTime={state.selectedTime}
-              onSelectTime={(index) => dispatch({ type: "SELECT_TIME", index })}
-            />
+            <EnrollmentSidebar activity={activity} />
           </div>
         </div>
       </main>
+
+      {/* Review Form */}
+      <ReviewForm activityId={activity.id} />
 
       {/* Reviews */}
       <ReviewSection

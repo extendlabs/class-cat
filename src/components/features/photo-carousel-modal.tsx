@@ -3,7 +3,6 @@
 import { useCallback, useEffect } from "react";
 import {
   Dialog,
-  DialogContent,
   DialogOverlay,
   DialogPortal,
   DialogTitle,

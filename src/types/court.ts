@@ -66,7 +66,19 @@ export interface CourtReservation {
   startHour: number;
   durationHours: number;
   totalPrice: number;
-  status: "confirmed" | "pending" | "cancelled";
+  status: "confirmed" | "pending" | "cancelled" | "rejected";
+  courtIndex?: number;
+  rejectedReason?: string;
   userName?: string;
   createdAt: string;
+}
+
+export interface RecurringBlock {
+  id: string;
+  courtId: string;
+  courtIndex?: number;
+  dayOfWeek: number; // 0=Mon … 6=Sun
+  startHour: number;
+  endHour: number;
+  label?: string;
 }

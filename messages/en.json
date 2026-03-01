@@ -29,6 +29,14 @@
     "instructorScheduleDescription": "Manage your weekly teaching schedule.",
     "instructorSettingsTitle": "Settings",
     "instructorSettingsDescription": "Manage your instructor preferences.",
+    "instructorAffiliationsTitle": "Affiliations",
+    "instructorAffiliationsDescription": "Manage your business partnerships.",
+    "instructorProposalsTitle": "Proposals",
+    "instructorProposalsDescription": "Review slot proposals from businesses.",
+    "businessInstructorsTitle": "Instructors",
+    "businessInstructorsDescription": "Manage affiliated instructors.",
+    "becomeInstructorTitle": "Become an Instructor",
+    "becomeInstructorDescription": "Start teaching on ClassCat.",
     "onboardingTitle": "Business Onboarding",
     "onboardingDescription": "Set up your business on ClassCat.",
     "loginTitle": "Sign In",
@@ -85,6 +93,8 @@
     "businessPortal": "Business Portal",
     "listYourBusiness": "List Your Business",
     "instructorPortal": "Instructor Portal",
+    "influencerPortal": "Business Instructor Portal",
+    "becomeInstructor": "Become an Instructor",
     "signIn": "Sign In"
   },
   "footer": {
@@ -106,6 +116,7 @@
   "bottomNav": {
     "home": "Home",
     "search": "Search",
+    "messages": "Messages",
     "profile": "Profile"
   },
   "categories": {
@@ -292,7 +303,21 @@
     "bookNow": "Book Now",
     "interestedTitle": "Interested in this class?",
     "interestedDescription": "Send an inquiry to the instructor and they'll get back to you with available dates, pricing, and any questions you may have.",
-    "browseMoreClasses": "Browse More Classes"
+    "browseMoreClasses": "Browse More Classes",
+    "selectCohort": "Select a Group",
+    "cohortFull": "Full",
+    "spotsLeft": "spots left",
+    "applyNow": "Apply",
+    "applicationPending": "Application Pending",
+    "enrolledOpenChat": "Open Chat",
+    "enrollmentNote": "Applying will create a conversation with the instructor. They'll review your application and get back to you.",
+    "writeReview": "Write a Review",
+    "yourRating": "Your rating",
+    "reviewPlaceholder": "Share your experience with this class...",
+    "submitReview": "Submit Review",
+    "reviewSubmitted": "Review submitted!",
+    "selectRating": "Please select a rating",
+    "loginToReview": "Log in to leave a review"
   },
   "liked": {
     "title": "Saved Activities",
@@ -301,19 +326,27 @@
     "emptyDescription": "Tap the heart icon on any activity to save it here.",
     "clearAll": "Clear All"
   },
-  "chat": {
+  "messages": {
     "title": "Messages",
-    "conversationsCount": "Your conversations ({count})",
+    "conversationsCount": "{count} conversations",
     "unread": "unread",
+    "tabAll": "All",
+    "tabGroups": "Groups",
     "searchConversations": "Search conversations...",
     "noMessages": "No messages yet",
-    "startConversation": "Start a conversation with a place or instructor.",
+    "noMessagesHint": "Browse activities and apply to start conversations.",
     "noConversationsFound": "No conversations found",
     "tryDifferentSearch": "Try a different search term.",
-    "newConversation": "New Conversation",
-    "searchPlacesOrInstructors": "Search places or instructors...",
-    "noResults": "No results found",
-    "sayHello": "Say hello to start the conversation!"
+    "sendPlaceholder": "Type a message...",
+    "participantCount": "{count} participants",
+    "pendingEnrollment": "Enrollment pending",
+    "accept": "Accept",
+    "reject": "Reject",
+    "conversationNotFound": "Conversation not found",
+    "startTyping": "Send a message to start the conversation.",
+    "systemJoined": "{name} joined the group.",
+    "systemAccepted": "Enrollment accepted.",
+    "systemRejected": "Enrollment rejected."
   },
   "notifications": {
     "title": "Notifications",
@@ -329,7 +362,8 @@
   "profile": {
     "tabs": {
       "profile": "Profile",
-      "activities": "Activities",
+      "classes": "My Classes",
+      "courts": "My Courts",
       "reviews": "Reviews",
       "settings": "Settings"
     },
@@ -337,6 +371,22 @@
     "past": "Past",
     "noUpcoming": "No upcoming bookings",
     "noPast": "No past bookings",
+    "myClasses": {
+      "upcoming": "Upcoming Classes",
+      "pending": "Pending Approval",
+      "past": "Past Classes",
+      "noUpcoming": "No upcoming classes. Browse activities to enroll!",
+      "openChat": "Open Chat"
+    },
+    "myCourts": {
+      "upcoming": "Upcoming Reservations",
+      "past": "Past Reservations",
+      "noUpcoming": "No upcoming court reservations.",
+      "cancelTitle": "Cancel Reservation?",
+      "cancelDescription": "Are you sure you want to cancel your reservation for \"{court}\"? This action cannot be undone.",
+      "keepReservation": "Keep Reservation",
+      "yesCancel": "Yes, Cancel"
+    },
     "noReviews": "No reviews yet",
     "reviewsWillAppear": "Your reviews will appear here after attending activities.",
     "editProfile": "Edit Profile",
@@ -391,15 +441,17 @@
     "dashboard": "Dashboard",
     "profile": "Profile",
     "activities": "Activities",
+    "instructors": "Instructors",
     "courts": "Courts",
+    "requests": "Requests",
     "promotions": "Promotions",
     "settings": "Settings"
   },
   "businessNavbar": {
     "business": "Business",
-    "instructor": "Instructor",
+    "instructor": "Business Instructor",
     "switchToConsumer": "Switch to Consumer",
-    "switchToInstructor": "Switch to Instructor"
+    "switchToInstructor": "Switch to Business Instructor"
   },
   "instructorSidebar": {
     "dashboard": "Dashboard",
@@ -407,10 +459,13 @@
     "myClasses": "My Classes",
     "reviews": "Reviews",
     "schedule": "Schedule",
+    "affiliations": "Affiliations",
+    "proposals": "Proposals",
     "settings": "Settings"
   },
   "instructorNavbar": {
     "instructor": "Instructor",
+    "influencer": "Business Instructor",
     "switchToConsumer": "Switch to Consumer",
     "switchToBusiness": "Switch to Business"
   },
@@ -504,17 +559,97 @@
     "rating": "Rating",
     "reviews": "Reviews",
     "upcoming": "Upcoming",
+    "freelanceClasses": "Freelance Classes",
+    "partnerships": "Partnerships",
+    "pendingProposals": "Pending Proposals",
     "upcomingClasses": "Upcoming Classes",
     "noUpcoming": "No upcoming classes.",
     "recentReviews": "Recent Reviews",
     "noReviews": "No reviews yet.",
     "spotsLeft": "{count} spots left",
-    "full": "Full"
+    "full": "Full",
+    "monthlyEarnings": "Monthly Earnings",
+    "freelanceIncome": "Freelance Income",
+    "businessIncome": "Business Income",
+    "pendingActions": "Pending Actions",
+    "pendingProposalsAction": "{count} pending proposals",
+    "pendingAffiliationsAction": "{count} pending affiliations",
+    "viewAll": "View all",
+    "noPending": "No pending actions."
   },
   "instructorClasses": {
     "title": "My Classes",
-    "subtitle": "Activities assigned to you by your business.",
+    "subtitle": "Manage your freelance and business activities.",
     "noClasses": "No classes assigned yet."
+  },
+  "instructorAffiliations": {
+    "title": "Affiliations",
+    "subtitle": "Your business partnerships and collaborations.",
+    "noAffiliations": "No affiliations yet.",
+    "status": {
+      "active": "Active",
+      "pending": "Pending",
+      "ended": "Ended"
+    },
+    "role": {
+      "contractor": "Contractor",
+      "employee": "Employee"
+    },
+    "accept": "Accept",
+    "decline": "Decline",
+    "since": "Since",
+    "until": "Until"
+  },
+  "instructorProposals": {
+    "title": "Slot Proposals",
+    "subtitle": "Review and respond to scheduling proposals from businesses.",
+    "noProposals": "No proposals yet.",
+    "pendingSection": "Pending Approval",
+    "resolvedSection": "History",
+    "approve": "Approve",
+    "reject": "Reject",
+    "proposedAt": "Proposed on",
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    }
+  },
+  "businessInstructors": {
+    "title": "Instructors",
+    "subtitle": "Manage your affiliated instructors.",
+    "noInstructors": "No instructors yet.",
+    "status": {
+      "active": "Active",
+      "pending": "Pending",
+      "ended": "Ended"
+    },
+    "viewSchedule": "Schedule",
+    "proposeSlot": "Propose Slot",
+    "availabilityTitle": "Availability",
+    "blockedTimesNote": "Blocked times shown below (no details for privacy).",
+    "unavailable": "Unavailable",
+    "fullyAvailable": "No blocked times found.",
+    "proposeSlotTitle": "Propose Slot",
+    "activityName": "Activity",
+    "activityPlaceholder": "Select an activity",
+    "noActivitiesAssigned": "No activities assigned to this instructor. Assign one in the Activities page first.",
+    "date": "Date",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "cancel": "Cancel",
+    "sendProposal": "Send Proposal"
+  },
+  "onboarding": {
+    "becomeInstructorTitle": "Become an Instructor",
+    "becomeInstructorSubtitle": "Share your skills and start teaching on ClassCat.",
+    "name": "Name",
+    "specialty": "Specialty",
+    "specialtyPlaceholder": "e.g., Yoga, Chess, Painting",
+    "bio": "Bio",
+    "bioPlaceholder": "Tell students about your experience and teaching style...",
+    "creating": "Creating profile...",
+    "createProfile": "Create Instructor Profile"
   },
   "instructorReviews": {
     "title": "Reviews",
@@ -860,15 +995,62 @@
     "confirming": "Confirming...",
     "durationHours": "{count} hour(s)",
     "reservationSuccess": "Reservation confirmed! See you on the court.",
+    "reservationPending": "Reservation submitted! Awaiting confirmation.",
     "reservationError": "Something went wrong. Please try again.",
+    "courtPreference": "Court preference",
+    "anyAvailable": "Any available",
+    "courtN": "Court {n}",
     "businessCourtsTitle": "Courts",
     "businessCourtsCount": "{count} courts",
     "noCourts": "No courts available."
+  },
+  "courtReservations": {
+    "title": "Court Reservations",
+    "subtitle": "Manage reservation requests for your courts.",
+    "allStatuses": "All statuses",
+    "statusPending": "Pending",
+    "statusConfirmed": "Confirmed",
+    "statusRejected": "Rejected",
+    "statusCancelled": "Cancelled",
+    "allCourts": "All courts",
+    "searchPlaceholder": "Search by name or court...",
+    "noReservations": "No reservations found.",
+    "colCourt": "Court",
+    "colDate": "Date",
+    "colTime": "Time",
+    "colUser": "User",
+    "colPrice": "Price",
+    "colStatus": "Status",
+    "colActions": "Actions",
+    "approve": "Approve",
+    "reject": "Reject",
+    "cancel": "Cancel",
+    "approved": "Reservation approved.",
+    "rejected": "Reservation rejected.",
+    "cancelledToast": "Reservation cancelled.",
+    "rejectTitle": "Reject reservation",
+    "rejectPlaceholder": "Reason (optional)...",
+    "cancelAction": "Cancel",
+    "confirmReject": "Reject"
   },
   "notFound": {
     "title": "Page Not Found",
     "heading": "Oops! This page doesn't exist",
     "description": "The page you're looking for might have been moved, deleted, or never existed. Let's get you back on track.",
     "backHome": "Back to Homepage"
+  },
+  "enrollmentRequests": {
+    "title": "Enrollment Requests",
+    "subtitle": "Manage enrollment applications for your activities",
+    "pending": "Pending",
+    "resolved": "Resolved",
+    "viewChat": "View Chat",
+    "accept": "Accept",
+    "reject": "Reject",
+    "accepted": "Accepted",
+    "rejected": "Rejected",
+    "noRequests": "No enrollment requests",
+    "noRequestsHint": "Requests will appear here when students apply for your activities",
+    "viewAll": "View all"
   }
 }

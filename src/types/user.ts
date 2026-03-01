@@ -11,6 +11,7 @@ export interface UserProfile {
   totalBookings: number;
   businessId?: string;
   instructorId?: string;
+  isBusinessInstructor?: boolean;
 }
 
 export type BookingStatus = "confirmed" | "pending" | "completed" | "cancelled";

@@ -5,7 +5,6 @@ import {
   useContext,
   useState,
   useCallback,
-  useEffect,
   type ReactNode,
 } from "react";
 import React from "react";
@@ -39,11 +38,7 @@ function readStorage(): LikedItem[] {
 }
 
 export function LikedActivitiesProvider({ children }: { children: ReactNode }) {
-  const [likedItems, setLikedItems] = useState<LikedItem[]>([]);
-
-  useEffect(() => {
-    setLikedItems(readStorage());
-  }, []);
+  const [likedItems, setLikedItems] = useState<LikedItem[]>(readStorage);
 
   const persist = useCallback((items: LikedItem[]) => {
     setLikedItems(items);

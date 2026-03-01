@@ -14,11 +14,14 @@ import {
   Storefront,
   GraduationCap,
 } from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
+import { getUnreadCount } from "@/api/conversations";
 import { useLikedActivities } from "@/hooks/use-liked-activities";
 import { useAuth } from "@/hooks/use-auth";
 import { LikedSidebar } from "@/components/features/liked-sidebar";
-import { ChatSidebar } from "@/components/features/chat-sidebar";
+import { useChatSidebar } from "@/components/features/chat-sidebar-context";
+import { NotificationBell } from "@/components/features/notifications";
 import { LanguageSwitcher } from "@/components/features/language-switcher";
 import {
   DropdownMenu,
@@ -32,6 +35,28 @@ import {
   AvatarImage,
   AvatarFallback,
 } from "@/components/ui/avatar";
+
+function ChatButton({ label }: { label: string }) {
+  const { openToList } = useChatSidebar();
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ["unread-count"],
+    queryFn: getUnreadCount,
+  });
+  return (
+    <button
+      onClick={openToList}
+      aria-label={label}
+      className="relative w-9 h-9 flex items-center justify-center rounded-full text-gray-500 hover:text-coral hover:bg-coral/5 transition-all"
+    >
+      <ChatCircle size={20} />
+      {unreadCount > 0 && (
+        <span className="absolute top-0.5 right-0.5 bg-coral text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center leading-none pointer-events-none">
+          {unreadCount}
+        </span>
+      )}
+    </button>
+  );
+}
 
 interface NavbarProps {
   children?: React.ReactNode;
@@ -144,14 +169,9 @@ export function Navbar({ children, onSearch }: NavbarProps) {
             {isAuthenticated && user ? (
               <>
                 {/* Chat button */}
-                <ChatSidebar>
-                  <button
-                    aria-label={t("messages")}
-                    className="w-9 h-9 flex items-center justify-center rounded-full text-gray-500 hover:text-coral hover:bg-coral/5 transition-all"
-                  >
-                    <ChatCircle size={20} />
-                  </button>
-                </ChatSidebar>
+                <ChatButton label={t("messages")} />
+
+                <NotificationBell />
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -200,14 +220,21 @@ export function Navbar({ children, onSearch }: NavbarProps) {
                         </Link>
                       </DropdownMenuItem>
                     )}
-                    {user.instructorId && (
+                    {user.instructorId ? (
                       <DropdownMenuItem asChild>
                         <Link href="/profile/instructor" className="cursor-pointer">
                           <GraduationCap size={16} />
-                          {t("instructorPortal")}
+                          {user.isBusinessInstructor ? t("influencerPortal") : t("instructorPortal")}
                         </Link>
                       </DropdownMenuItem>
-                    )}
+                    ) : !user.businessId ? (
+                      <DropdownMenuItem asChild>
+                        <Link href="/onboarding/instructor" className="cursor-pointer">
+                          <GraduationCap size={16} />
+                          {t("becomeInstructor")}
+                        </Link>
+                      </DropdownMenuItem>
+                    ) : null}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={handleLogout}

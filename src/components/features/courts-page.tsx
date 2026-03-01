@@ -20,7 +20,7 @@ import {
   DesktopCourtList,
   MobileCourtLayout,
 } from "@/components/features/courts";
-import { fetchCourts, fetchPopularCourts, fetchCourtAvailability, createReservation, applyCourtFilters, MOCK_COURTS, PROMOTED_COURTS } from "@/api/courts";
+import { fetchCourts, fetchPopularCourts, fetchCourtAvailability, createReservation, fetchAvailableCourtIndices, applyCourtFilters, MOCK_COURTS, PROMOTED_COURTS } from "@/api/courts";
 import type { CourtFilters } from "@/api/courts";
 import type { CourtSport, TimeSlotAvailability } from "@/types/court";
 import type { BrowseActivity } from "@/api/mock-data";
@@ -189,6 +189,18 @@ export function CourtsPage() {
     return map;
   }, [slots]);
 
+  // Available court indices for the selected slots
+  const { data: availableCourtIndices } = useQuery({
+    queryKey: ["available-courts", state.selectedCourtId, state.selectedSlots],
+    queryFn: () =>
+      fetchAvailableCourtIndices(
+        state.selectedCourtId!,
+        state.selectedSlots[0].date,
+        state.selectedSlots.map((s) => s.hour)
+      ),
+    enabled: !!state.selectedCourtId && state.selectedSlots.length > 0,
+  });
+
   // Map activities — filter from full dataset, respects tab + filters
   const mapActivities = useMemo(() => {
     const source = activeTab === "popular" ? PROMOTED_COURTS : MOCK_COURTS;
@@ -251,8 +263,9 @@ export function CourtsPage() {
         startHour: sorted[0].hour,
         durationHours: sorted.length,
         totalPrice,
+        courtIndex: state.selectedCourtIndex,
       });
-      toast.success(t("reservationSuccess"));
+      toast.success(t("reservationPending"));
       dispatch({ type: "CLEAR_SLOTS" });
       dispatch({ type: "SHOW_RESERVATION_SUMMARY", show: false });
     } catch {
@@ -260,7 +273,7 @@ export function CourtsPage() {
     } finally {
       setIsConfirming(false);
     }
-  }, [selectedCourt, state.selectedSlots, slotMap, t]);
+  }, [selectedCourt, state.selectedSlots, state.selectedCourtIndex, slotMap, t]);
 
   const activeFilterCount = [
     filters.surface != null,
@@ -410,6 +423,10 @@ export function CourtsPage() {
           slotMap={slotMap}
           onConfirm={handleConfirmReservation}
           isConfirming={isConfirming}
+          availableCourtIndices={availableCourtIndices}
+          selectedCourtIndex={state.selectedCourtIndex}
+          onCourtIndexChange={(idx) => dispatch({ type: "SET_COURT_INDEX", courtIndex: idx })}
+          totalCourts={selectedCourt.courtCount ?? 1}
         />
       )}
     </div>

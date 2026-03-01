@@ -1,4 +1,4 @@
-import type { Court, CourtReservation, TimeSlotAvailability } from "@/types/court";
+import type { Court, CourtReservation, RecurringBlock, TimeSlotAvailability } from "@/types/court";
 
 export const MOCK_COURTS: Court[] = [
   {
@@ -35,7 +35,7 @@ export const MOCK_COURTS: Court[] = [
     sport: "padel",
     surface: "synthetic",
     indoor: true,
-    image: "https://images.unsplash.com/photo-1612534847738-b3af3e5e379c?w=400&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=400&h=300&fit=crop",
     address: "ul. Konstruktorska 8, Warszawa",
     location: "Kompleks Sportowy Mokotów",
     lat: 52.198,
@@ -172,7 +172,7 @@ export const MOCK_COURTS: Court[] = [
     sport: "padel",
     surface: "synthetic",
     indoor: true,
-    image: "https://images.unsplash.com/photo-1612534847738-b3af3e5e379c?w=400&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=400&h=300&fit=crop",
     address: "ul. Zakopiańska 62, Kraków",
     location: "Padel Zone Kraków",
     lat: 50.025,
@@ -372,4 +372,220 @@ export const MOCK_RESERVATIONS: CourtReservation[] = [
     userName: "Piotr Wiśniewski",
     createdAt: "2026-02-22T11:00:00Z",
   },
+  {
+    id: "res-4",
+    courtId: "court-1",
+    courtName: "Kort Tenisowy Centrum",
+    date: "2026-03-08",
+    startHour: 10,
+    durationHours: 2,
+    totalPrice: 160,
+    status: "confirmed",
+    userName: "Katarzyna Nowak",
+    createdAt: "2026-02-25T10:00:00Z",
+  },
+  {
+    id: "res-5",
+    courtId: "court-2",
+    courtName: "Padel Arena Mokotów",
+    date: "2026-03-05",
+    startHour: 18,
+    durationHours: 1,
+    totalPrice: 132,
+    status: "pending",
+    userName: "Katarzyna Nowak",
+    createdAt: "2026-02-26T14:30:00Z",
+  },
+  {
+    id: "res-6",
+    courtId: "court-3",
+    courtName: "Hala Badmintona Kraków",
+    date: "2026-02-15",
+    startHour: 12,
+    durationHours: 1,
+    totalPrice: 50,
+    status: "confirmed",
+    userName: "Katarzyna Nowak",
+    createdAt: "2026-02-10T09:00:00Z",
+  },
 ];
+
+// ── Business courts mock data ──
+
+export const MOCK_BOOKER_NAMES = [
+  "Jan Kowalski", "Anna Nowak", "Piotr Wiśniewski", "Katarzyna Zielińska",
+  "Tomasz Lewandowski", "Magdalena Dąbrowska", "Robert Mazur", "Agnieszka Krawczyk",
+  "Michał Szymański", "Ewa Wójcik", "Łukasz Jabłoński", "Marta Olszewska",
+];
+
+function getMonday(d: Date): Date {
+  const date = new Date(d);
+  const day = date.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  date.setDate(date.getDate() + diff);
+  return date;
+}
+
+function toISO(d: Date): string {
+  return d.toISOString().split("T")[0];
+}
+
+function addDays(d: Date, n: number): Date {
+  const r = new Date(d);
+  r.setDate(r.getDate() + n);
+  return r;
+}
+
+export const MOCK_BUSINESS_COURTS: Court[] = [
+  {
+    id: "bc-1",
+    name: "Kort Tenisowy Centrum",
+    sport: "tennis",
+    surface: "clay",
+    indoor: false,
+    image: "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=400&h=300&fit=crop",
+    address: "ul. Myśliwiecka 4, Warszawa",
+    location: "Studio Harmonii",
+    lat: 52.215,
+    lng: 21.035,
+    pricePerHour: 80,
+    rating: 4.8,
+    reviewCount: 156,
+    businessId: "biz-1",
+    businessName: "Studio Harmonii",
+    amenities: ["szatnia", "prysznice", "parking", "wypożyczalnia rakiet"],
+    operatingHours: [
+      { day: "Poniedziałek", open: "7:00", close: "21:00" },
+      { day: "Wtorek", open: "7:00", close: "21:00" },
+      { day: "Środa", open: "7:00", close: "21:00" },
+      { day: "Czwartek", open: "7:00", close: "21:00" },
+      { day: "Piątek", open: "7:00", close: "20:00" },
+      { day: "Sobota", open: "8:00", close: "20:00" },
+      { day: "Niedziela", open: "8:00", close: "18:00" },
+    ],
+    courtCount: 4,
+    status: "active",
+  },
+  {
+    id: "bc-2",
+    name: "Padel Arena Mokotów",
+    sport: "padel",
+    surface: "synthetic",
+    indoor: true,
+    image: "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=400&h=300&fit=crop",
+    address: "ul. Konstruktorska 8, Warszawa",
+    location: "Studio Harmonii",
+    lat: 52.198,
+    lng: 21.040,
+    pricePerHour: 120,
+    rating: 4.9,
+    reviewCount: 89,
+    businessId: "biz-1",
+    businessName: "Studio Harmonii",
+    amenities: ["szatnia", "prysznice", "sklep sportowy", "bar"],
+    operatingHours: [
+      { day: "Poniedziałek", open: "7:00", close: "22:00" },
+      { day: "Wtorek", open: "7:00", close: "22:00" },
+      { day: "Środa", open: "7:00", close: "22:00" },
+      { day: "Czwartek", open: "7:00", close: "22:00" },
+      { day: "Piątek", open: "7:00", close: "22:00" },
+      { day: "Sobota", open: "8:00", close: "21:00" },
+      { day: "Niedziela", open: "8:00", close: "20:00" },
+    ],
+    courtCount: 6,
+    status: "active",
+  },
+  {
+    id: "bc-3",
+    name: "Hala Badmintona",
+    sport: "badminton",
+    surface: "parquet",
+    indoor: true,
+    image: "https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400&h=300&fit=crop",
+    address: "ul. Kamieńskiego 3, Warszawa",
+    location: "Studio Harmonii",
+    lat: 52.210,
+    lng: 21.020,
+    pricePerHour: 50,
+    rating: 4.6,
+    reviewCount: 72,
+    businessId: "biz-1",
+    businessName: "Studio Harmonii",
+    amenities: ["szatnia", "prysznice", "parking"],
+    operatingHours: [
+      { day: "Poniedziałek", open: "8:00", close: "22:00" },
+      { day: "Wtorek", open: "8:00", close: "22:00" },
+      { day: "Środa", open: "8:00", close: "22:00" },
+      { day: "Czwartek", open: "8:00", close: "22:00" },
+      { day: "Piątek", open: "8:00", close: "21:00" },
+      { day: "Sobota", open: "9:00", close: "20:00" },
+      { day: "Niedziela", open: "9:00", close: "18:00" },
+    ],
+    courtCount: 3,
+    status: "inactive",
+  },
+  {
+    id: "bc-4",
+    name: "Squash Court Premium",
+    sport: "squash",
+    surface: "parquet",
+    indoor: true,
+    image: "https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=400&h=300&fit=crop",
+    address: "ul. Powstańców 12, Warszawa",
+    location: "Studio Harmonii",
+    lat: 52.220,
+    lng: 21.030,
+    pricePerHour: 60,
+    rating: 4.5,
+    reviewCount: 41,
+    businessId: "biz-1",
+    businessName: "Studio Harmonii",
+    amenities: ["szatnia", "prysznice", "sauna"],
+    operatingHours: [
+      { day: "Poniedziałek", open: "10:00", close: "22:00" },
+      { day: "Wtorek", open: "10:00", close: "22:00" },
+      { day: "Środa", open: "10:00", close: "22:00" },
+      { day: "Czwartek", open: "10:00", close: "22:00" },
+      { day: "Piątek", open: "10:00", close: "20:00" },
+      { day: "Sobota", open: "10:00", close: "18:00" },
+      { day: "Niedziela", open: "", close: "" },
+    ],
+    courtCount: 2,
+    status: "maintenance",
+  },
+];
+
+const monday = getMonday(new Date());
+
+export const MOCK_BUSINESS_RESERVATIONS: CourtReservation[] = [
+  { id: "cr-1", courtId: "bc-1", courtName: "Kort Tenisowy Centrum", date: toISO(monday), startHour: 8, durationHours: 1, totalPrice: 80, status: "confirmed", userName: "Jan Kowalski", createdAt: toISO(addDays(monday, -3)) },
+  { id: "cr-2", courtId: "bc-1", courtName: "Kort Tenisowy Centrum", date: toISO(monday), startHour: 9, durationHours: 2, totalPrice: 160, status: "confirmed", userName: "Anna Nowak", createdAt: toISO(addDays(monday, -2)) },
+  { id: "cr-3", courtId: "bc-1", courtName: "Kort Tenisowy Centrum", date: toISO(monday), startHour: 10, durationHours: 1, totalPrice: 80, status: "pending", userName: "Piotr Wiśniewski", createdAt: toISO(addDays(monday, -1)) },
+  { id: "cr-4", courtId: "bc-1", courtName: "Kort Tenisowy Centrum", date: toISO(addDays(monday, 1)), startHour: 7, durationHours: 1, totalPrice: 80, status: "confirmed", userName: "Katarzyna Zielińska", createdAt: toISO(addDays(monday, -2)) },
+  { id: "cr-5", courtId: "bc-1", courtName: "Kort Tenisowy Centrum", date: toISO(addDays(monday, 1)), startHour: 14, durationHours: 2, totalPrice: 160, status: "confirmed", userName: "Tomasz Lewandowski", createdAt: toISO(addDays(monday, -1)) },
+  { id: "cr-6", courtId: "bc-1", courtName: "Kort Tenisowy Centrum", date: toISO(addDays(monday, 2)), startHour: 17, durationHours: 1, totalPrice: 80, status: "confirmed", userName: "Magdalena Dąbrowska", createdAt: toISO(addDays(monday, -4)) },
+  { id: "cr-7", courtId: "bc-1", courtName: "Kort Tenisowy Centrum", date: toISO(addDays(monday, 3)), startHour: 10, durationHours: 1, totalPrice: 80, status: "cancelled", userName: "Robert Mazur", createdAt: toISO(addDays(monday, -5)) },
+  { id: "cr-8", courtId: "bc-1", courtName: "Kort Tenisowy Centrum", date: toISO(addDays(monday, 4)), startHour: 16, durationHours: 2, totalPrice: 160, status: "confirmed", userName: "Agnieszka Krawczyk", createdAt: toISO(addDays(monday, -1)) },
+  { id: "cr-9", courtId: "bc-1", courtName: "Kort Tenisowy Centrum", date: toISO(addDays(monday, 5)), startHour: 9, durationHours: 1, totalPrice: 80, status: "confirmed", userName: "Michał Szymański", createdAt: toISO(addDays(monday, -2)) },
+  { id: "cr-10", courtId: "bc-1", courtName: "Kort Tenisowy Centrum", date: toISO(addDays(monday, 5)), startHour: 11, durationHours: 2, totalPrice: 160, status: "pending", userName: "Ewa Wójcik", createdAt: toISO(addDays(monday, -1)) },
+  { id: "cr-11", courtId: "bc-2", courtName: "Padel Arena Mokotów", date: toISO(monday), startHour: 7, durationHours: 1, totalPrice: 120, status: "confirmed", userName: "Łukasz Jabłoński", createdAt: toISO(addDays(monday, -3)) },
+  { id: "cr-12", courtId: "bc-2", courtName: "Padel Arena Mokotów", date: toISO(monday), startHour: 8, durationHours: 2, totalPrice: 240, status: "confirmed", userName: "Marta Olszewska", createdAt: toISO(addDays(monday, -2)) },
+  { id: "cr-13", courtId: "bc-2", courtName: "Padel Arena Mokotów", date: toISO(monday), startHour: 18, durationHours: 1, totalPrice: 120, status: "confirmed", userName: "Krzysztof Jankowski", createdAt: toISO(addDays(monday, -1)) },
+  { id: "cr-14", courtId: "bc-2", courtName: "Padel Arena Mokotów", date: toISO(monday), startHour: 18, durationHours: 1, totalPrice: 120, status: "confirmed", userName: "Joanna Stępień", createdAt: toISO(addDays(monday, -1)) },
+  { id: "cr-15", courtId: "bc-2", courtName: "Padel Arena Mokotów", date: toISO(addDays(monday, 1)), startHour: 10, durationHours: 1, totalPrice: 120, status: "pending", userName: "Adam Pawlak", createdAt: toISO(addDays(monday, -1)) },
+  { id: "cr-16", courtId: "bc-2", courtName: "Padel Arena Mokotów", date: toISO(addDays(monday, 2)), startHour: 19, durationHours: 2, totalPrice: 240, status: "confirmed", userName: "Natalia Michalska", createdAt: toISO(addDays(monday, -3)) },
+  { id: "cr-17", courtId: "bc-2", courtName: "Padel Arena Mokotów", date: toISO(addDays(monday, 3)), startHour: 12, durationHours: 1, totalPrice: 120, status: "confirmed", userName: "Damian Grabowski", createdAt: toISO(addDays(monday, -2)) },
+  { id: "cr-18", courtId: "bc-2", courtName: "Padel Arena Mokotów", date: toISO(addDays(monday, 4)), startHour: 17, durationHours: 1, totalPrice: 120, status: "cancelled", userName: "Paulina Kozłowska", createdAt: toISO(addDays(monday, -4)) },
+  { id: "cr-19", courtId: "bc-2", courtName: "Padel Arena Mokotów", date: toISO(addDays(monday, 5)), startHour: 10, durationHours: 2, totalPrice: 240, status: "confirmed", userName: "Bartosz Wojciechowski", createdAt: toISO(addDays(monday, -1)) },
+  { id: "cr-20", courtId: "bc-2", courtName: "Padel Arena Mokotów", date: toISO(addDays(monday, 6)), startHour: 14, durationHours: 1, totalPrice: 120, status: "confirmed", userName: "Karolina Kamińska", createdAt: toISO(addDays(monday, -2)) },
+  { id: "cr-21", courtId: "bc-3", courtName: "Hala Badmintona", date: toISO(monday), startHour: 9, durationHours: 1, totalPrice: 50, status: "confirmed", userName: "Rafał Piotrowski", createdAt: toISO(addDays(monday, -2)) },
+  { id: "cr-22", courtId: "bc-3", courtName: "Hala Badmintona", date: toISO(addDays(monday, 1)), startHour: 16, durationHours: 2, totalPrice: 100, status: "confirmed", userName: "Aleksandra Wróblewska", createdAt: toISO(addDays(monday, -3)) },
+  { id: "cr-23", courtId: "bc-3", courtName: "Hala Badmintona", date: toISO(addDays(monday, 2)), startHour: 11, durationHours: 1, totalPrice: 50, status: "pending", userName: "Grzegorz Kwiatkowski", createdAt: toISO(addDays(monday, -1)) },
+  { id: "cr-24", courtId: "bc-3", courtName: "Hala Badmintona", date: toISO(addDays(monday, 4)), startHour: 18, durationHours: 1, totalPrice: 50, status: "confirmed", userName: "Dorota Malinowska", createdAt: toISO(addDays(monday, -2)) },
+  { id: "cr-25", courtId: "bc-4", courtName: "Squash Court Premium", date: toISO(monday), startHour: 8, durationHours: 1, totalPrice: 60, status: "confirmed", userName: "Paweł Zając", createdAt: toISO(addDays(monday, -1)) },
+  { id: "cr-26", courtId: "bc-4", courtName: "Squash Court Premium", date: toISO(addDays(monday, 1)), startHour: 12, durationHours: 1, totalPrice: 60, status: "confirmed", userName: "Monika Król", createdAt: toISO(addDays(monday, -2)) },
+  { id: "cr-27", courtId: "bc-4", courtName: "Squash Court Premium", date: toISO(addDays(monday, 3)), startHour: 15, durationHours: 2, totalPrice: 120, status: "pending", userName: "Sebastian Sikora", createdAt: toISO(addDays(monday, -1)) },
+  { id: "cr-28", courtId: "bc-4", courtName: "Squash Court Premium", date: toISO(addDays(monday, 5)), startHour: 10, durationHours: 1, totalPrice: 60, status: "cancelled", userName: "Weronika Baran", createdAt: toISO(addDays(monday, -3)) },
+];
+
+export const MOCK_RECURRING_BLOCKS: RecurringBlock[] = [];

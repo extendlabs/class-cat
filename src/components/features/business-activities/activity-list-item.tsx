@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { DotsThree, PencilSimple, Trash, Star } from "@phosphor-icons/react";
+import { DotsThree, PencilSimple, Trash, Star, User, CalendarX } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/badge";
 import { TableRow, TableCell } from "@/components/ui/table";
 import {
@@ -15,11 +15,18 @@ export function ActivityListItem({
   activity,
   onEdit,
   onDelete,
+  onManageSessions,
+  instructors,
 }: {
   activity: BusinessActivity;
   onEdit: () => void;
   onDelete: () => void;
+  onManageSessions?: () => void;
+  instructors?: { instructorId: string; name: string }[];
 }) {
+  const instructorName = activity.instructorId
+    ? instructors?.find((i) => i.instructorId === activity.instructorId)?.name
+    : undefined;
   return (
     <TableRow
       className="hover:bg-coral/[0.03] transition-colors group border-b border-gray-100 last:border-0"
@@ -47,6 +54,16 @@ export function ActivityListItem({
         <span className="inline-flex items-center text-xs font-medium text-gray-600 bg-gray-100/80 px-2.5 py-1 rounded-full capitalize">
           {activity.category}
         </span>
+      </TableCell>
+      <TableCell className="py-4">
+        {instructorName ? (
+          <span className="inline-flex items-center gap-1.5 text-sm text-gray-700">
+            <User size={13} weight="fill" className="text-gray-400" />
+            {instructorName}
+          </span>
+        ) : (
+          <span className="text-sm text-gray-300">&mdash;</span>
+        )}
       </TableCell>
       <TableCell className="py-4">
         <Badge
@@ -91,7 +108,7 @@ export function ActivityListItem({
       <TableCell className="py-4 pr-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="w-8 h-8 flex items-center justify-center rounded-full text-gray-300 opacity-0 group-hover:opacity-100 hover:text-gray-700 hover:bg-gray-100 transition-all">
+            <button className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all">
               <DotsThree size={18} weight="bold" />
             </button>
           </DropdownMenuTrigger>
@@ -100,6 +117,12 @@ export function ActivityListItem({
               <PencilSimple size={14} />
               Edit
             </DropdownMenuItem>
+            {onManageSessions && (
+              <DropdownMenuItem onClick={onManageSessions}>
+                <CalendarX size={14} />
+                Manage Sessions
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem
               onClick={onDelete}
               className="text-red-600 focus:text-red-600"

@@ -3,7 +3,8 @@
 import { useReducer } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
-import { Plus } from "@phosphor-icons/react";
+import { Link } from "@/i18n/navigation";
+import { Plus, ListChecks } from "@phosphor-icons/react";
 import {
   fetchBusinessCourts,
   createBusinessCourt,
@@ -96,13 +97,22 @@ export default function PageContent() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-          Courts
-        </h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Manage your courts and schedules.
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+            Courts
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Manage your courts and schedules.
+          </p>
+        </div>
+        <Link
+          href="/profile/business/courts/reservations"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border border-gray-200 bg-white text-gray-700 hover:border-coral/30 hover:text-coral hover:bg-coral/5 transition-all"
+        >
+          <ListChecks size={18} />
+          Reservations
+        </Link>
       </div>
 
       <CourtFilters

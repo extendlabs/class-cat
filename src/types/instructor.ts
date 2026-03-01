@@ -1,4 +1,5 @@
 import type { Activity, Instructor, Review, RatingDistribution } from "./activity";
+import type { InstructorAffiliation } from "./affiliation";
 
 export interface InstructorSocial {
   instagram?: string;
@@ -29,6 +30,8 @@ export interface InstructorDetail extends Instructor {
   ratingDistribution: RatingDistribution[];
   businessId: string;
   businessName?: string;
+  affiliations?: InstructorAffiliation[];
+  isFreelance?: boolean;
 }
 
 export interface InstructorStats {
@@ -37,6 +40,11 @@ export interface InstructorStats {
   avgRating: number;
   totalReviews: number;
   upcomingClasses: number;
+  freelanceClasses?: number;
+  affiliatedBusinesses?: number;
+  monthlyEarnings?: number;
+  freelanceEarnings?: number;
+  businessEarnings?: number;
 }
 
 export interface InstructorScheduleSlot {
@@ -47,6 +55,9 @@ export interface InstructorScheduleSlot {
   activityId?: string;
   activityTitle?: string;
   recurring: boolean;
+  businessId?: string;
+  businessName?: string;
+  source?: "freelance" | "business";
 }
 
 export interface InstructorSettings {

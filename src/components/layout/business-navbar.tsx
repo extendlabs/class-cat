@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { List, Bell, ChatCircle, SignOut, ArrowsLeftRight } from "@phosphor-icons/react";
 import { NotificationSidebar } from "@/components/features/notification-sidebar";
-import { ChatSidebar } from "@/components/features/chat-sidebar";
+import { useChatSidebar } from "@/components/features/chat-sidebar-context";
 import { useAuth } from "@/hooks/use-auth";
 import {
   DropdownMenu,
@@ -22,6 +22,7 @@ interface BusinessNavbarProps {
 export function BusinessNavbar({ onToggleSidebar }: BusinessNavbarProps) {
   const router = useRouter();
   const { user, logout } = useAuth();
+  const { openToList } = useChatSidebar();
   const t = useTranslations("businessNavbar");
   const tCommon = useTranslations("common");
   const tNav = useTranslations("nav");
@@ -68,14 +69,13 @@ export function BusinessNavbar({ onToggleSidebar }: BusinessNavbarProps) {
               </button>
             </NotificationSidebar>
 
-            <ChatSidebar>
-              <button
-                aria-label={tNav("messages")}
-                className="w-9 h-9 flex items-center justify-center rounded-full text-gray-500 hover:text-coral hover:bg-coral/5 transition-all"
-              >
-                <ChatCircle size={20} />
-              </button>
-            </ChatSidebar>
+            <button
+              onClick={openToList}
+              aria-label={tNav("messages")}
+              className="w-9 h-9 flex items-center justify-center rounded-full text-gray-500 hover:text-coral hover:bg-coral/5 transition-all"
+            >
+              <ChatCircle size={20} />
+            </button>
 
             {user && (
               <DropdownMenu>

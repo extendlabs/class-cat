@@ -1,4 +1,9 @@
-import { MOCK_COURTS, PROMOTED_COURTS, generateWeekSlots, MOCK_RESERVATIONS } from "@/api/mock-courts";
+import { MOCK_COURTS, PROMOTED_COURTS } from "@/api/mock-courts";
+import {
+  createReservation as createReservationService,
+  fetchConsumerWeekSlots,
+  fetchAvailableCourtIndices as fetchAvailableCourtIndicesService,
+} from "@/api/court-service";
 import type { Court, TimeSlotAvailability, CourtReservation, CourtSport, CourtSurface } from "@/types/court";
 
 export interface CourtFilters {
@@ -119,8 +124,7 @@ export async function fetchCourtAvailability(
   courtId: string,
   weekStart: string
 ): Promise<TimeSlotAvailability[]> {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  return generateWeekSlots(courtId, weekStart);
+  return fetchConsumerWeekSlots(courtId, weekStart);
 }
 
 export async function createReservation(data: {
@@ -130,17 +134,11 @@ export async function createReservation(data: {
   startHour: number;
   durationHours: number;
   totalPrice: number;
+  courtIndex?: number | null;
 }): Promise<CourtReservation> {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const reservation: CourtReservation = {
-    id: `res-${Date.now()}`,
-    ...data,
-    status: "confirmed",
-    userName: "Jan Kowalski",
-    createdAt: new Date().toISOString(),
-  };
-  MOCK_RESERVATIONS.push(reservation);
-  return reservation;
+  return createReservationService(data);
 }
+
+export { fetchAvailableCourtIndicesService as fetchAvailableCourtIndices };
 
 export { MOCK_COURTS, PROMOTED_COURTS } from "@/api/mock-courts";

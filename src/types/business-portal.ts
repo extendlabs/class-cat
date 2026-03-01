@@ -1,4 +1,4 @@
-import type { Activity, Category, CurriculumItem, GalleryImage, TimeSlot } from "./activity";
+import type { Activity, CurriculumItem, GalleryImage } from "./activity";
 
 export type BusinessCategory =
   | "wellness"
@@ -117,13 +117,3 @@ export interface WeeklyBookingsData {
   bookings: number;
 }
 
-interface BusinessAnalytics {
-  impressions: number;
-  clicks: number;
-  ctr: number;
-  conversions: number;
-  weeklyViews: {
-    activity: string;
-    views: number[];
-  }[];
-}

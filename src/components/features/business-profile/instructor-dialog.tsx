@@ -72,7 +72,7 @@ function InstructorAvatarAndName({
 
 export function InstructorDialog({
   state,
-  currentInstructors,
+  currentInstructors: _currentInstructors,
   dispatch,
   instructorAvatarInputRef,
   onSaveInstructor,
