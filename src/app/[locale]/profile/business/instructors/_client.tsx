@@ -37,8 +37,8 @@ export default function BusinessInstructorsPage() {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
-          <Skeleton key={i} className="h-24 rounded-2xl" />
+        {[1, 2, 3].map((n) => (
+          <Skeleton key={`skeleton-${n}`} className="h-24 rounded-2xl" />
         ))}
       </div>
     );

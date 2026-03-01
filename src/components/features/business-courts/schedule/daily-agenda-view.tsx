@@ -91,13 +91,13 @@ export function DailyAgendaView({
             style={{ gridTemplateColumns: `52px repeat(${totalCourts}, 1fr)` }}
           >
             <div />
-            {courtIndices.map((idx) => (
+            {courtIndices.map((courtNumber) => (
               <div
-                key={idx}
+                key={`court-${courtNumber}`}
                 className="text-center py-1.5 rounded-xl bg-gray-50 border border-gray-100/60"
               >
                 <div className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
-                  Court {idx}
+                  Court {courtNumber}
                 </div>
               </div>
             ))}
@@ -118,22 +118,22 @@ export function DailyAgendaView({
                 <div className="text-[11px] text-gray-400 font-medium flex items-center justify-end pr-2 tabular-nums">
                   {String(hour).padStart(2, "0")}:00
                 </div>
-                {courtIndices.map((idx) => {
+                {courtIndices.map((courtNumber) => {
                   if (isClosed) {
                     return (
                       <div
-                        key={idx}
+                        key={`court-${courtNumber}`}
                         className="h-11 rounded-[10px] bg-gray-100/40 border border-gray-100/40"
                       />
                     );
                   }
 
-                  const detail = details.find((d) => d.courtIndex === idx);
+                  const detail = details.find((d) => d.courtIndex === courtNumber);
                   const status = detail?.status ?? "available";
 
                   return (
                     <button
-                      key={idx}
+                      key={`court-${courtNumber}`}
                       type="button"
                       onClick={() => onSlotClick(date, hour)}
                       className={cn(

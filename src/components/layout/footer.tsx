@@ -43,24 +43,25 @@ export function Footer({ className }: { className?: string }) {
             </p>
             <div className="flex gap-3">
               <a
-                href="#"
-                rel="nofollow"
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer nofollow"
                 aria-label="Facebook"
                 className="w-9 h-9 bg-white/70 border border-coral/[0.08] rounded-full flex items-center justify-center text-gray-400 hover:bg-coral hover:text-white hover:border-coral transition-all duration-200"
               >
                 <FacebookLogo size={18} />
               </a>
               <a
-                href="#"
-                rel="nofollow"
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer nofollow"
                 aria-label="Instagram"
                 className="w-9 h-9 bg-white/70 border border-coral/[0.08] rounded-full flex items-center justify-center text-gray-400 hover:bg-coral hover:text-white hover:border-coral transition-all duration-200"
               >
                 <InstagramLogo size={18} />
               </a>
               <a
-                href="#"
-                rel="nofollow"
+                href="mailto:hello@classcat.pl"
                 aria-label="Email"
                 className="w-9 h-9 bg-white/70 border border-coral/[0.08] rounded-full flex items-center justify-center text-gray-400 hover:bg-coral hover:text-white hover:border-coral transition-all duration-200"
               >

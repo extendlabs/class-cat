@@ -114,9 +114,9 @@ export function CourtReservationSidebar({
                 <SelectContent>
                   <SelectItem value="any">{t("anyAvailable")}</SelectItem>
                   {(availableCourtIndices ?? Array.from({ length: totalCourts }, (_, i) => i + 1)).map(
-                    (idx) => (
-                      <SelectItem key={idx} value={String(idx)}>
-                        {t("courtN", { n: idx })}
+                    (courtNumber) => (
+                      <SelectItem key={`court-${courtNumber}`} value={String(courtNumber)}>
+                        {t("courtN", { n: courtNumber })}
                       </SelectItem>
                     )
                   )}

@@ -39,8 +39,8 @@ export default function ProposalsClient() {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-28 bg-gray-100 rounded-2xl animate-pulse" />
+        {[1, 2, 3].map((n) => (
+          <div key={`skeleton-${n}`} className="h-28 bg-gray-100 rounded-2xl animate-pulse" />
         ))}
       </div>
     );

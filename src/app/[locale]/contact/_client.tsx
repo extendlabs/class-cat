@@ -85,16 +85,18 @@ export function ContactClient() {
             <p className="text-gray-500 mb-6">{t("socialDescription")}</p>
             <div className="flex gap-3 justify-center">
               <a
-                href="#"
-                rel="nofollow"
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer nofollow"
                 aria-label="Facebook"
                 className="w-11 h-11 bg-white border border-gray-200 rounded-full flex items-center justify-center text-gray-400 hover:bg-coral hover:text-white hover:border-coral transition-all duration-200"
               >
                 <FacebookLogo size={20} />
               </a>
               <a
-                href="#"
-                rel="nofollow"
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer nofollow"
                 aria-label="Instagram"
                 className="w-11 h-11 bg-white border border-gray-200 rounded-full flex items-center justify-center text-gray-400 hover:bg-coral hover:text-white hover:border-coral transition-all duration-200"
               >

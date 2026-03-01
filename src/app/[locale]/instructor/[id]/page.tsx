@@ -11,8 +11,10 @@ export async function generateMetadata({
   params: Promise<{ id: string; locale: string }>;
 }): Promise<Metadata> {
   const { id, locale } = await params;
-  const t = await getTranslations({ locale, namespace: "metadata" });
-  const instructor = await getInstructorById(id);
+  const [t, instructor] = await Promise.all([
+    getTranslations({ locale, namespace: "metadata" }),
+    getInstructorById(id),
+  ]);
   if (!instructor) {
     return { title: t("instructorNotFound"), alternates: getAlternates(`/instructor/${id}`) };
   }

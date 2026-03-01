@@ -24,6 +24,7 @@ function RelatedCard({ activity }: { activity: import("@/types/activity").Activi
           src={activity.image}
           alt={activity.title}
           fill
+          sizes="80px"
           className="object-cover group-hover:scale-110 transition-transform duration-500"
         />
       </div>

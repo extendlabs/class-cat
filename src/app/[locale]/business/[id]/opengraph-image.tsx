@@ -48,7 +48,7 @@ export default async function BusinessOG({
           }}
         >
           <div style={{ display: "flex" }}>
-            <img src={logoSrc} width={64} height={64} />
+            <img src={logoSrc} width={64} height={64} alt="" />
           </div>
           <div
             style={{
@@ -112,7 +112,7 @@ export default async function BusinessOG({
         >
           {/* Logo */}
           <div style={{ display: "flex" }}>
-            <img src={logoSrc} width={64} height={64} />
+            <img src={logoSrc} width={64} height={64} alt="" />
           </div>
 
           {/* Content */}

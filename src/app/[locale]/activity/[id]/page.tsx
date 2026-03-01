@@ -11,8 +11,10 @@ export async function generateMetadata({
   params: Promise<{ id: string; locale: string }>;
 }): Promise<Metadata> {
   const { id, locale } = await params;
-  const t = await getTranslations({ locale, namespace: "metadata" });
-  const activity = await getActivityById(id);
+  const [t, activity] = await Promise.all([
+    getTranslations({ locale, namespace: "metadata" }),
+    getActivityById(id),
+  ]);
   if (!activity) {
     return { title: t("activityNotFound"), alternates: getAlternates(`/activity/${id}`) };
   }

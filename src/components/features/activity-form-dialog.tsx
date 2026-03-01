@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -44,18 +44,35 @@ export function ActivityFormDialog({
   activity,
   instructors,
 }: ActivityFormDialogProps) {
+  return (
+    <Dialog open={open} onOpenChange={(v) => {
+      if (!v) onClose();
+    }}>
+      <DialogContent className="rounded-2xl max-h-[90vh] overflow-y-auto sm:max-w-2xl p-0">
+        <ActivityFormDialogContent
+          onClose={onClose}
+          onSubmit={onSubmit}
+          mode={mode}
+          activity={activity}
+          instructors={instructors}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ActivityFormDialogContent({
+  onClose,
+  onSubmit,
+  mode,
+  activity,
+  instructors,
+}: Omit<ActivityFormDialogProps, "open">) {
   const [showPreview, setShowPreview] = useState(false);
   const form = useForm<FormValues>({
     resolver: zodResolver(activitySchema),
     defaultValues: getDefaults(activity),
   });
-
-  useEffect(() => {
-    if (open) {
-      form.reset(getDefaults(activity));
-      setShowPreview(false);
-    }
-  }, [open, activity]);
 
   const galleryArray = useFieldArray({ control: form.control, name: "gallery" });
   const learnArray = useFieldArray({ control: form.control, name: "whatYouLearn" });
@@ -113,100 +130,96 @@ export function ActivityFormDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => {
-      if (!v) onClose();
-    }}>
-      <DialogContent className="rounded-2xl max-h-[90vh] overflow-y-auto sm:max-w-2xl p-0">
-        <DialogHeader className="px-6 pt-6 pb-0">
-          <DialogTitle className="text-xl font-bold">
-            {mode === "create" ? "New Activity" : "Edit Activity"}
-          </DialogTitle>
-          <p className="text-sm text-gray-500 mt-1">
-            Fill in the details that will appear on the activity page.
-          </p>
-        </DialogHeader>
+    <>
+      <DialogHeader className="px-6 pt-6 pb-0">
+        <DialogTitle className="text-xl font-bold">
+          {mode === "create" ? "New Activity" : "Edit Activity"}
+        </DialogTitle>
+        <p className="text-sm text-gray-500 mt-1">
+          Fill in the details that will appear on the activity page.
+        </p>
+      </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)}>
-            <Tabs defaultValue="basic" className="px-6 pt-2">
-              <TabsList className="w-full">
-                <TabsTrigger value="basic" className="flex-1 gap-1.5 text-xs">
-                  <Info size={14} />
-                  Basic
-                </TabsTrigger>
-                <TabsTrigger value="details" className="flex-1 gap-1.5 text-xs">
-                  <ListBullets size={14} />
-                  Details
-                </TabsTrigger>
-                <TabsTrigger value="schedule" className="flex-1 gap-1.5 text-xs">
-                  <CalendarBlank size={14} />
-                  Schedule
-                </TabsTrigger>
-                <TabsTrigger value="content" className="flex-1 gap-1.5 text-xs">
-                  <ImageIcon size={14} />
-                  Content
-                </TabsTrigger>
-              </TabsList>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)}>
+          <Tabs defaultValue="basic" className="px-6 pt-2">
+            <TabsList className="w-full">
+              <TabsTrigger value="basic" className="flex-1 gap-1.5 text-xs">
+                <Info size={14} />
+                Basic
+              </TabsTrigger>
+              <TabsTrigger value="details" className="flex-1 gap-1.5 text-xs">
+                <ListBullets size={14} />
+                Details
+              </TabsTrigger>
+              <TabsTrigger value="schedule" className="flex-1 gap-1.5 text-xs">
+                <CalendarBlank size={14} />
+                Schedule
+              </TabsTrigger>
+              <TabsTrigger value="content" className="flex-1 gap-1.5 text-xs">
+                <ImageIcon size={14} />
+                Content
+              </TabsTrigger>
+            </TabsList>
 
-              <TabsContent value="basic" className="pt-4">
-                <ActivityBasicInfoFields form={form} instructors={instructors} />
-              </TabsContent>
+            <TabsContent value="basic" className="pt-4">
+              <ActivityBasicInfoFields form={form} instructors={instructors} />
+            </TabsContent>
 
-              <TabsContent value="details" className="pt-4">
-                <ActivityDetailsFields form={form} />
-              </TabsContent>
+            <TabsContent value="details" className="pt-4">
+              <ActivityDetailsFields form={form} />
+            </TabsContent>
 
-              <TabsContent value="schedule" className="pt-4">
-                <ActivityScheduleFields form={form} timesArray={timesArray} />
-              </TabsContent>
+            <TabsContent value="schedule" className="pt-4">
+              <ActivityScheduleFields form={form} timesArray={timesArray} />
+            </TabsContent>
 
-              <TabsContent value="content" className="pt-4">
-                <ActivityContentFields
-                  form={form}
-                  galleryArray={galleryArray}
-                  learnArray={learnArray}
-                  curriculumArray={curriculumArray}
-                />
-              </TabsContent>
-            </Tabs>
+            <TabsContent value="content" className="pt-4">
+              <ActivityContentFields
+                form={form}
+                galleryArray={galleryArray}
+                learnArray={learnArray}
+                curriculumArray={curriculumArray}
+              />
+            </TabsContent>
+          </Tabs>
 
-            <DialogFooter className="px-6 py-4 border-t border-gray-100 mt-4 flex items-center justify-between">
+          <DialogFooter className="px-6 py-4 border-t border-gray-100 mt-4 flex items-center justify-between">
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-full gap-1.5"
+              onClick={() => setShowPreview(true)}
+            >
+              <Eye size={14} />
+              Preview
+            </Button>
+            <div className="flex gap-2">
               <Button
                 type="button"
                 variant="outline"
-                className="rounded-full gap-1.5"
-                onClick={() => setShowPreview(true)}
+                className="rounded-full"
+                onClick={onClose}
               >
-                <Eye size={14} />
-                Preview
+                Cancel
               </Button>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="rounded-full"
-                  onClick={onClose}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  className="rounded-full bg-coral hover:bg-coral-hover text-white"
-                >
-                  {mode === "create" ? "Create Activity" : "Save Changes"}
-                </Button>
-              </div>
-            </DialogFooter>
-          </form>
-        </Form>
+              <Button
+                type="submit"
+                className="rounded-full bg-coral hover:bg-coral-hover text-white"
+              >
+                {mode === "create" ? "Create Activity" : "Save Changes"}
+              </Button>
+            </div>
+          </DialogFooter>
+        </form>
+      </Form>
 
-        {showPreview && (
-          <ActivityPreview
-            values={form.getValues()}
-            onBack={() => setShowPreview(false)}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
+      {showPreview && (
+        <ActivityPreview
+          values={form.getValues()}
+          onBack={() => setShowPreview(false)}
+        />
+      )}
+    </>
   );
 }

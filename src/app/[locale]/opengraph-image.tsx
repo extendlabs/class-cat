@@ -39,7 +39,7 @@ export default async function HomepageOG() {
       >
         {/* Logo */}
         <div style={{ display: "flex" }}>
-          <img src={logoSrc} width={64} height={64} />
+          <img src={logoSrc} width={64} height={64} alt="" />
         </div>
 
         {/* Content */}

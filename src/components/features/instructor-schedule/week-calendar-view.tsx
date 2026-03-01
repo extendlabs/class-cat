@@ -279,13 +279,16 @@ export function WeekCalendarView({
         {/* Day columns */}
         <div className="flex-1 grid grid-cols-7 relative" style={{ height: gridHeight }}>
           {/* Horizontal grid lines */}
-          {Array.from({ length: TOTAL_HOURS }, (_, i) => (
-            <div
-              key={i}
-              className="absolute left-0 right-0 border-t border-gray-100/60"
-              style={{ top: i * HOUR_HEIGHT }}
-            />
-          ))}
+          {Array.from({ length: TOTAL_HOURS }, (_, i) => {
+            const hour = START_HOUR + i;
+            return (
+              <div
+                key={hour}
+                className="absolute left-0 right-0 border-t border-gray-100/60"
+                style={{ top: i * HOUR_HEIGHT }}
+              />
+            );
+          })}
 
           {/* Day columns with events */}
           {weekDays.map((day, colIdx) => {
@@ -294,13 +297,26 @@ export function WeekCalendarView({
             return (
               <div
                 key={day.date}
+                role={onEmptySlotClick ? "button" : undefined}
+                tabIndex={onEmptySlotClick ? 0 : undefined}
                 className={cn(
                   "relative border-l border-gray-100/40",
                   day.date === today && "bg-coral/[0.02]",
                   onEmptySlotClick && "cursor-pointer"
                 )}
                 style={{ height: gridHeight }}
-                onClick={(e) => handleColumnClick(day.date, e)}
+                onClick={onEmptySlotClick ? (e) => handleColumnClick(day.date, e) : undefined}
+                onKeyDown={(e) => {
+                  if (!onEmptySlotClick || (e.key !== "Enter" && e.key !== " ")) return;
+                  e.preventDefault();
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const centerY = rect.height / 2;
+                  const rawHour = START_HOUR + centerY / HOUR_HEIGHT;
+                  const hour = Math.floor(rawHour);
+                  if (hour >= START_HOUR && hour < END_HOUR) {
+                    onEmptySlotClick(day.date, hour);
+                  }
+                }}
               >
                 {positioned.map((entry) => {
                   const top = topFromTime(entry.startTime);
@@ -320,6 +336,8 @@ export function WeekCalendarView({
                   return (
                     <div
                       key={entry.id}
+                      role={!isBusy && onEntryClick ? "button" : undefined}
+                      tabIndex={!isBusy && onEntryClick ? 0 : undefined}
                       className={cn(
                         "absolute rounded-[10px] px-2 py-1.5 overflow-hidden transition-shadow hover:shadow-sm",
                         !isBusy && "cursor-pointer",
@@ -331,8 +349,13 @@ export function WeekCalendarView({
                           ? `Busy\n${entry.startTime} – ${entry.endTime}`
                           : `${entry.startTime} – ${entry.endTime}\n${entry.activityTitle}`
                       }
-                      onClick={(e) => {
-                        if (!isBusy && onEntryClick) {
+                      onClick={!isBusy && onEntryClick ? (e) => {
+                          e.stopPropagation();
+                          onEntryClick(entry);
+                        } : undefined}
+                      onKeyDown={(e) => {
+                        if (!isBusy && onEntryClick && (e.key === "Enter" || e.key === " ")) {
+                          e.preventDefault();
                           e.stopPropagation();
                           onEntryClick(entry);
                         }

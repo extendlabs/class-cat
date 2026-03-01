@@ -41,11 +41,7 @@ export function RecurringBlocksDialog({
 }: RecurringBlocksDialogProps) {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
-  const [formDay, setFormDay] = useState(0);
-  const [formStart, setFormStart] = useState(8);
-  const [formEnd, setFormEnd] = useState(10);
-  const [formCourt, setFormCourt] = useState<string>("all");
-  const [formLabel, setFormLabel] = useState("");
+  const [formData, setFormData] = useState({ day: 0, start: 8, end: 10, court: "all", label: "" });
 
   const { data: blocks = [] } = useQuery({
     queryKey: ["recurring-blocks", courtId],
@@ -72,21 +68,17 @@ export function RecurringBlocksDialog({
 
   const resetForm = () => {
     setShowForm(false);
-    setFormDay(0);
-    setFormStart(8);
-    setFormEnd(10);
-    setFormCourt("all");
-    setFormLabel("");
+    setFormData({ day: 0, start: 8, end: 10, court: "all", label: "" });
   };
 
   const handleCreate = () => {
     createMutation.mutate({
       courtId,
-      dayOfWeek: formDay,
-      startHour: formStart,
-      endHour: formEnd,
-      courtIndex: formCourt === "all" ? undefined : Number(formCourt),
-      label: formLabel || undefined,
+      dayOfWeek: formData.day,
+      startHour: formData.start,
+      endHour: formData.end,
+      courtIndex: formData.court === "all" ? undefined : Number(formData.court),
+      label: formData.label || undefined,
     });
   };
 
@@ -150,23 +142,23 @@ export function RecurringBlocksDialog({
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[11px] font-medium text-gray-500 mb-1 block">Day</label>
-                  <Select value={String(formDay)} onValueChange={(v) => setFormDay(Number(v))}>
-                    <SelectTrigger className="h-8 text-xs">
+                  <label htmlFor="recurring-block-day" className="text-[11px] font-medium text-gray-500 mb-1 block">Day</label>
+                  <Select value={String(formData.day)} onValueChange={(v) => setFormData(prev => ({ ...prev, day: Number(v) }))}>
+                    <SelectTrigger id="recurring-block-day" className="h-8 text-xs">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {DAY_LABELS.map((label, i) => (
-                        <SelectItem key={i} value={String(i)}>{label}</SelectItem>
+                        <SelectItem key={label} value={String(i)}>{label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-medium text-gray-500 mb-1 block">Court</label>
-                  <Select value={formCourt} onValueChange={setFormCourt}>
-                    <SelectTrigger className="h-8 text-xs">
+                  <label htmlFor="recurring-block-court" className="text-[11px] font-medium text-gray-500 mb-1 block">Court</label>
+                  <Select value={formData.court} onValueChange={(v) => setFormData(prev => ({ ...prev, court: v }))}>
+                    <SelectTrigger id="recurring-block-court" className="h-8 text-xs">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -183,9 +175,9 @@ export function RecurringBlocksDialog({
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[11px] font-medium text-gray-500 mb-1 block">From</label>
-                  <Select value={String(formStart)} onValueChange={(v) => setFormStart(Number(v))}>
-                    <SelectTrigger className="h-8 text-xs">
+                  <label htmlFor="recurring-block-from" className="text-[11px] font-medium text-gray-500 mb-1 block">From</label>
+                  <Select value={String(formData.start)} onValueChange={(v) => setFormData(prev => ({ ...prev, start: Number(v) }))}>
+                    <SelectTrigger id="recurring-block-from" className="h-8 text-xs">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -199,13 +191,13 @@ export function RecurringBlocksDialog({
                 </div>
 
                 <div>
-                  <label className="text-[11px] font-medium text-gray-500 mb-1 block">To</label>
-                  <Select value={String(formEnd)} onValueChange={(v) => setFormEnd(Number(v))}>
-                    <SelectTrigger className="h-8 text-xs">
+                  <label htmlFor="recurring-block-to" className="text-[11px] font-medium text-gray-500 mb-1 block">To</label>
+                  <Select value={String(formData.end)} onValueChange={(v) => setFormData(prev => ({ ...prev, end: Number(v) }))}>
+                    <SelectTrigger id="recurring-block-to" className="h-8 text-xs">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {hours.filter((h) => h > formStart).map((h) => (
+                      {hours.filter((h) => h > formData.start).map((h) => (
                         <SelectItem key={h} value={String(h)}>
                           {String(h).padStart(2, "0")}:00
                         </SelectItem>
@@ -217,11 +209,12 @@ export function RecurringBlocksDialog({
               </div>
 
               <div>
-                <label className="text-[11px] font-medium text-gray-500 mb-1 block">Label (optional)</label>
+                <label htmlFor="recurring-block-label" className="text-[11px] font-medium text-gray-500 mb-1 block">Label (optional)</label>
                 <input
+                  id="recurring-block-label"
                   type="text"
-                  value={formLabel}
-                  onChange={(e) => setFormLabel(e.target.value)}
+                  value={formData.label}
+                  onChange={(e) => setFormData(prev => ({ ...prev, label: e.target.value }))}
                   placeholder="e.g. Team practice, Maintenance"
                   className="w-full h-8 px-2.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-coral/20 focus:border-coral"
                 />
@@ -230,10 +223,10 @@ export function RecurringBlocksDialog({
               <button
                 type="button"
                 onClick={handleCreate}
-                disabled={createMutation.isPending || formEnd <= formStart}
+                disabled={createMutation.isPending || formData.end <= formData.start}
                 className={cn(
                   "w-full h-8 rounded-lg text-xs font-medium transition-colors",
-                  formEnd > formStart
+                  formData.end > formData.start
                     ? "bg-coral text-white hover:bg-coral-hover"
                     : "bg-gray-100 text-gray-400 cursor-not-allowed"
                 )}

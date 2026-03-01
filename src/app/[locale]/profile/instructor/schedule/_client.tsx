@@ -65,8 +65,8 @@ function CalendarTab({ instructorId }: { instructorId: string }) {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
-          <Skeleton key={i} className="h-20 rounded-2xl" />
+        {[1, 2, 3].map((n) => (
+          <Skeleton key={`skeleton-${n}`} className="h-20 rounded-2xl" />
         ))}
       </div>
     );
@@ -109,10 +109,11 @@ function CalendarTab({ instructorId }: { instructorId: string }) {
                   </div>
                 )}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-gray-500">
+                  <label htmlFor="cancel-note-instructor" className="text-xs font-medium text-gray-500">
                     Cancellation note (optional)
                   </label>
                   <Textarea
+                    id="cancel-note-instructor"
                     placeholder="e.g. Not feeling well..."
                     value={cancelNote}
                     onChange={(e) => setCancelNote(e.target.value)}
@@ -166,21 +167,20 @@ export default function InstructorSchedulePage() {
   });
 
   // Dialog state
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingSlot, setEditingSlot] = useState<InstructorScheduleSlot | null>(null);
+  const [dialogMode, setDialogMode] = useState<InstructorScheduleSlot | "add" | null>(null);
+  const dialogOpen = dialogMode !== null;
+  const editingSlot = typeof dialogMode === "object" ? dialogMode : null;
   const [form, setForm] = useState({ dayOfWeek: 1, startTime: "09:00", endTime: "11:00", recurring: true });
   const [deleteSlotId, setDeleteSlotId] = useState<string | null>(null);
 
   const openAdd = () => {
-    setEditingSlot(null);
     setForm({ dayOfWeek: 1, startTime: "09:00", endTime: "11:00", recurring: true });
-    setDialogOpen(true);
+    setDialogMode("add");
   };
 
   const openEdit = (slot: InstructorScheduleSlot) => {
-    setEditingSlot(slot);
     setForm({ dayOfWeek: slot.dayOfWeek, startTime: slot.startTime, endTime: slot.endTime, recurring: slot.recurring });
-    setDialogOpen(true);
+    setDialogMode(slot);
   };
 
   const saveSlot = () => {
@@ -194,7 +194,7 @@ export default function InstructorSchedulePage() {
       updated = [...schedule, { id: `s-new-${Date.now()}`, ...form }];
     }
     mutation.mutate(updated);
-    setDialogOpen(false);
+    setDialogMode(null);
   };
 
   const confirmDelete = () => {
@@ -328,7 +328,7 @@ export default function InstructorSchedulePage() {
       </div>
 
       {/* Add/Edit Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={(v) => !v && setDialogOpen(false)}>
+      <Dialog open={dialogOpen} onOpenChange={(v) => !v && setDialogMode(null)}>
         <DialogContent className="rounded-2xl sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{editingSlot ? "Edit Time Slot" : "Add Time Slot"}</DialogTitle>
@@ -365,7 +365,7 @@ export default function InstructorSchedulePage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" className="rounded-full" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button variant="outline" className="rounded-full" onClick={() => setDialogMode(null)}>Cancel</Button>
             <Button className="rounded-full bg-coral hover:bg-coral-hover text-white" onClick={saveSlot}>
               {editingSlot ? "Save Changes" : "Add Slot"}
             </Button>

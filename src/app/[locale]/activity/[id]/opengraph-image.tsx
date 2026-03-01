@@ -48,7 +48,7 @@ export default async function ActivityOG({
           }}
         >
           <div style={{ display: "flex" }}>
-            <img src={logoSrc} width={64} height={64} />
+            <img src={logoSrc} width={64} height={64} alt="" />
           </div>
           <div
             style={{
@@ -119,7 +119,7 @@ export default async function ActivityOG({
         >
           {/* Logo */}
           <div style={{ display: "flex" }}>
-            <img src={logoSrc} width={64} height={64} />
+            <img src={logoSrc} width={64} height={64} alt="" />
           </div>
 
           {/* Content */}

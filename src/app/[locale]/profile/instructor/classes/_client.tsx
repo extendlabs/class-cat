@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { Star, Users, MapPin, Plus, Trash } from "@phosphor-icons/react";
@@ -74,7 +74,7 @@ export default function InstructorClassesPage() {
   const { user } = useAuth();
   const instructorId = user?.instructorId ?? "inst-6";
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<"freelance" | "business">("business");
+  const [tabOverride, setActiveTab] = useState<"freelance" | "business" | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   const { data: instructor, isLoading: loadingProfile } = useQuery({
@@ -83,11 +83,7 @@ export default function InstructorClassesPage() {
   });
 
   const isFreelance = instructor?.isFreelance ?? false;
-
-  // Default to freelance tab when instructor is freelance
-  useEffect(() => {
-    if (isFreelance) setActiveTab("freelance");
-  }, [isFreelance]);
+  const activeTab = tabOverride ?? (isFreelance ? "freelance" : "business");
 
   const { data: freelanceClasses, isLoading: loadingFreelance } = useQuery({
     queryKey: ["instructor-own-activities", instructorId],
