@@ -94,6 +94,7 @@
     "listYourBusiness": "Dodaj swoją firmę",
     "instructorPortal": "Portal instruktora",
     "influencerPortal": "Portal instruktora biznesowego",
+    "becomeInstructor": "Zostań instruktorem",
     "signIn": "Zaloguj się"
   },
   "footer": {
@@ -149,7 +150,6 @@
     "noResultsDescription": "Spróbuj zmienić filtry lub zapytanie.",
     "noResultsHint": "Spróbuj zmienić wyszukiwanie lub filtry, aby znaleźć to, czego szukasz.",
     "showMap": "Mapa",
-    "hideMap": "Mapa",
     "listView": "Lista",
     "mapView": "Mapa",
     "sortBy": "Sortuj",
