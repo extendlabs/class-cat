@@ -640,17 +640,6 @@
     "cancel": "Cancel",
     "sendProposal": "Send Proposal"
   },
-  "onboarding": {
-    "becomeInstructorTitle": "Become an Instructor",
-    "becomeInstructorSubtitle": "Share your skills and start teaching on ClassCat.",
-    "name": "Name",
-    "specialty": "Specialty",
-    "specialtyPlaceholder": "e.g., Yoga, Chess, Painting",
-    "bio": "Bio",
-    "bioPlaceholder": "Tell students about your experience and teaching style...",
-    "creating": "Creating profile...",
-    "createProfile": "Create Instructor Profile"
-  },
   "instructorReviews": {
     "title": "Reviews",
     "subtitle": "What your students are saying.",
@@ -701,6 +690,15 @@
     }
   },
   "onboarding": {
+    "becomeInstructorTitle": "Become an Instructor",
+    "becomeInstructorSubtitle": "Share your skills and start teaching on ClassCat.",
+    "name": "Name",
+    "specialty": "Specialty",
+    "specialtyPlaceholder": "e.g., Yoga, Chess, Painting",
+    "bio": "Bio",
+    "bioPlaceholder": "Tell students about your experience and teaching style...",
+    "createProfile": "Create Instructor Profile",
+    "creatingProfile": "Creating profile...",
     "exit": "Exit",
     "creating": "Creating...",
     "completeSetup": "Complete Setup",

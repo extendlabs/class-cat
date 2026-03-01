@@ -84,7 +84,7 @@ export default function BecomeInstructorPage() {
               disabled={!form.specialty || isSubmitting}
               className="w-full rounded-full bg-coral hover:bg-coral-hover text-white h-11 text-sm font-bold"
             >
-              {isSubmitting ? t("creating") : t("createProfile")}
+              {isSubmitting ? t("creatingProfile") : t("createProfile")}
             </Button>
           </div>
         </div>

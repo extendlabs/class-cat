@@ -639,17 +639,6 @@
     "cancel": "Anuluj",
     "sendProposal": "Wyślij propozycję"
   },
-  "onboarding": {
-    "becomeInstructorTitle": "Zostań instruktorem",
-    "becomeInstructorSubtitle": "Podziel się swoimi umiejętnościami i zacznij uczyć na ClassCat.",
-    "name": "Imię i nazwisko",
-    "specialty": "Specjalizacja",
-    "specialtyPlaceholder": "np. Joga, Szachy, Malarstwo",
-    "bio": "O sobie",
-    "bioPlaceholder": "Opowiedz uczniom o swoim doświadczeniu i stylu nauczania...",
-    "creating": "Tworzenie profilu...",
-    "createProfile": "Utwórz profil instruktora"
-  },
   "instructorReviews": {
     "title": "Opinie",
     "subtitle": "Co mówią Twoi uczniowie.",
@@ -700,6 +689,15 @@
     }
   },
   "onboarding": {
+    "becomeInstructorTitle": "Zostań instruktorem",
+    "becomeInstructorSubtitle": "Podziel się swoimi umiejętnościami i zacznij uczyć na ClassCat.",
+    "name": "Imię i nazwisko",
+    "specialty": "Specjalizacja",
+    "specialtyPlaceholder": "np. Joga, Szachy, Malarstwo",
+    "bio": "O sobie",
+    "bioPlaceholder": "Opowiedz uczniom o swoim doświadczeniu i stylu nauczania...",
+    "createProfile": "Utwórz profil instruktora",
+    "creatingProfile": "Tworzenie profilu...",
     "exit": "Wyjdź",
     "creating": "Tworzenie...",
     "completeSetup": "Zakończ konfigurację",
