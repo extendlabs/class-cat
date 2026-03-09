@@ -47,5 +47,7 @@ export function getCategoryLabel(slug: string): string | undefined {
 }
 
 export function isValidCategory(s: string): s is BrowseCategory {
-  return (VALID_CATEGORIES as readonly string[]).includes(s);
+  // Accept any non-empty slug — backend categories are dynamic, Next.js routing
+  // already handles explicit paths (profile, dashboard, etc.) before [category].
+  return s.length > 0;
 }

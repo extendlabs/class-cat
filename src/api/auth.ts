@@ -1,4 +1,57 @@
 import type { UserProfile } from "@/types/user";
+import { unwrap } from "@/lib/api-client";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapMeToUserProfile(me: any): UserProfile {
+  const firstName = me.firstName ?? "";
+  const lastName = me.lastName ?? "";
+  const name = [firstName, lastName].filter(Boolean).join(" ") || me.username;
+  return {
+    id: me.username,
+    name,
+    email: me.email ?? "",
+    phone: me.phoneNumber ?? "",
+    location: "",
+    avatar: me.avatar?.file ?? undefined,
+    memberSince: me.memberSince ?? new Date().toISOString().split("T")[0],
+    totalBookings: me.totalBookings ?? 0,
+    businessId: me.businessId ?? undefined,
+    instructorId: me.instructorId ?? undefined,
+  };
+}
+
+export async function apiLogin(
+  email: string,
+  password: string,
+): Promise<{ user: UserProfile; token: string }> {
+  const loginRes = await fetch(`${API_BASE}/users/login/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username: email, password }),
+  });
+
+  if (!loginRes.ok) {
+    const err = await loginRes.json().catch(() => ({}));
+    throw new Error(
+      err?.data?.detail ?? err?.detail ?? "Nieprawidłowy login lub hasło",
+    );
+  }
+
+  const loginJson = await loginRes.json();
+  const { token } = unwrap(loginJson) as { token: string };
+
+  const meRes = await fetch(`${API_BASE}/users/users/me/`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!meRes.ok) throw new Error("Nie można pobrać danych użytkownika");
+
+  const meJson = await meRes.json();
+  const user = mapMeToUserProfile(unwrap(meJson));
+  return { user, token };
+}
 
 interface AuthResponse {
   user: UserProfile;

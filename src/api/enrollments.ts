@@ -2,6 +2,7 @@ import type { Cohort, EnrollmentRequest } from "@/types/enrollment";
 import type { Conversation } from "@/types/chat";
 import { createDirectConversation, addParticipantToConversation } from "./conversations";
 import { getCurrentUser } from "./auth";
+import { apiFetch, unwrap } from "@/lib/api-client";
 
 export const MOCK_COHORTS: Cohort[] = [
   {
@@ -210,22 +211,56 @@ export async function rejectEnrollment(requestId: string): Promise<EnrollmentReq
   return request;
 }
 
-export async function fetchUserEnrollments(userId: string): Promise<EnrollmentRequest[]> {
-  await new Promise((resolve) => setTimeout(resolve, 250));
-  const userEnrollments = enrollmentRequests.filter((r) => r.userId === userId);
+export async function fetchUserEnrollments(_userId: string): Promise<EnrollmentRequest[]> {
+  const res = await apiFetch("/users/users/enrolled-in/");
+  if (!res.ok) {
+    // fallback to mock (filter by userId)
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    const userEnrollments = enrollmentRequests.filter((r) => r.userId === _userId);
+    return userEnrollments
+      .map((r) => {
+        if (r.cohortStartDate && r.cohortEndDate) return r;
+        const cohort = cohorts.find((c) => c.id === r.cohortId);
+        return {
+          ...r,
+          cohortStartDate: r.cohortStartDate ?? cohort?.startDate,
+          cohortEndDate: r.cohortEndDate ?? cohort?.endDate,
+        };
+      })
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
 
-  // Enrich with cohort dates if not already present
-  return userEnrollments
-    .map((r) => {
-      if (r.cohortStartDate && r.cohortEndDate) return r;
-      const cohort = cohorts.find((c) => c.id === r.cohortId);
-      return {
-        ...r,
-        cohortStartDate: r.cohortStartDate ?? cohort?.startDate,
-        cohortEndDate: r.cohortEndDate ?? cohort?.endDate,
-      };
-    })
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const data: any[] = unwrap(await res.json());
+  const list = Array.isArray(data) ? data : (data as any)?.results ?? [];
+
+  const statusMap: Record<string, EnrollmentRequest["status"]> = {
+    PENDING: "pending",
+    COMPLETED: "accepted",
+    IGNORED: "rejected",
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return list.map((e: any): EnrollmentRequest => {
+    const activity = e.session?.activity ?? {};
+    const sessionDate: string | undefined = e.session?.date;
+    return {
+      id: String(e.id),
+      activityId: activity.slug ?? "",
+      activityTitle: activity.name ?? "",
+      activityImage: activity.primaryImage?.file ?? undefined,
+      cohortId: String(e.session?.id ?? ""),
+      cohortName: "",
+      userId: _userId,
+      userName: "",
+      userAvatar: "",
+      status: statusMap[e.status] ?? "pending",
+      conversationId: "",
+      createdAt: sessionDate ?? new Date().toISOString(),
+      cohortStartDate: sessionDate,
+      cohortEndDate: sessionDate,
+    };
+  });
 }
 
 export async function getUserEnrollmentForActivity(

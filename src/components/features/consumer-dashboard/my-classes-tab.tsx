@@ -19,7 +19,7 @@ export function MyClassesTab({ enrollments }: { enrollments: EnrollmentRequest[]
   const today = new Date().toISOString().split("T")[0];
 
   const upcoming = enrollments.filter(
-    (e) => e.status === "accepted" && e.cohortEndDate && e.cohortEndDate >= today
+    (e) => e.status === "accepted" && (!e.cohortEndDate || e.cohortEndDate >= today)
   );
   const pending = enrollments.filter((e) => e.status === "pending");
   const past = enrollments.filter(

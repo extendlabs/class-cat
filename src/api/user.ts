@@ -1,4 +1,5 @@
 import type { UserProfile, Booking, UserReview, UserSettings } from "@/types/user";
+import { apiFetch, unwrap } from "@/lib/api-client";
 
 const MOCK_USER: UserProfile = {
   id: "user-1",
@@ -523,14 +524,46 @@ function getUserData(userId?: string) {
   return userDataMap[userId ?? "user-1"] ?? userDataMap["user-1"];
 }
 
-export async function fetchUserReviews(userId?: string): Promise<UserReview[]> {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  return getUserData(userId).reviews;
+export async function fetchUserReviews(_userId?: string): Promise<UserReview[]> {
+  const res = await apiFetch("/users/users/opinions/");
+  if (!res.ok) return getUserData(_userId).reviews;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const data: any[] = unwrap(await res.json());
+  const list = Array.isArray(data) ? data : (data as any)?.results ?? [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return list.map((r: any) => ({
+    id: r.slug ?? String(r.id),
+    activityTitle: r.activity?.name ?? "",
+    activityId: r.activity?.slug ?? "",
+    providerName: r.activity?.provider?.name ?? "",
+    rating: r.rating ?? 0,
+    text: r.comment ?? "",
+    date: r.createdAt ? r.createdAt.split("T")[0] : "",
+  }));
 }
 
-export async function fetchUserProfile(userId?: string): Promise<UserProfile> {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  return getUserData(userId).profile;
+export async function fetchUserProfile(_userId?: string): Promise<UserProfile> {
+  const res = await apiFetch("/users/users/me/");
+  if (!res.ok) {
+    // Fallback to mock for unauthenticated / dev
+    return getUserData(_userId).profile;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const me: any = unwrap(await res.json());
+  const firstName = me.firstName ?? "";
+  const lastName = me.lastName ?? "";
+  return {
+    id: me.username,
+    name: [firstName, lastName].filter(Boolean).join(" ") || me.username,
+    email: me.email ?? "",
+    phone: me.phoneNumber ?? "",
+    location: "",
+    avatar: me.avatar?.file ?? undefined,
+    memberSince: me.memberSince ?? "",
+    totalBookings: me.totalBookings ?? 0,
+    businessId: me.businessId ?? undefined,
+    instructorId: me.instructorId ?? undefined,
+  };
 }
 
 export async function fetchUserBookings(userId?: string): Promise<Booking[]> {

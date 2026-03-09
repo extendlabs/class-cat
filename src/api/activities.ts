@@ -1,4 +1,5 @@
 import { ALL_ACTIVITIES, PROMOTED_ACTIVITIES, type BrowseActivity } from "@/api/mock-data";
+import { apiFetch, unwrap } from "@/lib/api-client";
 
 export interface BrowseFilters {
   query?: string;
@@ -120,27 +121,97 @@ export function applyBrowseFilters(activities: BrowseActivity[], filters: Browse
   return results;
 }
 
+// ── Backend integration ──────────────────────────────────────────────────────
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapSearchResultToActivity(a: any): BrowseActivity {
+  const ageMin = a.ageMin ?? null;
+  const ageMax = a.ageMax ?? null;
+  let ageRange = "All ages";
+  if (ageMin !== null && ageMax !== null) ageRange = `${ageMin}–${ageMax}`;
+  else if (ageMin !== null) ageRange = `${ageMin}+`;
+  else if (ageMax !== null) ageRange = `0–${ageMax}`;
+
+  return {
+    id: a.id ?? "",
+    title: a.title ?? "",
+    image: a.image ?? "",
+    location: a.location ?? "",
+    address: a.address ?? "",
+    distance: "",
+    ageRange,
+    rating: a.rating ?? 0,
+    reviewCount: a.reviewCount ?? 0,
+    price: typeof a.price === "string" ? parseFloat(a.price) : (a.price ?? 0),
+    category: a.category ?? "",
+    lat: a.lat ?? 0,
+    lng: a.lng ?? 0,
+    isPromoted: a.isPromoted ?? false,
+    provider: a.provider ?? undefined,
+    businessId: a.providerSlug ?? undefined,
+    instructorId: a.instructorSlug ?? undefined,
+  };
+}
+
+function buildSearchParams(filters: BrowseFilters, category: string | null): string {
+  const p = new URLSearchParams();
+  if (filters.query) p.set("search", filters.query);
+  const cats = filters.categories?.length
+    ? filters.categories
+    : filters.category
+    ? [filters.category]
+    : category
+    ? [category]
+    : [];
+  cats.forEach((c) => p.append("category", c));
+  if (filters.priceMin != null) p.set("price_0", String(filters.priceMin));
+  if (filters.priceMax != null) p.set("price_1", String(filters.priceMax));
+  return p.toString();
+}
+
+// Module-level cache so paginated calls don't re-fetch the same data.
+const _cache = new Map<string, BrowseActivity[]>();
+
+async function fetchAllFromBackend(
+  filters: BrowseFilters,
+  category: string | null
+): Promise<BrowseActivity[]> {
+  const key = buildSearchParams(filters, category);
+  if (_cache.has(key)) return _cache.get(key)!;
+
+  const qs = key ? `?${key}` : "";
+  const res = await apiFetch(`/activities/map-search-combined/${qs}`);
+  if (!res.ok) return [];
+
+  const raw = unwrap(await res.json());
+  const list: BrowseActivity[] = (Array.isArray(raw) ? raw : raw?.results ?? []).map(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (a: any) => mapSearchResultToActivity(a)
+  );
+  _cache.set(key, list);
+  return list;
+}
+
 export async function fetchActivities(
   page: number = 0,
   limit: number = 8,
   category: string | null = null,
   filters: BrowseFilters = {}
 ): Promise<PaginatedResult> {
-  await new Promise((resolve) => setTimeout(resolve, 200));
+  let all = await fetchAllFromBackend(filters, category);
 
-  const mergedFilters: BrowseFilters = { ...filters };
-  if (category) mergedFilters.category = category;
-
-  const filtered = applyBrowseFilters(ALL_ACTIVITIES, mergedFilters);
+  // Fallback to mock if backend returned nothing
+  if (all.length === 0) {
+    const mergedFilters: BrowseFilters = { ...filters };
+    if (category) mergedFilters.category = category;
+    all = applyBrowseFilters(ALL_ACTIVITIES, mergedFilters);
+  }
 
   const start = page * limit;
-  const activities = filtered.slice(start, start + limit);
-  const hasMore = start + limit < filtered.length;
-
   return {
-    activities,
-    nextPage: hasMore ? page + 1 : null,
-    total: filtered.length,
+    activities: all.slice(start, start + limit),
+    nextPage: start + limit < all.length ? page + 1 : null,
+    total: all.length,
   };
 }
 
@@ -149,17 +220,18 @@ export async function fetchPopularActivities(
   limit: number = 8,
   filters: BrowseFilters = {}
 ): Promise<PaginatedResult> {
-  await new Promise((resolve) => setTimeout(resolve, 200));
+  let all = await fetchAllFromBackend(filters, null);
+  all = all.filter((a) => a.isPromoted);
 
-  const filtered = applyBrowseFilters(PROMOTED_ACTIVITIES, filters);
+  // Fallback to mock if backend returned nothing
+  if (all.length === 0) {
+    all = applyBrowseFilters(PROMOTED_ACTIVITIES, filters);
+  }
 
   const start = page * limit;
-  const activities = filtered.slice(start, start + limit);
-  const hasMore = start + limit < filtered.length;
-
   return {
-    activities,
-    nextPage: hasMore ? page + 1 : null,
-    total: filtered.length,
+    activities: all.slice(start, start + limit),
+    nextPage: start + limit < all.length ? page + 1 : null,
+    total: all.length,
   };
 }

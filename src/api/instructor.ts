@@ -2,6 +2,56 @@ import type { InstructorDetail, InstructorStats, InstructorScheduleSlot, Instruc
 import type { InstructorAffiliation, CalendarEntry, SlotProposal } from "@/types/affiliation";
 import { MOCK_AFFILIATIONS, MOCK_CALENDAR_ENTRIES, MOCK_SLOT_PROPOSALS } from "./mock-affiliations";
 import { getBusinessActivitiesByInstructor } from "./business-portal";
+import { apiFetch, unwrap } from "@/lib/api-client";
+import type { Activity } from "@/types/activity";
+
+// ── Backend → frontend transform ─────────────────────────────────────────────
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function transformInstructor(data: any): InstructorDetail {
+  const yearsExperience: number = data.yearsExperience ?? 0;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const classes: Activity[] = (data.activities ?? []).map((a: any) => ({
+    id: a.slug,
+    title: a.name,
+    description: "",
+    category: "fitness" as const,
+    provider: { name: "" },
+    image: "",
+    rating: 0,
+    reviewCount: 0,
+    price: "$" as const,
+    priceAmount: 0,
+    distance: 0,
+    location: "",
+    timeSlots: [],
+  }));
+  return {
+    id: data.slug,
+    name: data.name ?? "",
+    title: data.title ?? "",
+    avatar: data.avatar ?? "",
+    coverImage: "",
+    bio: data.bio ?? "",
+    verified: false,
+    experience: yearsExperience ? `${yearsExperience} lat doświadczenia` : "",
+    specialty: (data.specialties ?? [])[0] ?? "",
+    rating: 0,
+    reviewCount: 0,
+    totalStudents: 0,
+    yearsExperience,
+    totalClasses: classes.length,
+    specialties: data.specialties ?? [],
+    certifications: data.certifications ?? [],
+    languages: data.languages ?? [],
+    achievements: data.achievements ?? [],
+    social: data.social ?? {},
+    classes,
+    reviews: [],
+    ratingDistribution: [],
+    businessId: "",
+  };
+}
 
 const MOCK_INSTRUCTORS: Record<string, InstructorDetail> = {
   "inst-1": {
@@ -389,44 +439,50 @@ const MOCK_SETTINGS: InstructorSettings = {
 export async function getInstructorById(
   id: string
 ): Promise<InstructorDetail | null> {
-  await new Promise((resolve) => setTimeout(resolve, 500));
+  // Try backend first, fall back to mock
+  try {
+    const res = await apiFetch(`/activities/instructor/${id}/`);
+    if (res.ok) return transformInstructor(unwrap(await res.json()));
+  } catch {
+    // network error — fall back to mock
+  }
   return MOCK_INSTRUCTORS[id] ?? null;
 }
 
 export async function fetchInstructorProfile(
-  id: string
+  _id: string
 ): Promise<InstructorDetail> {
-  await new Promise((resolve) => setTimeout(resolve, 400));
-  const instructor = MOCK_INSTRUCTORS[id] ?? { ...MOCK_INSTRUCTORS["inst-6"]!, id };
-
-  // Merge dynamically assigned business activities into classes
-  const assignedActivities = getBusinessActivitiesByInstructor(id);
-  const existingIds = new Set(instructor.classes.map((c) => c.id));
-  const newClasses = assignedActivities
-    .filter((a) => !existingIds.has(a.id))
-    .map((a) => ({
-      id: a.id,
-      title: a.title,
-      description: a.description,
-      category: a.category,
-      provider: a.provider,
-      image: a.image,
-      rating: a.rating,
-      reviewCount: a.reviewCount,
-      price: a.price,
-      priceAmount: a.priceAmount,
-      distance: a.distance,
-      location: a.location,
-      timeSlots: a.timeSlots,
-      spotsLeft: a.spotsLeft,
-      businessId: "biz-1",
-      instructorId: id,
-    }));
-
-  return {
-    ...instructor,
-    classes: [...instructor.classes, ...newClasses],
-  };
+  const res = await apiFetch("/activities/instructor/me/");
+  if (res.status === 404) {
+    // No profile yet — return empty shell so the UI can offer creation
+    return {
+      id: "",
+      name: "",
+      title: "",
+      avatar: "",
+      coverImage: "",
+      bio: "",
+      verified: false,
+      experience: "",
+      specialty: "",
+      rating: 0,
+      reviewCount: 0,
+      totalStudents: 0,
+      yearsExperience: 0,
+      totalClasses: 0,
+      specialties: [],
+      certifications: [],
+      languages: [],
+      achievements: [],
+      social: {},
+      classes: [],
+      reviews: [],
+      ratingDistribution: [],
+      businessId: "",
+    };
+  }
+  if (!res.ok) throw new Error("Failed to fetch instructor profile");
+  return transformInstructor(unwrap(await res.json()));
 }
 
 export async function fetchInstructorStats(
@@ -439,17 +495,39 @@ export async function fetchInstructorStats(
 export async function fetchInstructorSchedule(
   _id: string
 ): Promise<InstructorScheduleSlot[]> {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  return [...schedule];
+  const res = await apiFetch("/activities/instructor/me/schedule/");
+  if (!res.ok) return [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (unwrap(await res.json()) as any[]).map((s) => ({
+    id: String(s.id),
+    dayOfWeek: s.dayOfWeek,
+    startTime: s.startTime,
+    endTime: s.endTime,
+    activityId: s.activityId ? String(s.activityId) : undefined,
+    activityTitle: s.activityTitle ?? undefined,
+    recurring: s.recurring,
+  }));
 }
 
 export async function updateInstructorSchedule(
   _id: string,
   slots: InstructorScheduleSlot[]
 ): Promise<InstructorScheduleSlot[]> {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  schedule = [...slots];
-  return slots;
+  const res = await apiFetch("/activities/instructor/me/schedule/", {
+    method: "PUT",
+    body: JSON.stringify(slots),
+  });
+  if (!res.ok) throw new Error("Failed to update schedule");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (unwrap(await res.json()) as any[]).map((s) => ({
+    id: String(s.id),
+    dayOfWeek: s.dayOfWeek,
+    startTime: s.startTime,
+    endTime: s.endTime,
+    activityId: s.activityId ? String(s.activityId) : undefined,
+    activityTitle: s.activityTitle ?? undefined,
+    recurring: s.recurring,
+  }));
 }
 
 export async function fetchInstructorSettings(

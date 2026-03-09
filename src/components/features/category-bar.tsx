@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@/i18n/navigation";
 import {
   SquaresFour,
@@ -27,33 +28,33 @@ import {
 } from "@phosphor-icons/react";
 import type { Icon } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
+import { fetchCategories } from "@/api/categories";
+
+const SLUG_TO_ICON: Record<string, Icon> = {
+  football: SoccerBall,
+  music: MusicNote,
+  art: PaintBrush,
+  coding: Code,
+  yoga: Person,
+  chess: PuzzlePiece,
+  cooking: CookingPot,
+  swimming: SwimmingPool,
+  drama: MaskHappy,
+  tennis: TennisBall,
+  photo: Camera,
+  science: Flask,
+  fitness: Barbell,
+  cycling: Bicycle,
+  gardening: Flower,
+  reading: BookOpen,
+  wellness: Heartbeat,
+};
 
 interface CategoryItem {
   id: string | null;
-  key: string;
+  label: string;
   icon: Icon;
 }
-
-const categoryItems: CategoryItem[] = [
-  { id: null, key: "all", icon: SquaresFour },
-  { id: "football", key: "football", icon: SoccerBall },
-  { id: "music", key: "music", icon: MusicNote },
-  { id: "art", key: "art", icon: PaintBrush },
-  { id: "coding", key: "coding", icon: Code },
-  { id: "yoga", key: "yoga", icon: Person },
-  { id: "chess", key: "chess", icon: PuzzlePiece },
-  { id: "cooking", key: "cooking", icon: CookingPot },
-  { id: "swimming", key: "swimming", icon: SwimmingPool },
-  { id: "drama", key: "drama", icon: MaskHappy },
-  { id: "tennis", key: "tennis", icon: TennisBall },
-  { id: "photo", key: "photo", icon: Camera },
-  { id: "science", key: "science", icon: Flask },
-  { id: "fitness", key: "fitness", icon: Barbell },
-  { id: "cycling", key: "cycling", icon: Bicycle },
-  { id: "gardening", key: "gardening", icon: Flower },
-  { id: "reading", key: "reading", icon: BookOpen },
-  { id: "wellness", key: "wellness", icon: Heartbeat },
-];
 
 interface CategoryBarProps {
   activeCategory: string | null;
@@ -67,6 +68,21 @@ export function CategoryBar({ activeCategory, onCategoryChange, linkMode, embedd
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const t = useTranslations("categories");
+
+  const { data: backendCategories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+    staleTime: 10 * 60 * 1000, // 10 min
+  });
+
+  const categoryItems: CategoryItem[] = [
+    { id: null, label: t("all"), icon: SquaresFour },
+    ...(backendCategories ?? []).map((c) => ({
+      id: c.slug,
+      label: c.name,
+      icon: SLUG_TO_ICON[c.slug] ?? SquaresFour,
+    })),
+  ];
 
   const checkScroll = () => {
     const el = scrollRef.current;
@@ -127,7 +143,7 @@ export function CategoryBar({ activeCategory, onCategoryChange, linkMode, embedd
           {categoryItems.map((cat) => {
             const isActive = cat.id === activeCategory;
             const IconComp = cat.icon;
-            const label = t(cat.key as never);
+            const label = cat.label;
 
             const content = (
               <div className="relative flex flex-col items-center gap-1 px-4 py-2 group/cat">

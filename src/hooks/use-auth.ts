@@ -11,7 +11,7 @@ import {
 } from "react";
 import { createElement } from "react";
 import type { UserProfile } from "@/types/user";
-import { mockLogin, mockSignUp, mockLogout } from "@/api/auth";
+import { apiLogin, mockSignUp, mockLogout } from "@/api/auth";
 
 const STORAGE_KEY = "classcat-auth";
 
@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [state]);
 
   const login = useCallback(async (email: string, password: string) => {
-    const { user, token } = await mockLogin(email, password);
+    const { user, token } = await apiLogin(email, password);
     setState({ user, token });
   }, []);
 

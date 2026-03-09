@@ -19,8 +19,8 @@ import {
   MobileActivityLayout,
 } from "@/components/features/browse";
 import { isValidCategory } from "@/lib/categories";
-import { trendingClasses, ALL_ACTIVITIES, PROMOTED_ACTIVITIES } from "@/api/mock-data";
-import { fetchActivities, fetchPopularActivities, applyBrowseFilters } from "@/api/activities";
+import { trendingClasses } from "@/api/mock-data";
+import { fetchActivities, fetchPopularActivities } from "@/api/activities";
 import type { BrowseFilters } from "@/api/activities";
 interface BrowsePageProps {
   category: string | null;
@@ -179,12 +179,9 @@ export function BrowsePage({ category: initialCategory }: BrowsePageProps) {
     [data]
   );
 
-  // Map shows all matching activities (respects every filter, not just category).
+  // Map shows all activities loaded so far from the current query.
   // Spread ensures a fresh array reference so the MapView GeoJSON source always re-syncs.
-  const mapActivities = useMemo(() => {
-    const source = activeTab === "popular" ? PROMOTED_ACTIVITIES : ALL_ACTIVITIES;
-    return [...applyBrowseFilters(source, filters)];
-  }, [activeTab, filters]);
+  const mapActivities = useMemo(() => [...allActivities], [allActivities]);
 
   // IntersectionObserver for infinite scroll
   useEffect(() => {
