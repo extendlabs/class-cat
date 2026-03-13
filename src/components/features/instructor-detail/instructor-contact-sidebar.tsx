@@ -46,7 +46,7 @@ export function InstructorContactSidebar({
           }}
         >
           <Envelope size={18} weight="bold" className="inline mr-2 -mt-0.5" />
-          Message Instructor
+          Message Contractor
         </button>
 
         <p className="text-center text-[12px] text-gray-400 leading-relaxed italic">

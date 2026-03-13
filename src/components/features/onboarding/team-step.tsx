@@ -19,7 +19,7 @@ export function TeamStep({
         Your Team
       </h2>
       <p className="text-sm text-gray-500 mb-6">
-        Add instructors or staff (optional — you can skip this step).
+        Add contractors or staff (optional — you can skip this step).
       </p>
       <div className="space-y-4">
         {data.employees.map((emp, i) => (

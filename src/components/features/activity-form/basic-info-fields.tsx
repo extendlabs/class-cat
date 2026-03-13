@@ -21,10 +21,10 @@ import type { TabFieldsProps } from "@/lib/activity-form-schema";
 import { ImageUploadZone } from "./image-upload-zone";
 
 interface BasicInfoFieldsProps extends TabFieldsProps {
-  instructors?: { instructorId: string; name: string }[];
+  instructors?: { contractorId: string; name: string }[];
 }
 
-export function ActivityBasicInfoFields({ form, instructors }: BasicInfoFieldsProps) {
+export function ActivityBasicInfoFields({ form, instructors, onImageFile }: BasicInfoFieldsProps) {
   return (
     <div className="space-y-4">
       <FormField
@@ -119,7 +119,10 @@ export function ActivityBasicInfoFields({ form, instructors }: BasicInfoFieldsPr
             <FormControl>
               <ImageUploadZone
                 value={field.value}
-                onChange={field.onChange}
+                onChange={(url, file) => {
+                  field.onChange(url);
+                  if (file) onImageFile?.(file);
+                }}
               />
             </FormControl>
             <FormMessage />
@@ -144,7 +147,7 @@ export function ActivityBasicInfoFields({ form, instructors }: BasicInfoFieldsPr
       {instructors && instructors.length > 0 && (
         <FormField
           control={form.control}
-          name="instructorId"
+          name="contractorId"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Instructor</FormLabel>
@@ -160,7 +163,7 @@ export function ActivityBasicInfoFields({ form, instructors }: BasicInfoFieldsPr
                 <SelectContent>
                   <SelectItem value="none">No instructor</SelectItem>
                   {instructors.map((inst) => (
-                    <SelectItem key={inst.instructorId} value={inst.instructorId}>
+                    <SelectItem key={inst.contractorId} value={inst.contractorId}>
                       {inst.name}
                     </SelectItem>
                   ))}

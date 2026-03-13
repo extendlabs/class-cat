@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
-import { Star, Users, MapPin, Plus, Trash } from "@phosphor-icons/react";
+import { Star, Users, MapPin, Plus, Trash, PencilSimple } from "@phosphor-icons/react";
 import { fetchInstructorProfile } from "@/api/instructor";
-import { fetchInstructorOwnActivities, createInstructorActivity, deleteInstructorActivity } from "@/api/instructor-activities";
+import { fetchInstructorOwnActivities, createInstructorActivity, updateInstructorActivity, deleteInstructorActivity, uploadActivityImage } from "@/api/instructor-activities";
 import { useAuth } from "@/hooks/use-auth";
 import { AnimateIn } from "@/components/ui/animate-in";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +16,7 @@ import { ActivityFormDialog } from "@/components/features/activity-form-dialog";
 import type { Activity, Category, TimeSlot } from "@/types/activity";
 import type { BusinessActivity } from "@/types/business-portal";
 
-function ClassCard({ activity, onDelete }: { activity: Activity; onDelete?: () => void }) {
+function ClassCard({ activity, onEdit, onDelete }: { activity: Activity; onEdit?: () => void; onDelete?: () => void }) {
   return (
     <div className="rounded-2xl bg-white shadow-[var(--shadow-soft)] border border-gray-100/60 overflow-hidden hover:shadow-[var(--shadow-hover)] transition-all group">
       <div className="relative h-40 overflow-hidden">
@@ -30,13 +30,25 @@ function ClassCard({ activity, onDelete }: { activity: Activity; onDelete?: () =
         <Badge className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-gray-700 border-0 text-[10px] font-bold uppercase tracking-wider">
           {activity.category}
         </Badge>
-        {onDelete && (
-          <button
-            onClick={(e) => { e.stopPropagation(); onDelete(); }}
-            className="absolute top-3 right-3 w-7 h-7 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100"
-          >
-            <Trash size={12} weight="bold" />
-          </button>
+        {(onEdit || onDelete) && (
+          <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
+            {onEdit && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onEdit(); }}
+                className="w-7 h-7 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-gray-400 hover:text-coral hover:bg-coral/10 transition-all"
+              >
+                <PencilSimple size={12} weight="bold" />
+              </button>
+            )}
+            {onDelete && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onDelete(); }}
+                className="w-7 h-7 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all"
+              >
+                <Trash size={12} weight="bold" />
+              </button>
+            )}
+          </div>
         )}
       </div>
       <div className="p-4">
@@ -72,30 +84,48 @@ function ClassCard({ activity, onDelete }: { activity: Activity; onDelete?: () =
 
 export default function InstructorClassesPage() {
   const { user } = useAuth();
-  const instructorId = user?.instructorId ?? "inst-6";
+  const instructorId = user?.contractorId ?? "";
+  const hasContractorProfile = !!instructorId;
   const queryClient = useQueryClient();
   const [tabOverride, setActiveTab] = useState<"freelance" | "business" | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
 
   const { data: instructor, isLoading: loadingProfile } = useQuery({
     queryKey: ["instructor-profile", instructorId],
     queryFn: () => fetchInstructorProfile(instructorId),
+    enabled: !!instructorId,
   });
 
-  const isFreelance = instructor?.isFreelance ?? false;
-  const activeTab = tabOverride ?? (isFreelance ? "freelance" : "business");
+  const activeTab = tabOverride ?? (hasContractorProfile ? "freelance" : "business");
 
   const { data: freelanceClasses, isLoading: loadingFreelance } = useQuery({
     queryKey: ["instructor-own-activities", instructorId],
     queryFn: () => fetchInstructorOwnActivities(instructorId),
-    enabled: isFreelance,
+    enabled: hasContractorProfile,
   });
 
   const createMutation = useMutation({
-    mutationFn: (data: Partial<Activity>) => createInstructorActivity(instructorId, data),
+    mutationFn: ({ data, imageFile }: { data: Partial<Activity>; imageFile?: File }) =>
+      createInstructorActivity(instructorId, data).then(async (activity) => {
+        if (imageFile) await uploadActivityImage(activity.id, imageFile);
+        return activity;
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["instructor-own-activities"] });
       setCreateDialogOpen(false);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data, imageFile }: { id: string; data: Partial<Activity>; imageFile?: File }) =>
+      updateInstructorActivity(id, data).then(async (activity) => {
+        if (imageFile) await uploadActivityImage(activity.id, imageFile);
+        return activity;
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["instructor-own-activities"] });
+      setEditingActivity(null);
     },
   });
 
@@ -124,18 +154,38 @@ export default function InstructorClassesPage() {
   const businessClasses = (instructor?.classes ?? []).filter((c) => !!c.businessId);
   const myClasses = freelanceClasses ?? [];
 
-  const handleFormSubmit = (data: Partial<BusinessActivity>) => {
-    createMutation.mutate({
-      title: data.title,
-      description: data.description,
-      category: data.category as Category,
-      location: data.location,
-      priceAmount: data.priceAmount,
-      price: data.price,
-      image: data.image,
-      timeSlots: data.timeSlots as TimeSlot[],
-      provider: { name: user?.name ?? "Instructor" },
-    });
+  const buildActivityPayload = (data: Partial<BusinessActivity>) => ({
+    name: data.title,
+    title: data.title,
+    description: data.description,
+    category: data.category as Category,
+    location: data.location,
+    priceAmount: data.priceAmount,
+    price: data.price,
+    image: data.image,
+    timeSlots: data.timeSlots as TimeSlot[],
+    provider: { name: user?.name ?? "Contractor" },
+    capacity: data.maxStudents,
+    skillLevel: data.skillLevel,
+    materialsIncluded: data.materialsIncluded,
+    whatYouLearn: data.whatYouLearn as string[],
+    curriculum: data.curriculum as { week: number; title: string; description: string }[],
+  } as Partial<Activity> & {
+    name?: string;
+    capacity?: number;
+    skillLevel?: string;
+    materialsIncluded?: string;
+    whatYouLearn?: string[];
+    curriculum?: { week: number; title: string; description: string }[];
+  });
+
+  const handleFormSubmit = (data: Partial<BusinessActivity>, imageFile?: File) => {
+    createMutation.mutate({ data: buildActivityPayload(data), imageFile });
+  };
+
+  const handleEditSubmit = (data: Partial<BusinessActivity>, imageFile?: File) => {
+    if (!editingActivity) return;
+    updateMutation.mutate({ id: editingActivity.id, data: buildActivityPayload(data), imageFile });
   };
 
   return (
@@ -145,7 +195,7 @@ export default function InstructorClassesPage() {
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">My Classes</h1>
           <p className="text-sm text-gray-500 mt-1">Manage your freelance and business activities.</p>
         </div>
-        {isFreelance && activeTab === "freelance" && (
+        {hasContractorProfile && activeTab === "freelance" && (
           <Button
             onClick={() => setCreateDialogOpen(true)}
             className="rounded-full bg-coral hover:bg-coral-hover text-white gap-1.5"
@@ -156,8 +206,8 @@ export default function InstructorClassesPage() {
         )}
       </div>
 
-      {/* Tab navigation — only show tabs if freelance (otherwise only business classes) */}
-      {isFreelance && (
+      {/* Tab navigation — only show tabs if contractor (otherwise only business classes) */}
+      {hasContractorProfile && (
         <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
           <button
             onClick={() => setActiveTab("freelance")}
@@ -187,31 +237,43 @@ export default function InstructorClassesPage() {
       {/* Classes grid */}
       <AnimateIn>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {(isFreelance && activeTab === "freelance" ? myClasses : businessClasses).map((activity) => (
+          {(hasContractorProfile && activeTab === "freelance" ? myClasses : businessClasses).map((activity) => (
             <ClassCard
               key={activity.id}
               activity={activity}
-              onDelete={isFreelance && activeTab === "freelance" ? () => deleteMutation.mutate(activity.id) : undefined}
+              onEdit={hasContractorProfile && activeTab === "freelance" ? () => setEditingActivity(activity) : undefined}
+              onDelete={hasContractorProfile && activeTab === "freelance" ? () => deleteMutation.mutate(activity.id) : undefined}
             />
           ))}
         </div>
       </AnimateIn>
 
-      {(isFreelance && activeTab === "freelance" ? myClasses : businessClasses).length === 0 && (
+      {(hasContractorProfile && activeTab === "freelance" ? myClasses : businessClasses).length === 0 && (
         <div className="text-center py-12">
           <p className="text-gray-400 text-sm">
-            {isFreelance && activeTab === "freelance" ? "No freelance classes yet. Create your first!" : "No business classes assigned."}
+            {hasContractorProfile && activeTab === "freelance" ? "No freelance classes yet. Create your first!" : "No business classes assigned."}
           </p>
         </div>
       )}
 
-      {/* Create Activity Dialog — freelance only */}
-      {isFreelance && (
+      {/* Create Activity Dialog */}
+      {hasContractorProfile && (
         <ActivityFormDialog
           open={createDialogOpen}
           onClose={() => setCreateDialogOpen(false)}
           onSubmit={handleFormSubmit}
           mode="create"
+        />
+      )}
+
+      {/* Edit Activity Dialog */}
+      {editingActivity && (
+        <ActivityFormDialog
+          open={!!editingActivity}
+          onClose={() => setEditingActivity(null)}
+          onSubmit={handleEditSubmit}
+          mode="edit"
+          activity={editingActivity as unknown as BusinessActivity}
         />
       )}
     </div>

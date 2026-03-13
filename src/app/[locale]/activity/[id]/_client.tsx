@@ -98,8 +98,8 @@ export default function ActivityDetailPage({ id }: { id: string }) {
             <WhatYouLearnSection items={activity.whatYouLearn} />
             <CurriculumSection curriculum={activity.curriculum} />
             <InstructorCard
-              instructor={activity.instructor}
-              instructorId={activity.instructorId}
+              instructor={activity.person}
+              contractorId={activity.contractorId}
               businessId={activity.businessId}
             />
           </div>

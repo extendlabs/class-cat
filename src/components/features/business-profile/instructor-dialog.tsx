@@ -63,7 +63,7 @@ function InstructorAvatarAndName({
         <Input
           value={instructorForm.name}
           onChange={(e) => dispatch({ type: "UPDATE_INSTRUCTOR_FORM", payload: { name: e.target.value } })}
-          placeholder="Instructor name"
+          placeholder="Contractor name"
         />
       </div>
     </div>
@@ -103,12 +103,12 @@ export function InstructorDialog({
         <DialogHeader>
           <DialogTitle>
             {editingInstructor
-              ? "Edit Instructor"
+              ? "Edit Contractor"
               : dialogStep === "found"
                 ? "User Found"
                 : dialogStep === "not-found"
                   ? "User Not Found"
-                  : "Add Instructor"}
+                  : "Add Contractor"}
           </DialogTitle>
         </DialogHeader>
 
@@ -116,7 +116,7 @@ export function InstructorDialog({
         {!editingInstructor && dialogStep === "email" && (
           <div className="space-y-4 py-2">
             <p className="text-sm text-gray-500">
-              Search for an existing user by email, or add a new instructor manually.
+              Search for an existing user by email, or add a new contractor manually.
             </p>
             <div className="flex gap-2">
               <Input
@@ -186,7 +186,7 @@ export function InstructorDialog({
                 ) : (
                   <UserPlus size={16} />
                 )}
-                Invite as Instructor
+                Invite as Contractor
               </Button>
             </DialogFooter>
           </div>
@@ -197,7 +197,7 @@ export function InstructorDialog({
           <div className="space-y-4 py-2">
             {lookupEmail.trim() && (
               <p className="text-sm text-gray-500">
-                No account found for <span className="font-medium text-gray-700">{lookupEmail}</span>. Create a new instructor below.
+                No account found for <span className="font-medium text-gray-700">{lookupEmail}</span>. Create a new contractor below.
               </p>
             )}
             <InstructorAvatarAndName
@@ -216,7 +216,7 @@ export function InstructorDialog({
             <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-3">
               <div>
                 <Label className="text-sm font-medium text-gray-900">Create Account</Label>
-                <p className="text-xs text-gray-500 mt-0.5">Allow instructor to log in and manage their profile</p>
+                <p className="text-xs text-gray-500 mt-0.5">Allow contractor to log in and manage their profile</p>
               </div>
               <Switch checked={instructorForm.createAccount} onCheckedChange={(checked) => dispatch({ type: "UPDATE_INSTRUCTOR_FORM", payload: { createAccount: checked } })} />
             </div>
@@ -241,7 +241,7 @@ export function InstructorDialog({
                 Back
               </Button>
               <Button className="rounded-full bg-coral hover:bg-coral-hover text-white" onClick={onSaveInstructor} disabled={!instructorForm.name.trim()}>
-                Add Instructor
+                Add Contractor
               </Button>
             </DialogFooter>
           </div>

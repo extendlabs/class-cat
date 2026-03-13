@@ -149,7 +149,7 @@ function CalendarTab({ instructorId }: { instructorId: string }) {
 
 export default function InstructorSchedulePage() {
   const { user } = useAuth();
-  const instructorId = user?.instructorId ?? "inst-6";
+  const instructorId = user?.contractorId ?? "inst-6";
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<"availability" | "calendar">("availability");
 

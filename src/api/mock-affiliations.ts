@@ -2,7 +2,7 @@ import type { InstructorAffiliation, CalendarEntry, SlotProposal } from "@/types
 
 export const MOCK_AFFILIATIONS: InstructorAffiliation[] = [
   {
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     businessId: "biz-2",
     businessName: "Centrum Szachowe Kraków",
     status: "active",
@@ -10,7 +10,7 @@ export const MOCK_AFFILIATIONS: InstructorAffiliation[] = [
     startDate: "2023-09-01",
   },
   {
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     businessId: "biz-3",
     businessName: "Akademia Umysłu Wrocław",
     status: "pending",
@@ -18,7 +18,7 @@ export const MOCK_AFFILIATIONS: InstructorAffiliation[] = [
     startDate: "2026-02-15",
   },
   {
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     businessId: "biz-4",
     businessName: "Klub Szachowy Warszawa",
     status: "ended",
@@ -27,7 +27,7 @@ export const MOCK_AFFILIATIONS: InstructorAffiliation[] = [
     endDate: "2023-06-30",
   },
   {
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     businessId: "biz-5",
     businessName: "Akademia Gier Planszowych",
     status: "active",
@@ -35,7 +35,7 @@ export const MOCK_AFFILIATIONS: InstructorAffiliation[] = [
     startDate: "2025-06-01",
   },
   {
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     businessId: "biz-6",
     businessName: "Chess Academy Online",
     status: "pending",
@@ -43,7 +43,7 @@ export const MOCK_AFFILIATIONS: InstructorAffiliation[] = [
     startDate: "2026-02-20",
   },
   {
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     businessId: "biz-7",
     businessName: "Szkoła Myślenia Lateralnego",
     status: "ended",
@@ -53,7 +53,7 @@ export const MOCK_AFFILIATIONS: InstructorAffiliation[] = [
   },
   // ── inst-1 affiliations ──
   {
-    instructorId: "inst-1",
+    contractorId: "inst-1",
     businessId: "biz-1",
     businessName: "Studio Harmonii – Centrum Wellness",
     status: "active",
@@ -61,7 +61,7 @@ export const MOCK_AFFILIATIONS: InstructorAffiliation[] = [
     startDate: "2022-03-01",
   },
   {
-    instructorId: "inst-1",
+    contractorId: "inst-1",
     businessId: "biz-8",
     businessName: "Yoga Space Katowice",
     status: "active",
@@ -69,7 +69,7 @@ export const MOCK_AFFILIATIONS: InstructorAffiliation[] = [
     startDate: "2025-09-01",
   },
   {
-    instructorId: "inst-1",
+    contractorId: "inst-1",
     businessId: "biz-9",
     businessName: "Mindful Studio Gdańsk",
     status: "pending",
@@ -77,7 +77,7 @@ export const MOCK_AFFILIATIONS: InstructorAffiliation[] = [
     startDate: "2026-02-20",
   },
   {
-    instructorId: "inst-1",
+    contractorId: "inst-1",
     businessId: "biz-10",
     businessName: "Zen Garden Retreat",
     status: "ended",
@@ -91,7 +91,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   // ── Today (Mar 1, Sunday – prev week) ──
   {
     id: "cal-today",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-f1",
     activityTitle: "Indywidualne Lekcje Szachowe",
     status: "confirmed",
@@ -103,7 +103,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   // Monday Mar 2
   {
     id: "cal-9",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-8",
     activityTitle: "Szachy dla Początkujących",
     businessId: "biz-2",
@@ -117,7 +117,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   // Tuesday Mar 3
   {
     id: "cal-1",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-f1",
     activityTitle: "Indywidualne Lekcje Szachowe",
     status: "confirmed",
@@ -128,7 +128,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   },
   {
     id: "cal-2",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-f2",
     activityTitle: "Szachy Online – Kurs Strategii",
     status: "confirmed",
@@ -139,7 +139,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   },
   {
     id: "cal-4",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-7",
     activityTitle: "Klub Szachowy Mistrzów: Strategia i Taktyka",
     businessId: "biz-2",
@@ -153,7 +153,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   // Wednesday Mar 4
   {
     id: "cal-5",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-8",
     activityTitle: "Szachy dla Początkujących",
     businessId: "biz-2",
@@ -167,7 +167,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   // Thursday Mar 5
   {
     id: "cal-3",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-f1",
     activityTitle: "Indywidualne Lekcje Szachowe",
     status: "confirmed",
@@ -179,7 +179,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   // Friday Mar 6
   {
     id: "cal-10",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-7",
     activityTitle: "Klub Szachowy Mistrzów: Strategia i Taktyka",
     businessId: "biz-2",
@@ -192,7 +192,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   },
   {
     id: "cal-11",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-f2",
     activityTitle: "Szachy Online – Kurs Strategii",
     status: "confirmed",
@@ -204,7 +204,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   // Saturday Mar 7
   {
     id: "cal-8",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-f2",
     activityTitle: "Szachy Online – Kurs Strategii",
     status: "cancelled",
@@ -215,7 +215,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   // Sunday Mar 8
   {
     id: "cal-6",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-9",
     activityTitle: "Intensywne Przygotowanie Turniejowe",
     businessId: "biz-2",
@@ -230,7 +230,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   // Monday Mar 9
   {
     id: "cal-12",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-f1",
     activityTitle: "Indywidualne Lekcje Szachowe",
     status: "confirmed",
@@ -242,7 +242,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   // Tuesday Mar 10
   {
     id: "cal-7",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-10",
     activityTitle: "Warsztaty Szachowe dla Dzieci",
     businessId: "biz-3",
@@ -255,7 +255,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   // Wednesday Mar 11
   {
     id: "cal-13",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-8",
     activityTitle: "Szachy dla Początkujących",
     businessId: "biz-2",
@@ -269,7 +269,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   // Friday Mar 13
   {
     id: "cal-14",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-f1",
     activityTitle: "Indywidualne Lekcje Szachowe",
     status: "confirmed",
@@ -280,7 +280,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   },
   {
     id: "cal-15",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-7",
     activityTitle: "Klub Szachowy Mistrzów: Strategia i Taktyka",
     businessId: "biz-2",
@@ -295,7 +295,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   // Today Mar 1 (Sunday)
   {
     id: "cal-i1-today",
-    instructorId: "inst-1",
+    contractorId: "inst-1",
     activityId: "act-1",
     activityTitle: "Poranna Joga Vinyasa",
     businessId: "biz-1",
@@ -308,7 +308,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   // Monday Mar 2
   {
     id: "cal-i1-1",
-    instructorId: "inst-1",
+    contractorId: "inst-1",
     activityId: "act-1",
     activityTitle: "Poranna Joga Vinyasa",
     businessId: "biz-1",
@@ -321,7 +321,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   },
   {
     id: "cal-i1-2",
-    instructorId: "inst-1",
+    contractorId: "inst-1",
     activityId: "act-2",
     activityTitle: "Medytacja i Uważność",
     businessId: "biz-1",
@@ -335,7 +335,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   // Wednesday Mar 4
   {
     id: "cal-i1-3",
-    instructorId: "inst-1",
+    contractorId: "inst-1",
     activityId: "act-1",
     activityTitle: "Poranna Joga Vinyasa",
     businessId: "biz-1",
@@ -348,7 +348,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   },
   {
     id: "cal-i1-4",
-    instructorId: "inst-1",
+    contractorId: "inst-1",
     activityId: "act-20",
     activityTitle: "Joga Kundalini",
     businessId: "biz-8",
@@ -362,7 +362,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   // Thursday Mar 5
   {
     id: "cal-i1-5",
-    instructorId: "inst-1",
+    contractorId: "inst-1",
     activityId: "act-2",
     activityTitle: "Medytacja i Uważność",
     businessId: "biz-1",
@@ -376,7 +376,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   // Friday Mar 6
   {
     id: "cal-i1-6",
-    instructorId: "inst-1",
+    contractorId: "inst-1",
     activityId: "act-1",
     activityTitle: "Poranna Joga Vinyasa",
     businessId: "biz-1",
@@ -389,7 +389,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   },
   {
     id: "cal-i1-7",
-    instructorId: "inst-1",
+    contractorId: "inst-1",
     activityId: "act-20",
     activityTitle: "Joga Kundalini",
     businessId: "biz-8",
@@ -402,7 +402,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   // Saturday Mar 7
   {
     id: "cal-i1-8",
-    instructorId: "inst-1",
+    contractorId: "inst-1",
     activityId: "act-21",
     activityTitle: "Weekend Yoga Retreat",
     status: "confirmed",
@@ -413,7 +413,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   // Monday Mar 9
   {
     id: "cal-i1-9",
-    instructorId: "inst-1",
+    contractorId: "inst-1",
     activityId: "act-1",
     activityTitle: "Poranna Joga Vinyasa",
     businessId: "biz-1",
@@ -427,7 +427,7 @@ export const MOCK_CALENDAR_ENTRIES: CalendarEntry[] = [
   // Tuesday Mar 10
   {
     id: "cal-i1-10",
-    instructorId: "inst-1",
+    contractorId: "inst-1",
     activityId: "act-22",
     activityTitle: "Warsztaty Oddechowe",
     businessId: "biz-9",
@@ -444,7 +444,7 @@ export const MOCK_SLOT_PROPOSALS: SlotProposal[] = [
     id: "prop-1",
     businessId: "biz-2",
     businessName: "Centrum Szachowe Kraków",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-7",
     activityTitle: "Klub Szachowy Mistrzów: Strategia i Taktyka",
     date: "2026-03-12",
@@ -457,7 +457,7 @@ export const MOCK_SLOT_PROPOSALS: SlotProposal[] = [
     id: "prop-2",
     businessId: "biz-3",
     businessName: "Akademia Umysłu Wrocław",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-10",
     activityTitle: "Warsztaty Szachowe dla Dzieci",
     date: "2026-03-15",
@@ -470,7 +470,7 @@ export const MOCK_SLOT_PROPOSALS: SlotProposal[] = [
     id: "prop-3",
     businessId: "biz-2",
     businessName: "Centrum Szachowe Kraków",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-8",
     activityTitle: "Szachy dla Początkujących",
     date: "2026-03-06",
@@ -484,7 +484,7 @@ export const MOCK_SLOT_PROPOSALS: SlotProposal[] = [
     id: "prop-4",
     businessId: "biz-2",
     businessName: "Centrum Szachowe Kraków",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-9",
     activityTitle: "Intensywne Przygotowanie Turniejowe",
     date: "2026-03-01",
@@ -498,7 +498,7 @@ export const MOCK_SLOT_PROPOSALS: SlotProposal[] = [
     id: "prop-5",
     businessId: "biz-5",
     businessName: "Akademia Gier Planszowych",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-11",
     activityTitle: "Wieczór z Grami Logicznymi",
     date: "2026-03-18",
@@ -511,7 +511,7 @@ export const MOCK_SLOT_PROPOSALS: SlotProposal[] = [
     id: "prop-6",
     businessId: "biz-6",
     businessName: "Chess Academy Online",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-12",
     activityTitle: "Kurs Końcówek Szachowych",
     date: "2026-03-20",
@@ -525,7 +525,7 @@ export const MOCK_SLOT_PROPOSALS: SlotProposal[] = [
     id: "prop-7",
     businessId: "biz-5",
     businessName: "Akademia Gier Planszowych",
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     activityId: "act-11",
     activityTitle: "Wieczór z Grami Logicznymi",
     date: "2026-03-04",
@@ -540,7 +540,7 @@ export const MOCK_SLOT_PROPOSALS: SlotProposal[] = [
     id: "prop-i1-1",
     businessId: "biz-8",
     businessName: "Yoga Space Katowice",
-    instructorId: "inst-1",
+    contractorId: "inst-1",
     activityId: "act-20",
     activityTitle: "Joga Kundalini",
     date: "2026-03-14",
@@ -553,7 +553,7 @@ export const MOCK_SLOT_PROPOSALS: SlotProposal[] = [
     id: "prop-i1-2",
     businessId: "biz-9",
     businessName: "Mindful Studio Gdańsk",
-    instructorId: "inst-1",
+    contractorId: "inst-1",
     activityId: "act-22",
     activityTitle: "Warsztaty Oddechowe",
     date: "2026-03-17",
@@ -566,7 +566,7 @@ export const MOCK_SLOT_PROPOSALS: SlotProposal[] = [
     id: "prop-i1-3",
     businessId: "biz-1",
     businessName: "Studio Harmonii – Centrum Wellness",
-    instructorId: "inst-1",
+    contractorId: "inst-1",
     activityId: "act-1",
     activityTitle: "Poranna Joga Vinyasa",
     date: "2026-03-08",
@@ -580,7 +580,7 @@ export const MOCK_SLOT_PROPOSALS: SlotProposal[] = [
     id: "prop-i1-4",
     businessId: "biz-10",
     businessName: "Zen Garden Retreat",
-    instructorId: "inst-1",
+    contractorId: "inst-1",
     activityId: "act-23",
     activityTitle: "Medytacja Vipassana",
     date: "2026-02-28",

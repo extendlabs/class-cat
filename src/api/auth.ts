@@ -18,7 +18,7 @@ function mapMeToUserProfile(me: any): UserProfile {
     memberSince: me.memberSince ?? new Date().toISOString().split("T")[0],
     totalBookings: me.totalBookings ?? 0,
     businessId: me.businessId ?? undefined,
-    instructorId: me.instructorId ?? undefined,
+    contractorId: me.contractorId ?? undefined,
   };
 }
 
@@ -81,7 +81,7 @@ const TEST_INSTRUCTOR: UserProfile = {
     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face",
   memberSince: "2023-06-01",
   totalBookings: 0,
-  instructorId: "inst-6",
+  contractorId: "inst-6",
 };
 
 const TEST_CONSUMER: UserProfile = {
@@ -106,7 +106,7 @@ const TEST_DUAL_USER: UserProfile = {
     "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face",
   memberSince: "2022-11-01",
   totalBookings: 12,
-  instructorId: "inst-1",
+  contractorId: "inst-1",
   isBusinessInstructor: true,
 };
 
@@ -220,7 +220,7 @@ export async function mockInviteAsInstructor(
   const user = userId === "user-1" ? TEST_USER : TEST_INSTRUCTOR;
   return {
     ...user,
-    instructorId: user.instructorId ?? `inst-invited-${Date.now()}`,
+    contractorId: user.contractorId ?? `inst-invited-${Date.now()}`,
   };
 }
 
@@ -240,6 +240,6 @@ export async function mockCreateInstructorAccount(
     avatar: undefined,
     memberSince: new Date().toISOString().split("T")[0],
     totalBookings: 0,
-    instructorId: `inst-${Date.now()}`,
+    contractorId: `inst-${Date.now()}`,
   };
 }

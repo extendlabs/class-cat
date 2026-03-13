@@ -152,7 +152,7 @@ const MOCK_USER_INSTRUCTOR: UserProfile = {
     "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face",
   memberSince: "2023-06-01",
   totalBookings: 8,
-  instructorId: "inst-6",
+  contractorId: "inst-6",
 };
 
 const MOCK_BOOKINGS_INSTRUCTOR: Booking[] = [
@@ -387,7 +387,7 @@ const MOCK_USER_DUAL: UserProfile = {
     "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face",
   memberSince: "2022-11-01",
   totalBookings: 12,
-  instructorId: "inst-1",
+  contractorId: "inst-1",
   isBusinessInstructor: true,
 };
 
@@ -562,7 +562,7 @@ export async function fetchUserProfile(_userId?: string): Promise<UserProfile> {
     memberSince: me.memberSince ?? "",
     totalBookings: me.totalBookings ?? 0,
     businessId: me.businessId ?? undefined,
-    instructorId: me.instructorId ?? undefined,
+    contractorId: me.contractorId ?? undefined,
   };
 }
 

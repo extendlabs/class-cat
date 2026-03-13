@@ -1,15 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { ShieldCheck, BookOpen, ChatCircle, Star } from "@phosphor-icons/react";
+import { ShieldCheck, BookOpen, Star } from "@phosphor-icons/react";
 import type { ActivityDetail } from "@/types/activity";
 import { useEnrollment } from "@/hooks/use-enrollment";
 import { Link } from "@/i18n/navigation";
-import { useChatSidebar } from "@/components/features/chat-sidebar-context";
 import Image from "next/image";
 import { BRAND_ACCENT } from "@/lib/constants";
-import { CohortSelector } from "./cohort-selector";
 
 function RelatedCard({ activity }: { activity: import("@/types/activity").Activity }) {
   const tCommon = useTranslations("common");
@@ -53,29 +50,15 @@ export function EnrollmentSidebar({
 }) {
   const t = useTranslations("activity");
   const tCommon = useTranslations("common");
-  const { openToConversation } = useChatSidebar();
   const currency = activity.currency ?? "zł";
-  const [selectedCohortId, setSelectedCohortId] = useState<string | null>(null);
 
-  const { cohorts, enrollment, apply, isApplying, applyResult } = useEnrollment(activity.id);
+  const { isOwnActivity, alreadySent, myRequest, sendRequest, isSending } =
+    useEnrollment(activity);
 
-  const handleApply = () => {
-    if (!selectedCohortId) return;
-    apply(selectedCohortId);
-  };
-
-  // Determine button state
-  const isEnrolled = enrollment?.status === "accepted";
-  const isPending = enrollment?.status === "pending";
-  const justApplied = !!applyResult;
-
-  const handleOpenChat = () => {
-    if (enrollment?.conversationId) {
-      openToConversation(enrollment.conversationId);
-    } else if (applyResult?.conversation?.id) {
-      openToConversation(applyResult.conversation.id);
-    }
-  };
+  const isPending =
+    alreadySent ||
+    myRequest?.status === "PENDING" ||
+    myRequest?.status === "CONFIRMED";
 
   return (
     <div className="sticky top-20 space-y-6">
@@ -91,17 +74,6 @@ export function EnrollmentSidebar({
             </span>
           </div>
         </div>
-
-        {/* Cohort Selector */}
-        {cohorts.length > 0 && !isEnrolled && !isPending && !justApplied && (
-          <div className="mb-6">
-            <CohortSelector
-              cohorts={cohorts}
-              selectedCohortId={selectedCohortId}
-              onSelect={setSelectedCohortId}
-            />
-          </div>
-        )}
 
         {/* Capacity bar */}
         <div className="flex items-center gap-2 px-1 mb-6">
@@ -120,16 +92,7 @@ export function EnrollmentSidebar({
         </div>
 
         {/* Action Button */}
-        {isEnrolled ? (
-          <button
-            onClick={handleOpenChat}
-            className="w-full flex items-center justify-center gap-2 text-white py-4 rounded-xl font-bold text-lg transition-all hover:-translate-y-0.5 active:scale-[0.98] mb-4 bg-emerald-500 hover:bg-emerald-600"
-            style={{ boxShadow: `0 10px 25px -5px rgba(16,185,129,0.3)` }}
-          >
-            <ChatCircle size={20} weight="fill" />
-            {t("enrolledOpenChat")}
-          </button>
-        ) : isPending || justApplied ? (
+        {isOwnActivity ? null : isPending ? (
           <button
             disabled
             className="w-full text-gray-500 py-4 rounded-xl font-bold text-lg mb-4 bg-gray-100 cursor-not-allowed"
@@ -138,12 +101,12 @@ export function EnrollmentSidebar({
           </button>
         ) : (
           <button
-            onClick={handleApply}
-            disabled={!selectedCohortId || isApplying}
+            onClick={() => sendRequest("")}
+            disabled={isSending}
             className="w-full text-white py-4 rounded-xl font-bold text-lg transition-all hover:-translate-y-0.5 active:scale-[0.98] mb-4 bg-coral hover:bg-coral-hover disabled:opacity-50 disabled:pointer-events-none"
             style={{ boxShadow: `0 10px 25px -5px ${BRAND_ACCENT}33` }}
           >
-            {isApplying ? tCommon("loading") : t("applyNow")}
+            {isSending ? tCommon("loading") : t("applyNow")}
           </button>
         )}
 
@@ -164,17 +127,24 @@ export function EnrollmentSidebar({
       </div>
 
       {/* Guarantee badge */}
-      <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-[var(--shadow-soft)]">
-        <div className="flex gap-4 items-center">
-          <div className="w-10 h-10 bg-gradient-to-br from-coral to-coral-hover rounded-xl flex items-center justify-center shadow-sm">
-            <ShieldCheck size={20} weight="fill" className="text-white" />
+      {(() => {
+        const isVerified = activity.person?.verified ?? false;
+        const isPromoted = activity.isPromoted ?? false;
+        const active = isVerified && isPromoted;
+        return (
+          <div className={`rounded-2xl p-5 border shadow-[var(--shadow-soft)] transition-all ${active ? "bg-white border-gray-100" : "bg-gray-50 border-gray-100 opacity-50 grayscale"}`}>
+            <div className="flex gap-4 items-center">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm ${active ? "bg-gradient-to-br from-coral to-coral-hover" : "bg-gray-300"}`}>
+                <ShieldCheck size={20} weight="fill" className="text-white" />
+              </div>
+              <div>
+                <h4 className="font-bold text-sm text-gray-900">{t("guarantee")}</h4>
+                <p className="text-[11px] text-gray-500 mt-0.5">{t("guaranteeDescription")}</p>
+              </div>
+            </div>
           </div>
-          <div>
-            <h4 className="font-bold text-sm text-gray-900">{t("guarantee")}</h4>
-            <p className="text-[11px] text-gray-500 mt-0.5">{t("guaranteeDescription")}</p>
-          </div>
-        </div>
-      </div>
+        );
+      })()}
 
       {/* Related Activities */}
       <div className="space-y-4">

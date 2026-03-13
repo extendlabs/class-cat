@@ -220,7 +220,7 @@ export function Navbar({ children, onSearch }: NavbarProps) {
                         </Link>
                       </DropdownMenuItem>
                     )}
-                    {user.instructorId ? (
+                    {user.contractorId ? (
                       <DropdownMenuItem asChild>
                         <Link href="/profile/instructor" className="cursor-pointer">
                           <GraduationCap size={16} />

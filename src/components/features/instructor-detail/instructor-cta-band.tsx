@@ -38,7 +38,7 @@ export function InstructorCtaBand({ instructorName }: { instructorName: string }
                 className="bg-coral hover:bg-coral-hover text-white px-10 py-4 rounded-full font-bold shadow-sm shadow-coral/20 transition-all hover:-translate-y-0.5"
                 onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
               >
-                Message Instructor
+                Message Contractor
               </button>
               <Link
                 href="/?tab=all"

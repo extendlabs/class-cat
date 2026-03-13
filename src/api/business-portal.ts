@@ -242,9 +242,9 @@ export async function deleteBusinessActivity(id: string): Promise<void> {
 }
 
 export function getBusinessActivitiesByInstructor(
-  instructorId: string
+  contractorId: string
 ): BusinessActivity[] {
-  return businessActivities.filter((a) => a.instructorId === instructorId);
+  return businessActivities.filter((a) => a.contractorId === contractorId);
 }
 
 // ── Notifications ──
@@ -461,7 +461,7 @@ export async function createPromotion(
 // ── Instructors ──
 
 export interface BusinessInstructor {
-  instructorId: string;
+  contractorId: string;
   name: string;
   avatar: string;
   specialty: string;
@@ -480,14 +480,14 @@ export interface BlockedTimeRange {
 
 const MOCK_BUSINESS_INSTRUCTORS: BusinessInstructor[] = [
   {
-    instructorId: "inst-6",
+    contractorId: "inst-6",
     name: "Aleksander Nowak",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face",
     specialty: "Szachy Strategiczne",
     affiliation: { status: "active", role: "contractor", startDate: "2023-09-01" },
   },
   {
-    instructorId: "inst-7",
+    contractorId: "inst-7",
     name: "Katarzyna Wiśniewska",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face",
     specialty: "Szachy dla Dzieci",

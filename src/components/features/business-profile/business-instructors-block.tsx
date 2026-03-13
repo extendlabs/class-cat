@@ -22,11 +22,11 @@ export function BusinessInstructorsBlock({
         </span>
         <div className="flex items-center justify-between mb-8">
           <h3 className="text-2xl font-bold text-gray-900 tracking-tight">
-            Our Instructors
+            Our Contractors
           </h3>
           <Button size="sm" className="rounded-full bg-coral hover:bg-coral-hover text-white gap-1.5" onClick={() => dispatch({ type: "OPEN_ADD_INSTRUCTOR" })}>
             <Plus size={14} weight="bold" />
-            Add Instructor
+            Add Contractor
           </Button>
         </div>
         <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">

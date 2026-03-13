@@ -33,7 +33,7 @@ export function InstructorHero({ instructor }: { instructor: InstructorDetail })
               className="bg-coral/10 text-coral border-coral/20 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full"
             >
               <ShieldCheck size={14} weight="bold" className="mr-1" />
-              Verified Instructor
+              Verified Contractor
             </Badge>
           )}
           <span className="text-coral text-sm">&bull;</span>

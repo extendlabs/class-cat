@@ -22,7 +22,7 @@ import {
 
 export default function InstructorProfilePage() {
   const { user } = useAuth();
-  const instructorId = user?.instructorId ?? "inst-6";
+  const instructorId = user?.contractorId ?? "inst-6";
 
   const { data: instructor, isLoading } = useQuery({
     queryKey: ["instructor-profile", instructorId],

@@ -10,11 +10,11 @@ import { Link } from "@/i18n/navigation";
 
 export function InstructorCard({
   instructor,
-  instructorId,
+  contractorId,
   businessId,
 }: {
   instructor: InstructorType;
-  instructorId: string;
+  contractorId: string;
   businessId?: string;
 }) {
   return (
@@ -27,12 +27,12 @@ export function InstructorCard({
             Your Instructor
           </span>
           <div className="flex items-center gap-6">
-            <Avatar className="w-20 h-20 ring-4 ring-coral/10 shadow-md">
+            <Avatar className={`w-20 h-20 ring-4 shadow-md ${instructor.verified ? "ring-coral/10" : "ring-gray-200 grayscale opacity-50"}`}>
               <AvatarImage
                 src={instructor.avatar}
                 alt={instructor.name}
               />
-              <AvatarFallback className="text-lg bg-coral/10 text-coral font-bold">
+              <AvatarFallback className={`text-lg font-bold ${instructor.verified ? "bg-coral/10 text-coral" : "bg-gray-100 text-gray-400"}`}>
                 {instructor.name
                   .split(" ")
                   .map((n) => n[0])
@@ -63,7 +63,7 @@ export function InstructorCard({
           </p>
           <div className="mt-6 flex items-center gap-6">
             <Link
-              href={`/instructor/${instructorId}`}
+              href={`/contractor/${contractorId}`}
               className="text-sm font-bold text-coral hover:text-coral-hover transition-colors flex items-center gap-1"
             >
               View Full Profile <CaretRight size={16} />

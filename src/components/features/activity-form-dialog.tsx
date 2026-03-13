@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -69,6 +69,7 @@ function ActivityFormDialogContent({
   instructors,
 }: Omit<ActivityFormDialogProps, "open">) {
   const [showPreview, setShowPreview] = useState(false);
+  const pendingImageFile = useRef<File | undefined>(undefined);
   const form = useForm<FormValues>({
     resolver: zodResolver(activitySchema),
     defaultValues: getDefaults(activity),
@@ -104,13 +105,11 @@ function ActivityFormDialogContent({
       classType: values.classType,
       materialsIncluded: values.materialsIncluded ?? "",
       location: values.location,
-      instructorId: values.instructorId || undefined,
+      contractorId: values.contractorId || undefined,
       timeSlots: [values.timeSlots as TimeSlot],
       availableTimes: values.availableTimes?.map((t) => t.value).filter(Boolean) ?? [],
       nextDate: values.nextDate ?? "",
-      image:
-        values.image ||
-        "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop",
+      image: values.image,
       gallery:
         values.gallery?.map((g, i) => ({
           src: g.url,
@@ -124,8 +123,9 @@ function ActivityFormDialogContent({
           title: c.title,
           description: c.description,
         })) ?? [],
-    });
+    }, pendingImageFile.current);
     form.reset();
+    pendingImageFile.current = undefined;
     onClose();
   };
 
@@ -163,7 +163,11 @@ function ActivityFormDialogContent({
             </TabsList>
 
             <TabsContent value="basic" className="pt-4">
-              <ActivityBasicInfoFields form={form} instructors={instructors} />
+              <ActivityBasicInfoFields
+                form={form}
+                instructors={instructors}
+                onImageFile={(file) => { pendingImageFile.current = file; }}
+              />
             </TabsContent>
 
             <TabsContent value="details" className="pt-4">

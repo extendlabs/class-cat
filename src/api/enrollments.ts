@@ -274,3 +274,31 @@ export async function getUserEnrollmentForActivity(
     ) ?? null
   );
 }
+
+export async function sendActivityRequest(
+  providerSlug: string,
+  activitySlug: string,
+  message: string
+): Promise<{ status: string }> {
+  const res = await apiFetch(
+    `/activities/provider/${providerSlug}/activity/${activitySlug}/requests/`,
+    { method: "POST", body: JSON.stringify({ message }) }
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(JSON.stringify(err));
+  }
+  return unwrap(await res.json());
+}
+
+export async function getMyActivityRequest(
+  providerSlug: string,
+  activitySlug: string
+): Promise<{ status: string } | null> {
+  const res = await apiFetch(
+    `/activities/provider/${providerSlug}/activity/${activitySlug}/requests/mine/`
+  );
+  if (res.status === 404) return null;
+  if (!res.ok) return null;
+  return unwrap(await res.json());
+}

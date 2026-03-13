@@ -22,10 +22,10 @@ export function ActivityListItem({
   onEdit: () => void;
   onDelete: () => void;
   onManageSessions?: () => void;
-  instructors?: { instructorId: string; name: string }[];
+  instructors?: { contractorId: string; name: string }[];
 }) {
-  const instructorName = activity.instructorId
-    ? instructors?.find((i) => i.instructorId === activity.instructorId)?.name
+  const instructorName = activity.contractorId
+    ? instructors?.find((i) => i.contractorId === activity.contractorId)?.name
     : undefined;
   return (
     <TableRow

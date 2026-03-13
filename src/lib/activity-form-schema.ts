@@ -33,11 +33,11 @@ export const activitySchema = z.object({
   classType: z.string().min(1, "Class type is required"),
   materialsIncluded: z.string().optional(),
   location: z.string().min(1, "Location is required"),
-  instructorId: z.string().optional(),
+  contractorId: z.string().optional(),
   timeSlots: z.string().min(1, "Select a time slot"),
   availableTimes: z.array(z.object({ value: z.string().min(1, "Required") })).optional(),
   nextDate: z.string().optional(),
-  image: z.string(),
+  image: z.string().min(1, "Cover image is required"),
   gallery: z.array(z.object({ url: z.string().min(1) })).optional(),
   whatYouLearn: z.array(z.object({ value: z.string().min(1, "Required") })).optional(),
   curriculum: z
@@ -55,16 +55,17 @@ export type FormValues = z.infer<typeof activitySchema>;
 export interface ActivityFormDialogProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: Partial<BusinessActivity>) => void;
+  onSubmit: (data: Partial<BusinessActivity>, imageFile?: File) => void;
   mode: "create" | "edit";
   activity?: BusinessActivity;
-  instructors?: { instructorId: string; name: string }[];
+  instructors?: { contractorId: string; name: string }[];
 }
 
 export type FormInstance = ReturnType<typeof useForm<FormValues>>;
 
 export interface TabFieldsProps {
   form: FormInstance;
+  onImageFile?: (file: File) => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -94,7 +95,7 @@ export function getDefaults(activity?: BusinessActivity): FormValues {
     classType: activity?.classType ?? "Group Classes",
     materialsIncluded: activity?.materialsIncluded ?? "",
     location: activity?.location ?? "",
-    instructorId: activity?.instructorId ?? "",
+    contractorId: activity?.contractorId ?? "",
     timeSlots: activity?.timeSlots?.[0] ?? "morning",
     availableTimes: activity?.availableTimes?.map((v) => ({ value: v })) ?? [],
     nextDate: activity?.nextDate ?? "",

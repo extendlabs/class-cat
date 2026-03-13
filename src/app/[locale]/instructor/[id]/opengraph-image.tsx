@@ -9,7 +9,7 @@ import {
 } from "@/lib/og-utils";
 import { getInstructorById } from "@/api/instructor";
 
-export const alt = "ClassCat Instructor";
+export const alt = "ClassCat Contractor";
 export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
@@ -67,7 +67,7 @@ export default async function InstructorOG({
                 lineHeight: 1.1,
               }}
             >
-              Instructor | ClassCat
+              Contractor | ClassCat
             </div>
           </div>
         </div>

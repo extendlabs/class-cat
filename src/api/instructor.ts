@@ -130,7 +130,7 @@ const MOCK_INSTRUCTORS: Record<string, InstructorDetail> = {
         timeSlots: ["morning"],
         spotsLeft: 5,
         businessId: "biz-1",
-        instructorId: "inst-1",
+        contractorId: "inst-1",
       },
       {
         id: "act-2",
@@ -149,7 +149,7 @@ const MOCK_INSTRUCTORS: Record<string, InstructorDetail> = {
         location: "Studio Harmonii, Kraków",
         timeSlots: ["morning", "evening"],
         businessId: "biz-1",
-        instructorId: "inst-1",
+        contractorId: "inst-1",
       },
     ],
     reviews: [
@@ -266,7 +266,7 @@ const MOCK_INSTRUCTORS: Record<string, InstructorDetail> = {
         timeSlots: ["morning", "afternoon"],
         spotsLeft: 4,
         businessId: "biz-2",
-        instructorId: "inst-6",
+        contractorId: "inst-6",
       },
       {
         id: "act-8",
@@ -286,7 +286,7 @@ const MOCK_INSTRUCTORS: Record<string, InstructorDetail> = {
         timeSlots: ["afternoon", "weekend"],
         spotsLeft: 8,
         businessId: "biz-2",
-        instructorId: "inst-6",
+        contractorId: "inst-6",
       },
       {
         id: "act-9",
@@ -305,7 +305,7 @@ const MOCK_INSTRUCTORS: Record<string, InstructorDetail> = {
         location: "Centrum Szachowe Kraków",
         timeSlots: ["weekend"],
         businessId: "biz-2",
-        instructorId: "inst-6",
+        contractorId: "inst-6",
       },
       {
         id: "act-f1",
@@ -323,7 +323,7 @@ const MOCK_INSTRUCTORS: Record<string, InstructorDetail> = {
         distance: 0,
         location: "Online / Kraków",
         timeSlots: ["morning", "afternoon"],
-        instructorId: "inst-6",
+        contractorId: "inst-6",
       },
       {
         id: "act-f2",
@@ -341,7 +341,7 @@ const MOCK_INSTRUCTORS: Record<string, InstructorDetail> = {
         distance: 0,
         location: "Online",
         timeSlots: ["afternoon", "evening"],
-        instructorId: "inst-6",
+        contractorId: "inst-6",
       },
     ],
     reviews: [
@@ -390,7 +390,7 @@ const MOCK_INSTRUCTORS: Record<string, InstructorDetail> = {
     email: "aleksander@szachykrakow.pl",
     affiliations: [
       {
-        instructorId: "inst-6",
+        contractorId: "inst-6",
         businessId: "biz-2",
         businessName: "Centrum Szachowe Kraków",
         status: "active",
@@ -441,7 +441,7 @@ export async function getInstructorById(
 ): Promise<InstructorDetail | null> {
   // Try backend first, fall back to mock
   try {
-    const res = await apiFetch(`/activities/instructor/${id}/`);
+    const res = await apiFetch(`/activities/contractor/${id}/`);
     if (res.ok) return transformInstructor(unwrap(await res.json()));
   } catch {
     // network error — fall back to mock
@@ -452,7 +452,7 @@ export async function getInstructorById(
 export async function fetchInstructorProfile(
   _id: string
 ): Promise<InstructorDetail> {
-  const res = await apiFetch("/activities/instructor/me/");
+  const res = await apiFetch("/activities/contractor/me/");
   if (res.status === 404) {
     // No profile yet — return empty shell so the UI can offer creation
     return {
@@ -495,7 +495,7 @@ export async function fetchInstructorStats(
 export async function fetchInstructorSchedule(
   _id: string
 ): Promise<InstructorScheduleSlot[]> {
-  const res = await apiFetch("/activities/instructor/me/schedule/");
+  const res = await apiFetch("/activities/contractor/me/schedule/");
   if (!res.ok) return [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (unwrap(await res.json()) as any[]).map((s) => ({
@@ -513,7 +513,7 @@ export async function updateInstructorSchedule(
   _id: string,
   slots: InstructorScheduleSlot[]
 ): Promise<InstructorScheduleSlot[]> {
-  const res = await apiFetch("/activities/instructor/me/schedule/", {
+  const res = await apiFetch("/activities/contractor/me/schedule/", {
     method: "PUT",
     body: JSON.stringify(slots),
   });
@@ -545,7 +545,7 @@ export async function fetchInstructorAffiliations(
   instructorId: string
 ): Promise<InstructorAffiliation[]> {
   await new Promise((resolve) => setTimeout(resolve, 300));
-  return affiliations.filter((a) => a.instructorId === instructorId);
+  return affiliations.filter((a) => a.contractorId === instructorId);
 }
 
 export async function respondToAffiliation(
@@ -555,12 +555,12 @@ export async function respondToAffiliation(
 ): Promise<InstructorAffiliation> {
   await new Promise((resolve) => setTimeout(resolve, 300));
   affiliations = affiliations.map((a) =>
-    a.instructorId === instructorId && a.businessId === businessId
+    a.contractorId === instructorId && a.businessId === businessId
       ? { ...a, status: accept ? "active" : "ended" }
       : a
   );
   return affiliations.find(
-    (a) => a.instructorId === instructorId && a.businessId === businessId
+    (a) => a.contractorId === instructorId && a.businessId === businessId
   )!;
 }
 
@@ -581,7 +581,7 @@ function generateCalendarFromSchedule(
       if (slot.dayOfWeek === dow) {
         entries.push({
           id: `cal-gen-${dateStr}-${slot.id}`,
-          instructorId,
+          contractorId: instructorId,
           activityId: slot.activityId ?? "",
           activityTitle: slot.activityTitle ?? "Available",
           businessId: slot.businessId,
@@ -615,7 +615,7 @@ export async function fetchInstructorCalendar(
 
   // Get special entries (cancelled, pending_approval) from mock data
   const specialEntries = MOCK_CALENDAR_ENTRIES.filter(
-    (e) => e.instructorId === instructorId && e.status !== "confirmed"
+    (e) => e.contractorId === instructorId && e.status !== "confirmed"
   );
 
   // Special entries override generated entries on same date+time
@@ -645,7 +645,7 @@ export async function cancelCalendarEntry(
 
   // Check if an override already exists for this date+time
   const existingIdx = MOCK_CALENDAR_ENTRIES.findIndex(
-    (e) => e.instructorId === entry.instructorId && e.date === entry.date && e.startTime === entry.startTime
+    (e) => e.contractorId === entry.contractorId && e.date === entry.date && e.startTime === entry.startTime
   );
   if (existingIdx >= 0) {
     MOCK_CALENDAR_ENTRIES[existingIdx] = cancelled;
@@ -704,7 +704,7 @@ export async function fetchSlotProposals(
   instructorId: string
 ): Promise<SlotProposal[]> {
   await new Promise((resolve) => setTimeout(resolve, 300));
-  return slotProposals.filter((p) => p.instructorId === instructorId);
+  return slotProposals.filter((p) => p.contractorId === instructorId);
 }
 
 export async function respondToSlotProposal(

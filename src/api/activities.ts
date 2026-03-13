@@ -149,7 +149,7 @@ function mapSearchResultToActivity(a: any): BrowseActivity {
     isPromoted: a.isPromoted ?? false,
     provider: a.provider ?? undefined,
     businessId: a.providerSlug ?? undefined,
-    instructorId: a.instructorSlug ?? undefined,
+    contractorId: a.contractorSlug ?? undefined,
   };
 }
 

@@ -53,7 +53,7 @@ export default function PageContent() {
 
   const activeInstructors = (businessInstructors ?? [])
     .filter((i) => i.affiliation.status === "active")
-    .map((i) => ({ instructorId: i.instructorId, name: i.name }));
+    .map((i) => ({ contractorId: i.contractorId, name: i.name }));
 
   const createMutation = useMutation({
     mutationFn: createBusinessActivity,
@@ -132,7 +132,7 @@ export default function PageContent() {
               <TableRow className="bg-secondary/60 hover:bg-secondary/60 border-b border-gray-200/80">
                 <TableHead className="pl-6 py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Title</TableHead>
                 <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Category</TableHead>
-                <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Instructor</TableHead>
+                <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Contractor</TableHead>
                 <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Status</TableHead>
                 <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Enrolled</TableHead>
                 <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Rating</TableHead>

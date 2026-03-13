@@ -13,7 +13,7 @@ export default function ProposalsClient() {
   const { user } = useAuth();
   const t = useTranslations("instructorProposals");
   const queryClient = useQueryClient();
-  const instructorId = user?.instructorId ?? "";
+  const instructorId = user?.contractorId ?? "";
 
   const { data: proposals, isLoading } = useQuery({
     queryKey: ["slot-proposals", instructorId],

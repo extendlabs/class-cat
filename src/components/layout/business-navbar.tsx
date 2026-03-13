@@ -108,7 +108,7 @@ export function BusinessNavbar({ onToggleSidebar }: BusinessNavbarProps) {
                       {t("switchToConsumer")}
                     </Link>
                   </DropdownMenuItem>
-                  {user.instructorId && (
+                  {user.contractorId && (
                     <DropdownMenuItem asChild>
                       <Link href="/profile/instructor" className="cursor-pointer">
                         <ArrowsLeftRight size={16} />

@@ -20,7 +20,7 @@ export interface BrowseActivity {
   spotsLeft?: number;
   groupType?: "group" | "individual" | "both";
   businessId?: string;
-  instructorId?: string;
+  contractorId?: string;
 }
 
 // ── PROMOTED ACTIVITIES (12) ──
@@ -128,7 +128,7 @@ export const PROMOTED_ACTIVITIES: BrowseActivity[] = [
     provider: "Studio Harmonii",
     spotsLeft: 4,
     businessId: "biz-1",
-    instructorId: "inst-1",
+    contractorId: "inst-1",
   },
   {
     id: "pop-cooking",

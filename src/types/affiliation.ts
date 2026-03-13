@@ -1,5 +1,5 @@
 export interface InstructorAffiliation {
-  instructorId: string;
+  contractorId: string;
   businessId: string;
   businessName: string;
   status: "pending" | "active" | "ended";
@@ -10,7 +10,7 @@ export interface InstructorAffiliation {
 
 export interface CalendarEntry {
   id: string;
-  instructorId: string;
+  contractorId: string;
   activityId: string;
   activityTitle: string;
   businessId?: string;
@@ -27,7 +27,7 @@ export interface SlotProposal {
   id: string;
   businessId: string;
   businessName: string;
-  instructorId: string;
+  contractorId: string;
   activityId: string;
   activityTitle: string;
   date: string;

@@ -54,7 +54,13 @@ export function ActivityDetailsFields({ form }: TabFieldsProps) {
             <FormItem>
               <FormLabel>Price ($ / session)</FormLabel>
               <FormControl>
-                <Input className="bg-white" type="number" min={0} {...field} />
+                <Input
+                  className="bg-white"
+                  type="number"
+                  min={0}
+                  {...field}
+                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -84,7 +90,13 @@ export function ActivityDetailsFields({ form }: TabFieldsProps) {
             <FormItem>
               <FormLabel>Max Students</FormLabel>
               <FormControl>
-                <Input className="bg-white" type="number" min={1} {...field} />
+                <Input
+                  className="bg-white"
+                  type="number"
+                  min={1}
+                  {...field}
+                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

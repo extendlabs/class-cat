@@ -13,10 +13,10 @@ export function BusinessInstructors({ instructors }: { instructors: Instructor[]
         </span>
         <div className="flex items-center justify-between mb-8">
           <h3 className="text-2xl font-bold text-gray-900 tracking-tight">
-            Our Instructors
+            Our Contractors
           </h3>
           <span className="text-sm text-gray-400">
-            {instructors.length} instructors
+            {instructors.length} contractors
           </span>
         </div>
         <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">

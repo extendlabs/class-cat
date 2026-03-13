@@ -9,7 +9,7 @@ export function ImageUploadZone({
   onChange,
 }: {
   value: string;
-  onChange: (url: string) => void;
+  onChange: (url: string, file?: File) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -18,7 +18,7 @@ export function ImageUploadZone({
     (file: File) => {
       if (!file.type.startsWith("image/")) return;
       const url = URL.createObjectURL(file);
-      onChange(url);
+      onChange(url, file);
     },
     [onChange]
   );

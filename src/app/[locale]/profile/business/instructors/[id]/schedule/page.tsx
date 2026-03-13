@@ -3,7 +3,7 @@ import PageContent from "./_client";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
-  title: "Instructor Schedule",
+  title: "Contractor Schedule",
 };
 
 export default async function Page({

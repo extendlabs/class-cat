@@ -70,7 +70,7 @@ export default async function Page({
           {
             "@type": "ListItem",
             position: 2,
-            name: "Instructors",
+            name: "Contractors",
             item: "https://classcat.pl/instructor",
           },
           {

@@ -1,94 +1,150 @@
 import type { Activity } from "@/types/activity";
+import { apiFetch, unwrap } from "@/lib/api-client";
 
-const delay = (ms: number = 300) => new Promise((r) => setTimeout(r, ms));
+interface BackendActivity {
+  slug: string;
+  name: string;
+  description?: string;
+  provider: { slug: string; name: string; isVerified: boolean; providerType: string };
+  primaryImage?: { file: string };
+  reviewScore?: number;
+  reviewCount?: number;
+  location?: { slug: string; name?: string };
+  categories?: { slug: string; name: string }[];
+  capacity?: number;
+  scheduledTime?: string;
+}
 
-let freelanceActivities: Activity[] = [
-  {
-    id: "act-f1",
-    title: "Indywidualne Lekcje Szachowe",
-    description:
-      "Lekcje jeden na jeden dopasowane do Twojego poziomu. Analiza partii, otwarcia i końcówki.",
-    category: "education",
-    provider: { name: "Aleksander Nowak" },
-    image:
-      "https://images.unsplash.com/photo-1560174038-da43ac74f01b?w=400&h=300&fit=crop",
-    rating: 5.0,
-    reviewCount: 34,
-    price: "$$$",
-    priceAmount: 80,
+function mapBackendActivity(a: BackendActivity): Activity {
+  return {
+    id: a.slug,
+    title: a.name,
+    description: a.description ?? "",
+    category: (a.categories?.[0]?.slug ?? "education") as Activity["category"],
+    provider: { name: a.provider.name, slug: a.provider.slug },
+    image: a.primaryImage?.file ?? "",
+    rating: a.reviewScore ?? 0,
+    reviewCount: a.reviewCount ?? 0,
+    price: "free",
     distance: 0,
-    location: "Online / Kraków",
-    timeSlots: ["morning", "afternoon"],
-    instructorId: "inst-6",
-  },
-  {
-    id: "act-f2",
-    title: "Szachy Online – Kurs Strategii",
-    description:
-      "Kurs online dla graczy średniozaawansowanych. Cotygodniowe webinary i zadania treningowe.",
-    category: "education",
-    provider: { name: "Aleksander Nowak" },
-    image:
-      "https://images.unsplash.com/photo-1611195974226-a6a9be9dd763?w=400&h=300&fit=crop",
-    rating: 4.8,
-    reviewCount: 56,
-    price: "$$",
-    priceAmount: 30,
-    distance: 0,
-    location: "Online",
-    timeSlots: ["afternoon", "evening"],
-    instructorId: "inst-6",
-  },
-];
+    location: a.location?.name ?? "",
+    timeSlots: [],
+    spotsLeft: a.capacity ?? undefined,
+  };
+}
 
 export async function fetchInstructorOwnActivities(
-  instructorId: string
+  _instructorId: string
 ): Promise<Activity[]> {
-  await delay(300);
-  return freelanceActivities.filter((a) => a.instructorId === instructorId);
+  const res = await apiFetch("/activities/contractor/me/activities/");
+  if (!res.ok) return [];
+  const data: BackendActivity[] = unwrap(await res.json());
+  const list = Array.isArray(data) ? data : (data as { results?: BackendActivity[] }).results ?? [];
+  return list.map(mapBackendActivity);
 }
 
 export async function createInstructorActivity(
-  instructorId: string,
-  data: Partial<Activity>
+  _instructorId: string,
+  data: Partial<Activity> & {
+    name?: string;
+    categories?: string[];
+    scheduledTime?: string;
+    durationMinutes?: number;
+    capacity?: number;
+    ageMin?: number;
+    ageMax?: number;
+    skillLevel?: string;
+    materialsIncluded?: string;
+    whatYouLearn?: string[];
+    curriculum?: { week: number; title: string; description: string }[];
+  }
 ): Promise<Activity> {
-  await delay(400);
-  const activity: Activity = {
-    id: `act-f-${Date.now()}`,
-    title: data.title ?? "New Activity",
+  const body: Record<string, unknown> = {
+    name: data.name ?? data.title ?? "New Activity",
     description: data.description ?? "",
-    category: data.category ?? "education",
-    provider: { name: data.provider?.name ?? "Instructor" },
-    image:
-      data.image ??
-      "https://images.unsplash.com/photo-1560174038-da43ac74f01b?w=400&h=300&fit=crop",
-    rating: 0,
-    reviewCount: 0,
-    price: data.price ?? "$",
-    priceAmount: data.priceAmount,
-    distance: 0,
-    location: data.location ?? "",
-    timeSlots: data.timeSlots ?? ["morning"],
-    instructorId,
   };
-  freelanceActivities = [activity, ...freelanceActivities];
-  return activity;
+  if (data.categories) body.categories = data.categories;
+  if (data.capacity) body.capacity = data.capacity;
+  if (data.scheduledTime) body.scheduled_time = data.scheduledTime;
+  if (data.durationMinutes) body.duration_minutes = data.durationMinutes;
+  if (data.ageMin != null) body.age_min = data.ageMin;
+  if (data.ageMax != null) body.age_max = data.ageMax;
+  if (data.skillLevel) body.skill_level = data.skillLevel;
+  if (data.materialsIncluded) body.materials_included = data.materialsIncluded;
+  if (data.whatYouLearn) body.what_you_learn = data.whatYouLearn;
+  if (data.curriculum) body.curriculum = data.curriculum;
+
+  const res = await apiFetch("/activities/contractor/me/activities/", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(JSON.stringify(err));
+  }
+  const created: BackendActivity = unwrap(await res.json());
+  return mapBackendActivity(created);
 }
 
 export async function updateInstructorActivity(
   activityId: string,
-  data: Partial<Activity>
+  data: Partial<Activity> & {
+    name?: string;
+    categories?: string[];
+    capacity?: number;
+    skillLevel?: string;
+    materialsIncluded?: string;
+    whatYouLearn?: string[];
+    curriculum?: { week: number; title: string; description: string }[];
+  }
 ): Promise<Activity> {
-  await delay(300);
-  freelanceActivities = freelanceActivities.map((a) =>
-    a.id === activityId ? { ...a, ...data } : a
-  );
-  return freelanceActivities.find((a) => a.id === activityId)!;
+  const body: Record<string, unknown> = {};
+  if (data.name ?? data.title) body.name = data.name ?? data.title;
+  if (data.description !== undefined) body.description = data.description;
+  if (data.categories) body.categories = data.categories;
+  if (data.capacity != null) body.capacity = data.capacity;
+  if (data.skillLevel !== undefined) body.skill_level = data.skillLevel;
+  if (data.materialsIncluded !== undefined) body.materials_included = data.materialsIncluded;
+  if (data.whatYouLearn) body.what_you_learn = data.whatYouLearn;
+  if (data.curriculum) body.curriculum = data.curriculum;
+
+  const res = await apiFetch(`/activities/contractor/me/activities/${activityId}/`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(JSON.stringify(err));
+  }
+  const updated: BackendActivity = unwrap(await res.json());
+  return mapBackendActivity(updated);
 }
 
-export async function deleteInstructorActivity(
-  activityId: string
-): Promise<void> {
-  await delay(300);
-  freelanceActivities = freelanceActivities.filter((a) => a.id !== activityId);
+export async function uploadActivityImage(activitySlug: string, imageFile: File): Promise<void> {
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+  const token = typeof window !== "undefined"
+    ? (() => { try { return JSON.parse(localStorage.getItem("classcat-auth") ?? "{}").token ?? null; } catch { return null; } })()
+    : null;
+
+  const formData = new FormData();
+  formData.append("image", imageFile);
+
+  const res = await fetch(`${API_BASE}/activities/contractor/me/activities/${activitySlug}/image/`, {
+    method: "POST",
+    body: formData,
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(JSON.stringify(err));
+  }
+}
+
+export async function deleteInstructorActivity(activityId: string): Promise<void> {
+  const res = await apiFetch(`/activities/contractor/me/activities/${activityId}/`, {
+    method: "DELETE",
+  });
+  if (!res.ok && res.status !== 204) {
+    throw new Error("Failed to delete activity");
+  }
 }

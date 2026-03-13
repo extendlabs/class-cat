@@ -31,7 +31,7 @@ export default function InstructorSettingsPage() {
   const t = useTranslations("instructorSettings");
   const tCommon = useTranslations("common");
   const { user } = useAuth();
-  const instructorId = user?.instructorId ?? "inst-6";
+  const instructorId = user?.contractorId ?? "inst-6";
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["instructor-settings", instructorId],

@@ -79,7 +79,7 @@ function ScheduleHeader({
       </Avatar>
       <div>
         <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-          {instructor?.name ?? "Instructor"} — {label}
+          {instructor?.name ?? "Contractor"} — {label}
         </h1>
         {instructor?.specialty && (
           <p className="text-sm text-gray-500 mt-0.5">{instructor.specialty}</p>
@@ -162,7 +162,7 @@ function CancelSessionDialog({
                 </label>
                 <Textarea
                   id="cancel-note-business"
-                  placeholder="e.g. Instructor is sick..."
+                  placeholder="e.g. Contractor is sick..."
                   value={cancelState?.note ?? ""}
                   onChange={(e) => setCancelState(cancelState ? { ...cancelState, note: e.target.value } : null)}
                   className="rounded-xl resize-none"
@@ -368,7 +368,7 @@ export default function PageContent({ instructorId }: { instructorId: string }) 
     enabled: !!businessId,
   });
 
-  const instructor = instructors?.find((i) => i.instructorId === instructorId);
+  const instructor = instructors?.find((i) => i.contractorId === instructorId);
 
   const { data: entries, isLoading: calLoading } = useQuery({
     queryKey: ["instructor-calendar", instructorId],

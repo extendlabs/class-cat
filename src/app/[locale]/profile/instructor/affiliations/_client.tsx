@@ -13,7 +13,7 @@ export default function AffiliationsClient() {
   const { user } = useAuth();
   const t = useTranslations("instructorAffiliations");
   const queryClient = useQueryClient();
-  const instructorId = user?.instructorId ?? "";
+  const instructorId = user?.contractorId ?? "";
 
   const { data: affiliations, isLoading } = useQuery({
     queryKey: ["instructor-affiliations", instructorId],
@@ -67,7 +67,7 @@ export default function AffiliationsClient() {
       ) : (
         <div className="space-y-4">
           {affiliations.map((aff, i) => (
-            <AnimateIn key={`${aff.businessId}-${aff.instructorId}`} delay={i * 80}>
+            <AnimateIn key={`${aff.businessId}-${aff.contractorId}`} delay={i * 80}>
               <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-[var(--shadow-soft)]">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-4">

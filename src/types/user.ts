@@ -10,7 +10,7 @@ export interface UserProfile {
   memberSince: string;
   totalBookings: number;
   businessId?: string;
-  instructorId?: string;
+  contractorId?: string;
   isBusinessInstructor?: boolean;
 }
 

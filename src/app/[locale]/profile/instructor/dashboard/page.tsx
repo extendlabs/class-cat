@@ -27,7 +27,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function InstructorDashboardPage() {
   const t = useTranslations("instructorDashboard");
   const { user } = useAuth();
-  const instructorId = user?.instructorId ?? "inst-6";
+  const instructorId = user?.contractorId ?? "inst-6";
 
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["instructor-stats", instructorId],

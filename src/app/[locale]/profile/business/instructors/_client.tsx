@@ -61,7 +61,7 @@ export default function BusinessInstructorsPage() {
       ) : (
         <div className="space-y-4">
           {instructors.map((inst, i) => (
-            <AnimateIn key={inst.instructorId} delay={i * 80}>
+            <AnimateIn key={inst.contractorId} delay={i * 80}>
               <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-[var(--shadow-soft)]">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
@@ -89,7 +89,7 @@ export default function BusinessInstructorsPage() {
                         className="rounded-full text-xs"
                         asChild
                       >
-                        <Link href={`/profile/business/instructors/${inst.instructorId}/schedule`}>
+                        <Link href={`/profile/business/instructors/${inst.contractorId}/schedule`}>
                           <CalendarBlank size={14} className="mr-1" />
                           {t("viewSchedule")}
                         </Link>

@@ -23,7 +23,9 @@ export interface Activity {
   category: Category;
   provider: {
     name: string;
+    slug?: string;
     avatar?: string;
+    providerType?: "BUSINESS" | "INDIVIDUAL";
   };
   image: string;
   rating: number;
@@ -37,7 +39,8 @@ export interface Activity {
   lat?: number;
   lng?: number;
   businessId?: string;
-  instructorId?: string;
+  contractorId?: string;
+  isPromoted?: boolean;
   currency?: string;
 }
 
@@ -92,8 +95,8 @@ export interface ActivityDetail extends Activity {
   maxStudents: number;
   skillLevel: string;
   materialsIncluded: string;
-  instructorId: string;
-  instructor: Instructor;
+  contractorId: string;
+  person: Instructor;
   businessId: string;
   curriculum: CurriculumItem[];
   whatYouLearn: string[];

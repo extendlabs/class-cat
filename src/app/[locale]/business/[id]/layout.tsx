@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Business Profile",
-  description: "Explore classes, instructors and reviews for this business on ClassCat.",
+  description: "Explore classes, contractors and reviews for this business on ClassCat.",
 };
 
 export default function BusinessLayout({ children }: { children: React.ReactNode }) {

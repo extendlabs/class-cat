@@ -1,299 +1,329 @@
-import type { ActivityDetail } from "@/types/activity";
-import { MOCK_COHORTS } from "./enrollments";
+import type { ActivityDetail, Review, RatingDistribution } from "@/types/activity";
+import { apiFetch, unwrap } from "@/lib/api-client";
 
-import type { Review, RatingDistribution } from "@/types/activity";
+// ── Backend response types ────────────────────────────────────────────────────
 
-const MOCK_ACTIVITY_DETAIL: ActivityDetail = {
-  id: "act-7",
-  title: "Klub Szachowy Mistrzów: Strategia i Taktyka",
-  description:
-    "Odblokuj swój potencjał w Klubie Szachowym Mistrzów. Kurs zaprojektowany dla graczy średniozaawansowanych, którzy chcą przejść do gry turniejowej. Program skupia się na głębokim zrozumieniu pozycji, opanowaniu końcówek i odporności psychicznej. Nasz program jest dostosowany, aby wypełnić lukę między grą rekreacyjną a doskonałością na poziomie turniejowym.",
-  category: "education",
-  provider: { name: "Centrum Szachowe Kraków", avatar: "/placeholder-avatar.jpg" },
-  image:
-    "https://images.unsplash.com/photo-1529699211952-734e80c4d42b?w=800&h=600&fit=crop",
-  rating: 4.9,
-  reviewCount: 128,
-  price: "$",
-  priceAmount: 25,
-  distance: 2.3,
-  location: "Kraków",
-  timeSlots: ["morning", "afternoon"],
-  spotsLeft: 4,
-  businessId: "biz-2",
-  instructorId: "inst-6",
-  badges: ["Zweryfikowane Zajęcia", "Grupa: Maks. 12 uczniów"],
-  ageRange: "Ages 8-15",
-  duration: "90 min",
-  classType: "Zajęcia Grupowe",
-  maxStudents: 12,
-  skillLevel: "Średniozaawansowany do zaawansowanego (1200+ ELO)",
-  materialsIncluded: "Szachownice premium, zeszyty notacyjne, analiza cyfrowa",
-  instructor: {
-    id: "inst-6",
-    name: "Arcymistrz Aleksander Nowak",
-    title: "Instruktor Szachowy",
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face",
-    experience: "15 lat doświadczenia",
-    bio: "Aleksander wyszkolił ponad 500 uczniów do sukcesów turniejowych w całej Polsce. Z najwyższym rankingiem FIDE 2580, wnosi profesjonalne spostrzeżenia i ustrukturyzowaną pedagogikę, która upraszcza złożone koncepcje dla młodych umysłów.",
-    verified: true,
-  },
-  curriculum: [
-    {
-      week: 1,
-      title: "Podstawy Strategii",
-      description:
-        "Zrozumienie struktur pionkowych i znaczenia kontroli centrum w złożonych grach środkowych.",
-    },
-    {
-      week: 2,
-      title: "Mistrzostwo Taktyczne",
-      description:
-        "Głębokie zagłębienie w odciąganie, interferencję i podwójne ataki w scenariuszach turniejowych.",
-    },
-    {
-      week: 3,
-      title: "Nowoczesna Końcówka",
-      description:
-        "Wygrywanie z niewielką przewagą: wieża kontra lekka figura i strategie promocji pionka.",
-    },
-  ],
-  whatYouLearn: [
-    "Zaawansowany repertuar otwarć i teoria",
-    "Rozpoznawanie złożonych wzorców taktycznych",
-    "Klasyczne techniki końcówek i skróty",
-    "Analiza partii i przegląd z silnikiem",
-  ],
-  reviews: [
-    {
-      id: "r1",
-      authorName: "Marek Kowalski",
-      authorInitials: "MK",
-      date: "15 października 2024",
-      rating: 5,
-      text: "Aleksander jest niesamowitym mentorem. Ranking mojego syna poprawił się o ponad 200 punktów w zaledwie dwa miesiące. Sesje są ustrukturyzowane, a analiza profesjonalnych partii jest bardzo pomocna dla graczy średniozaawansowanych.",
-    },
-    {
-      id: "r2",
-      authorName: "Elena K.",
-      authorInitials: "EK",
-      date: "28 września 2024",
-      rating: 4,
-      text: "Świetny program skupiający się na końcówkach, które większość innych klubów ignoruje. Mała grupa pozwala na indywidualną uwagę nawet w zajęciach grupowych. Gorąco polecam dla poważnych młodych graczy.",
-    },
-    {
-      id: "r3",
-      authorName: "Dawid Wiśniewski",
-      authorInitials: "DW",
-      date: "12 września 2024",
-      rating: 5,
-      text: "Doskonała atmosfera i bardzo profesjonalne podejście. Szachownice są wysokiej jakości, a cyfrowa analiza po partii pomaga uczniom natychmiast zrozumieć swoje błędy.",
-    },
-    {
-      id: "r4",
-      authorName: "Anna Zielińska",
-      authorInitials: "AZ",
-      date: "30 sierpnia 2024",
-      rating: 5,
-      text: "Moja córka uwielbia te zajęcia. Aleksander potrafi sprawić, że złożone strategie stają się dostępne dla młodszych graczy. Format turnieju próbnego utrzymuje zaangażowanie i motywację wszystkich.",
-    },
-    {
-      id: "r5",
-      authorName: "Jakub Pawlak",
-      authorInitials: "JP",
-      date: "18 sierpnia 2024",
-      rating: 4,
-      text: "Solidna instrukcja i dobry stosunek jakości do ceny. Program jest dobrze ustrukturyzowany. Chciałbym, żeby oferowano więcej sesji w tygodniu, bo obecny harmonogram bywa trudny do dopasowania.",
-    },
-    {
-      id: "r6",
-      authorName: "Priya Sharma",
-      authorInitials: "PS",
-      date: "5 sierpnia 2024",
-      rating: 3,
-      text: "Ogólnie przyzwoity program, ale tempo może być nieco za szybkie dla dzieci bliżej dolnego końca poziomu średniozaawansowanego. Materiały są dobre, a Aleksander jest cierpliwy.",
-    },
-    {
-      id: "r7",
-      authorName: "Michał Tomaszewski",
-      authorInitials: "MT",
-      date: "22 lipca 2024",
-      rating: 5,
-      text: "Najlepsza nauka szachów w Krakowie. Kropka. Doświadczenie Aleksandra jako arcymistrza naprawdę widać w głębokości jego analizy. Mój syn przeszedł z 1300 do 1600 ELO w trzy miesiące.",
-    },
-    {
-      id: "r8",
-      authorName: "Lidia Chmielewska",
-      authorInitials: "LC",
-      date: "10 lipca 2024",
-      rating: 4,
-      text: "Bardzo zorganizowane i profesjonalne zajęcia. Narzędzia do cyfrowej analizy po każdej partii to świetny dodatek. Parking w weekendy bywa kłopotliwy, ale same zajęcia są doskonałe.",
-    },
-    {
-      id: "r9",
-      authorName: "Robert Kamiński",
-      authorInitials: "RK",
-      date: "28 czerwca 2024",
-      rating: 3,
-      text: "Dobra instrukcja, ale grupa czasami wydaje się zbyt duża. Niektóre sesje miały 12 uczniów i trudno było o indywidualną uwagę. Mimo to warto ze względu na program.",
-    },
-  ],
-  ratingDistribution: [
-    { stars: 5, percentage: 90 },
-    { stars: 4, percentage: 8 },
-    { stars: 3, percentage: 2 },
-    { stars: 2, percentage: 0 },
-    { stars: 1, percentage: 0 },
-  ],
-  gallery: [
-    {
-      src: "https://images.unsplash.com/photo-1580541832626-2a7131ee809f?w=400&h=300&fit=crop",
-      alt: "Uczniowie współpracują nad strategią szachową",
-      caption: "Wspólna Analiza",
-    },
-    {
-      src: "https://images.unsplash.com/photo-1528819622765-d6bcf132f793?w=400&h=300&fit=crop",
-      alt: "Interaktywne środowisko nauki",
-      caption: "Nowoczesna Sala",
-    },
-    {
-      src: "https://images.unsplash.com/photo-1529699211952-734e80c4d42b?w=400&h=300&fit=crop",
-      alt: "Praktyka turniejowa",
-      caption: "Turnieje Próbne",
-    },
-    {
-      src: "https://images.unsplash.com/photo-1560174038-da43ac74f01b?w=400&h=300&fit=crop",
-      alt: "Instruktor udziela informacji zwrotnej",
-      caption: "Indywidualne Wskazówki",
-    },
-    {
-      src: "https://images.unsplash.com/photo-1586165368502-1bad9cc34fc1?w=400&h=300&fit=crop",
-      alt: "Skupienie i koncentracja podczas zajęć",
-      caption: "Sesje Głębokiego Skupienia",
-    },
-    {
-      src: "https://images.unsplash.com/photo-1611195974226-a6a9be9dd763?w=400&h=300&fit=crop",
-      alt: "Uczniowie świętują zwycięstwo",
-      caption: "Duch Wspólnoty",
-    },
-  ],
-  relatedActivities: [
-    {
-      id: "7",
-      title: "Młody Programista – Python",
-      description: "Zabawne, interaktywne lekcje kodowania dla dzieci w wieku 8-14 lat.",
-      category: "tech",
-      provider: { name: "Code Camp Warszawa" },
-      image:
-        "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400&h=300&fit=crop",
-      rating: 4.8,
-      reviewCount: 42,
-      price: "$$",
-      priceAmount: 30,
-      distance: 3.2,
-      location: "Emilii Plater, Warszawa",
-      timeSlots: ["afternoon", "weekend"],
-    },
-    {
-      id: "13",
-      title: "Klub Gier Planszowych",
-      description:
-        "Gry planszowe, strategia i zabawa dla wszystkich grup wiekowych w przyjaznej atmosferze.",
-      category: "education",
-      provider: { name: "Planszówkowy Raj" },
-      image:
-        "https://images.unsplash.com/photo-1632501641765-e568d28b0015?w=400&h=300&fit=crop",
-      rating: 4.9,
-      reviewCount: 88,
-      price: "$",
-      priceAmount: 15,
-      distance: 1.8,
-      location: "Kazimierz, Kraków",
-      timeSlots: ["afternoon", "evening"],
-    },
-    {
-      id: "14",
-      title: "Robotyka z LEGO Mindstorms",
-      description: "Buduj i programuj roboty w tych praktycznych warsztatach STEM.",
-      category: "tech",
-      provider: { name: "Centrum Nauki Kopernik" },
-      image:
-        "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400&h=300&fit=crop",
-      rating: 4.7,
-      reviewCount: 56,
-      price: "$$",
-      priceAmount: 45,
-      distance: 4.5,
-      location: "Wybrzeże Kościuszkowskie, Warszawa",
-      timeSlots: ["weekend"],
-    },
-  ],
-  slotsRemaining: 4,
-  totalSlots: 12,
-  availableTimes: ["10:00", "14:00"],
-  nextDate: "Sobota, 26 paź",
-};
+interface BackendImage {
+  file: string;
+}
 
-// Mutable reviews store keyed by activity id
-const reviewsStore: Record<string, Review[]> = {};
+interface BackendCategory {
+  slug: string;
+  name: string;
+}
 
-function getReviews(activityId: string): Review[] {
-  if (!reviewsStore[activityId]) {
-    reviewsStore[activityId] = [...MOCK_ACTIVITY_DETAIL.reviews];
+interface BackendProvider {
+  slug: string;
+  name: string;
+  isVerified: boolean;
+  providerType: "BUSINESS" | "INDIVIDUAL";
+}
+
+interface BackendPerson {
+  id: string;
+  name: string;
+  title?: string;
+  bio?: string;
+  avatar?: string;
+  experience?: string;
+  verified: boolean;
+  contractorSlug?: string;
+  personType?: string;
+  hasAccount: boolean;
+  isInvited: boolean;
+}
+
+interface BackendPrice {
+  id: number;
+  price: string;
+  priceType: "UNIT" | "HOUR" | "MONTH" | "YEAR";
+  isVisible: boolean;
+}
+
+interface BackendSession {
+  id: number;
+  date: string;
+  isCancelled: boolean;
+}
+
+interface BackendLocation {
+  slug: string;
+  name?: string;
+  address?: {
+    addressLine?: string;
+    city?: string;
+  };
+}
+
+interface BackendCurriculumItem {
+  week: number;
+  title: string;
+  description: string;
+}
+
+interface BackendActivity {
+  slug: string;
+  name: string;
+  description?: string;
+  provider: BackendProvider;
+  categories: BackendCategory[];
+  primaryImage?: BackendImage;
+  images?: BackendImage[];
+  reviewScore?: number;
+  reviewCount: number;
+  scheduledTime?: string;
+  durationMinutes?: number;
+  capacity?: number;
+  ageMin?: number;
+  ageMax?: number;
+  isOpen: boolean;
+  isPromoted?: boolean;
+  person?: BackendPerson;
+  prices?: BackendPrice[];
+  upcomingSessions?: BackendSession[];
+  location?: BackendLocation;
+  skillLevel?: string;
+  materialsIncluded?: string;
+  whatYouLearn?: string[];
+  curriculum?: BackendCurriculumItem[];
+}
+
+interface BackendReview {
+  slug: string;
+  rating: number;
+  comment: string;
+  author: {
+    username: string;
+    firstName?: string;
+    lastName?: string;
+  };
+  createdAt: string;
+}
+
+interface BackendReviewStats {
+  score: number;
+  count: number;
+  percent: number;
+}
+
+interface BackendSimpleActivity {
+  slug: string;
+  name: string;
+  description?: string;
+  provider: BackendProvider;
+  primaryImage?: BackendImage;
+  reviewScore?: number;
+  categories?: BackendCategory[];
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const DAY_NAMES_PL = ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"];
+const MONTH_NAMES_SHORT_PL = ["sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru"];
+
+function formatNextDate(sessions: BackendSession[]): string {
+  if (!sessions.length) return "";
+  const d = new Date(sessions[0].date);
+  return `${DAY_NAMES_PL[d.getDay()]}, ${d.getDate()} ${MONTH_NAMES_SHORT_PL[d.getMonth()]}`;
+}
+
+function buildAgeRange(ageMin?: number, ageMax?: number): string {
+  if (ageMin != null && ageMax != null) return `${ageMin}–${ageMax} lat`;
+  if (ageMin != null) return `${ageMin}+ lat`;
+  if (ageMax != null) return `do ${ageMax} lat`;
+  return "Wszystkie grupy wiekowe";
+}
+
+function buildPriceDisplay(prices?: BackendPrice[]): { price: "$" | "$$" | "$$$" | "free"; priceAmount?: number } {
+  const visible = prices?.filter((p) => p.isVisible) ?? [];
+  if (!visible.length) return { price: "free" };
+  const amount = Math.min(...visible.map((p) => parseFloat(p.price)));
+  if (amount === 0) return { price: "free", priceAmount: 0 };
+  if (amount <= 20) return { price: "$", priceAmount: amount };
+  if (amount <= 50) return { price: "$$", priceAmount: amount };
+  return { price: "$$$", priceAmount: amount };
+}
+
+function buildLocation(loc?: BackendLocation): string {
+  if (!loc) return "";
+  const addr = loc.address;
+  const fallback = loc.name ?? loc.slug;
+  if (!addr) return fallback;
+  return [addr.addressLine, addr.city].filter(Boolean).join(", ") || fallback;
+}
+
+function mapReviews(reviews: BackendReview[]): Review[] {
+  return reviews.map((r) => {
+    const firstName = r.author.firstName ?? "";
+    const lastName = r.author.lastName ?? "";
+    const authorName = [firstName, lastName].filter(Boolean).join(" ") || r.author.username;
+    const initials =
+      [firstName[0], lastName[0]].filter(Boolean).join("").toUpperCase() ||
+      r.author.username.slice(0, 2).toUpperCase();
+    const date = new Date(r.createdAt).toLocaleDateString("pl-PL", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    // Backend stores rating 0–10; frontend shows 1–5 stars
+    const rating = Math.min(5, Math.max(1, Math.round((r.rating / 10) * 5)));
+    return { id: r.slug, authorName, authorInitials: initials, date, rating, text: r.comment };
+  });
+}
+
+function mapRatingDistribution(stats: BackendReviewStats[]): RatingDistribution[] {
+  return stats.map((s) => ({ stars: s.score, percentage: Math.round(s.percent) }));
+}
+
+// ── Main fetch ────────────────────────────────────────────────────────────────
+
+export async function getActivityById(slug: string): Promise<ActivityDetail | null> {
+  try {
+    const [actRes, reviewsRes, statsRes, similarRes] = await Promise.all([
+      apiFetch(`/activities/activity/${slug}/`),
+      apiFetch(`/activities/activity/${slug}/review/?page_size=50`),
+      apiFetch(`/activities/activity/${slug}/review/stats/`),
+      apiFetch(`/activities/activity/${slug}/similar/?limit=3`),
+    ]);
+
+    if (!actRes.ok) return null;
+
+    const act: BackendActivity = unwrap(await actRes.json());
+    const reviews = mapReviews(
+      reviewsRes.ok ? (unwrap(await reviewsRes.json()) as BackendReview[]) : []
+    );
+    const ratingDistribution = mapRatingDistribution(
+      statsRes.ok ? (unwrap(await statsRes.json()) as BackendReviewStats[]) : []
+    );
+
+    const similarRaw: BackendSimpleActivity[] = similarRes.ok
+      ? (unwrap(await similarRes.json()) as BackendSimpleActivity[])
+      : [];
+    const relatedActivities = (Array.isArray(similarRaw) ? similarRaw : []).map((a) => ({
+      id: a.slug,
+      title: a.name,
+      description: a.description ?? "",
+      category: (a.categories?.[0]?.slug ?? "education") as ActivityDetail["category"],
+      provider: { name: a.provider.name },
+      image: a.primaryImage?.file ?? "",
+      rating: a.reviewScore ?? 0,
+      reviewCount: 0,
+      price: "free" as const,
+      distance: 0,
+      location: "",
+      timeSlots: [],
+    }));
+
+    const sessions = act.upcomingSessions ?? [];
+    const availableTimes = act.scheduledTime ? [act.scheduledTime.slice(0, 5)] : [];
+    const { price, priceAmount } = buildPriceDisplay(act.prices);
+
+    const person = act.person
+      ? {
+          id: act.person?.id,
+          name: act.person?.name,
+          title: act.person?.title ?? "",
+          avatar: act.person?.avatar ?? "",
+          experience: act.person?.experience ?? "",
+          bio: act.person?.bio ?? "",
+          verified: act.person?.verified,
+          hasAccount: act.person?.hasAccount,
+          invited: act.person?.isInvited,
+        }
+      : {
+          id: "",
+          name: act.provider.name,
+          title: "",
+          avatar: "",
+          experience: "",
+          bio: "",
+          verified: act.provider.isVerified,
+        };
+
+    return {
+      id: act.slug,
+      title: act.name,
+      description: act.description ?? "",
+      category: (act.categories[0]?.slug ?? "education") as ActivityDetail["category"],
+      provider: { name: act.provider.name, slug: act.provider.slug, providerType: act.provider.providerType },
+      image: act.primaryImage?.file ?? "",
+      rating: act.reviewScore ?? 0,
+      reviewCount: reviews.length || act.reviewCount,
+      price,
+      priceAmount,
+      distance: 0,
+      location: buildLocation(act.location),
+      timeSlots: [],
+      spotsLeft: act.capacity ?? undefined,
+      businessId: act.provider.slug,
+      contractorId: act.person?.contractorSlug ?? "",
+      isPromoted: act.isPromoted ?? false,
+      currency: "PLN",
+      badges: [
+        act.provider.isVerified ? "Zweryfikowane Zajęcia" : null,
+        act.capacity ? `Maks. ${act.capacity} uczestników` : null,
+      ].filter(Boolean) as string[],
+      ageRange: buildAgeRange(act.ageMin, act.ageMax),
+      duration: act.durationMinutes ? `${act.durationMinutes} min` : "",
+      classType: act.capacity === 1 ? "Zajęcia Indywidualne" : "Zajęcia Grupowe",
+      maxStudents: act.capacity ?? 0,
+      skillLevel: act.skillLevel ?? "",
+      materialsIncluded: act.materialsIncluded ?? "",
+      person,
+      curriculum: (act.curriculum ?? []).map((item) => ({
+        week: item.week,
+        title: item.title,
+        description: item.description,
+      })),
+      whatYouLearn: act.whatYouLearn ?? [],
+      reviews,
+      ratingDistribution,
+      gallery: (act.images ?? []).map((img, i) => ({
+        src: img.file,
+        alt: `Zdjęcie ${i + 1}`,
+        caption: `Zdjęcie ${i + 1}`,
+      })),
+      relatedActivities,
+      slotsRemaining: act.capacity ?? 0,
+      totalSlots: act.capacity ?? 0,
+      availableTimes,
+      nextDate: formatNextDate(sessions),
+    };
+  } catch (e) {
+    console.error("[getActivityById]", e);
+    return null;
   }
-  return reviewsStore[activityId];
 }
 
-function recalcRating(reviews: Review[]): { rating: number; reviewCount: number; ratingDistribution: RatingDistribution[] } {
-  const reviewCount = reviews.length;
-  const rating = reviewCount > 0 ? Math.round((reviews.reduce((sum, r) => sum + r.rating, 0) / reviewCount) * 10) / 10 : 0;
-  const counts = [0, 0, 0, 0, 0]; // index 0 = 1 star
-  for (const r of reviews) counts[Math.min(Math.max(Math.floor(r.rating), 1), 5) - 1]++;
-  const ratingDistribution: RatingDistribution[] = [5, 4, 3, 2, 1].map((stars) => ({
-    stars,
-    percentage: reviewCount > 0 ? Math.round((counts[stars - 1] / reviewCount) * 100) : 0,
-  }));
-  return { rating, reviewCount, ratingDistribution };
-}
+// ── Submit review ─────────────────────────────────────────────────────────────
 
 export async function submitActivityReview(
   activityId: string,
   review: { rating: number; text: string; authorName: string; authorInitials: string }
 ): Promise<Review> {
-  await new Promise((resolve) => setTimeout(resolve, 400));
-  const reviews = getReviews(activityId);
-  const newReview: Review = {
-    id: `r-${Date.now()}`,
+  // Frontend: 1–5 stars → backend: 0–10 scale
+  const backendRating = review.rating * 2;
+  const res = await apiFetch(`/activities/activity/${activityId}/review/`, {
+    method: "POST",
+    body: JSON.stringify({ rating: backendRating, comment: review.text }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(JSON.stringify(err));
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const data: any = unwrap(await res.json());
+  const date = new Date(data.createdAt).toLocaleDateString("pl-PL", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  return {
+    id: data.slug,
     authorName: review.authorName,
     authorInitials: review.authorInitials,
-    date: new Date().toLocaleDateString("pl-PL", { day: "numeric", month: "long", year: "numeric" }),
+    date,
     rating: review.rating,
-    text: review.text,
+    text: data.comment,
   };
-  reviews.unshift(newReview);
-  return newReview;
-}
-
-export async function getActivityById(
-  id: string
-): Promise<ActivityDetail | null> {
-  await new Promise((resolve) => setTimeout(resolve, 600));
-  const cohorts = MOCK_COHORTS.filter((c) => c.activityId === (id === MOCK_ACTIVITY_DETAIL.id ? MOCK_ACTIVITY_DETAIL.id : id));
-  const reviews = getReviews(id);
-  const { rating, reviewCount, ratingDistribution } = recalcRating(reviews);
-  const detail = {
-    ...MOCK_ACTIVITY_DETAIL,
-    reviews,
-    rating,
-    reviewCount,
-    ratingDistribution,
-    cohorts: cohorts.length > 0 ? cohorts : MOCK_COHORTS.filter((c) => c.activityId === "act-7"),
-  };
-
-  if (id === "act-7" || id === MOCK_ACTIVITY_DETAIL.id) {
-    return detail;
-  }
-  // Return the same data with the requested id for demo purposes
-  return { ...detail, id };
 }

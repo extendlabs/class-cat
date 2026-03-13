@@ -75,7 +75,7 @@ export function useBusinessProfileHandlers(
     const invited = await mockInviteAsInstructor(state.lookupResult.id, "biz-1");
     const list = [...currentInstructors];
     list.push({
-      id: invited.instructorId ?? `inst-invited-${Date.now()}`,
+      id: invited.contractorId ?? `inst-invited-${Date.now()}`,
       name: invited.name,
       title: "",
       avatar: invited.avatar || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face",

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/hooks/use-auth";
+import { apiFetch, unwrap } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,20 +20,36 @@ export default function BecomeInstructorPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  if (user?.instructorId) {
+  if (user?.contractorId) {
     router.push("/profile/instructor");
     return null;
   }
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 600));
+    try {
+      // Create contractor profile
+      const createRes = await apiFetch("/activities/contractor/me/", { method: "POST" });
+      if (!createRes.ok) throw new Error("Failed to create contractor profile");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const profile: any = unwrap(await createRes.json());
 
-    const newInstructorId = `inst-${Date.now()}`;
-    updateUser({ instructorId: newInstructorId });
+      // Patch with specialty/bio if provided
+      if (form.specialty || form.bio) {
+        const patch: Record<string, unknown> = {};
+        if (form.bio) patch.bio = form.bio;
+        if (form.specialty) patch.specialties = [form.specialty];
+        await apiFetch("/activities/contractor/me/", {
+          method: "PATCH",
+          body: JSON.stringify(patch),
+        });
+      }
 
-    router.push("/profile/instructor");
+      updateUser({ contractorId: profile.slug });
+      router.push("/profile/instructor");
+    } catch {
+      setIsSubmitting(false);
+    }
   };
 
   return (

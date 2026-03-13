@@ -62,7 +62,7 @@ const MOCK_BUSINESSES: Record<string, Business> = {
         timeSlots: ["morning"],
         spotsLeft: 5,
         businessId: "biz-1",
-        instructorId: "inst-1",
+        contractorId: "inst-1",
       },
       {
         id: "act-2",
@@ -81,7 +81,7 @@ const MOCK_BUSINESSES: Record<string, Business> = {
         location: "Studio Harmonii",
         timeSlots: ["morning", "evening"],
         businessId: "biz-1",
-        instructorId: "inst-1",
+        contractorId: "inst-1",
       },
       {
         id: "act-3",
@@ -100,7 +100,7 @@ const MOCK_BUSINESSES: Record<string, Business> = {
         location: "Studio Harmonii",
         timeSlots: ["morning", "afternoon"],
         businessId: "biz-1",
-        instructorId: "inst-2",
+        contractorId: "inst-2",
       },
       {
         id: "act-4",
@@ -120,7 +120,7 @@ const MOCK_BUSINESSES: Record<string, Business> = {
         timeSlots: ["evening", "weekend"],
         spotsLeft: 3,
         businessId: "biz-1",
-        instructorId: "inst-3",
+        contractorId: "inst-3",
       },
       {
         id: "act-5",
@@ -139,7 +139,7 @@ const MOCK_BUSINESSES: Record<string, Business> = {
         location: "Studio Harmonii",
         timeSlots: ["morning"],
         businessId: "biz-1",
-        instructorId: "inst-4",
+        contractorId: "inst-4",
       },
       {
         id: "act-6",
@@ -158,7 +158,7 @@ const MOCK_BUSINESSES: Record<string, Business> = {
         location: "Studio Harmonii",
         timeSlots: ["afternoon"],
         businessId: "biz-1",
-        instructorId: "inst-5",
+        contractorId: "inst-5",
       },
     ],
     instructors: [
@@ -358,7 +358,7 @@ const MOCK_BUSINESSES: Record<string, Business> = {
         timeSlots: ["morning", "afternoon"],
         spotsLeft: 4,
         businessId: "biz-2",
-        instructorId: "inst-6",
+        contractorId: "inst-6",
       },
       {
         id: "act-8",
@@ -378,7 +378,7 @@ const MOCK_BUSINESSES: Record<string, Business> = {
         timeSlots: ["afternoon", "weekend"],
         spotsLeft: 8,
         businessId: "biz-2",
-        instructorId: "inst-6",
+        contractorId: "inst-6",
       },
       {
         id: "act-9",
@@ -397,7 +397,7 @@ const MOCK_BUSINESSES: Record<string, Business> = {
         location: "Centrum Szachowe Kraków",
         timeSlots: ["weekend"],
         businessId: "biz-2",
-        instructorId: "inst-6",
+        contractorId: "inst-6",
       },
     ],
     instructors: [

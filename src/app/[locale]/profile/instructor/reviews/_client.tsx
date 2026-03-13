@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PageContent() {
   const { user } = useAuth();
-  const instructorId = user?.instructorId ?? "inst-6";
+  const instructorId = user?.contractorId ?? "inst-6";
   const [starFilter, setStarFilter] = useState<number | null>(null);
 
   const { data: instructor, isLoading } = useQuery({
