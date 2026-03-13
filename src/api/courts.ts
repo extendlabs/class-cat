@@ -1,21 +1,14 @@
 import { MOCK_COURTS, PROMOTED_COURTS } from "@/api/mock-courts";
+import { fetchAvailableCourtIndices as fetchAvailableCourtIndicesService } from "@/api/court-service";
 import {
-  createReservation as createReservationService,
-  fetchConsumerWeekSlots,
-  fetchAvailableCourtIndices as fetchAvailableCourtIndicesService,
-} from "@/api/court-service";
-import type { Court, TimeSlotAvailability, CourtReservation, CourtSport, CourtSurface } from "@/types/court";
+  fetchVenues,
+  fetchVenueById,
+  fetchVenueAvailability,
+  createVenueReservation,
+} from "@/api/venues-api";
+import type { Court, CourtFilters, TimeSlotAvailability, CourtReservation } from "@/types/court";
 
-export interface CourtFilters {
-  query?: string;
-  sport?: CourtSport;
-  surface?: CourtSurface;
-  indoor?: boolean;
-  priceMin?: number;
-  priceMax?: number;
-  city?: string;
-  minRating?: number;
-}
+export type { CourtFilters };
 
 interface PaginatedCourtResult {
   courts: Court[];
@@ -82,18 +75,7 @@ export async function fetchCourts(
   limit: number = 8,
   filters: CourtFilters = {}
 ): Promise<PaginatedCourtResult> {
-  await new Promise((resolve) => setTimeout(resolve, 200));
-
-  const filtered = applyCourtFilters(MOCK_COURTS, filters);
-  const start = page * limit;
-  const courts = filtered.slice(start, start + limit);
-  const hasMore = start + limit < filtered.length;
-
-  return {
-    courts,
-    nextPage: hasMore ? page + 1 : null,
-    total: filtered.length,
-  };
+  return fetchVenues(page, limit, filters);
 }
 
 export async function fetchPopularCourts(
@@ -101,30 +83,18 @@ export async function fetchPopularCourts(
   limit: number = 8,
   filters: CourtFilters = {}
 ): Promise<PaginatedCourtResult> {
-  await new Promise((resolve) => setTimeout(resolve, 200));
-
-  const filtered = applyCourtFilters(PROMOTED_COURTS, filters);
-  const start = page * limit;
-  const courts = filtered.slice(start, start + limit);
-  const hasMore = start + limit < filtered.length;
-
-  return {
-    courts,
-    nextPage: hasMore ? page + 1 : null,
-    total: filtered.length,
-  };
+  return fetchVenues(page, limit, { ...filters });
 }
 
 export async function fetchCourtById(id: string): Promise<Court | null> {
-  await new Promise((resolve) => setTimeout(resolve, 150));
-  return MOCK_COURTS.find((c) => c.id === id) ?? null;
+  return fetchVenueById(id);
 }
 
 export async function fetchCourtAvailability(
   courtId: string,
   weekStart: string
 ): Promise<TimeSlotAvailability[]> {
-  return fetchConsumerWeekSlots(courtId, weekStart);
+  return fetchVenueAvailability(courtId, weekStart);
 }
 
 export async function createReservation(data: {
@@ -136,7 +106,15 @@ export async function createReservation(data: {
   totalPrice: number;
   courtIndex?: number | null;
 }): Promise<CourtReservation> {
-  return createReservationService(data);
+  return createVenueReservation({
+    venueId: data.courtId,
+    date: data.date,
+    startHour: data.startHour,
+    durationHours: data.durationHours,
+    courtName: data.courtName,
+    totalPrice: data.totalPrice,
+    courtIndex: data.courtIndex,
+  });
 }
 
 export { fetchAvailableCourtIndicesService as fetchAvailableCourtIndices };

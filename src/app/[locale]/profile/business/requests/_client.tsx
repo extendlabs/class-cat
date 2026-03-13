@@ -19,30 +19,40 @@ import {
   acceptEnrollment,
   rejectEnrollment,
 } from "@/api/enrollments";
+import { useAuth } from "@/hooks/use-auth";
+import { fetchMyBusinessProfile } from "@/api/business";
 import type { EnrollmentRequest } from "@/types/enrollment";
 
 export default function RequestsClient() {
   const t = useTranslations("enrollmentRequests");
+  const { isAuthenticated } = useAuth();
   const { openToConversation } = useChatSidebar();
   const queryClient = useQueryClient();
 
+  const { data: businessProfile } = useQuery({
+    queryKey: ["my-business-profile"],
+    queryFn: fetchMyBusinessProfile,
+    enabled: isAuthenticated,
+  });
+  const providerSlug = businessProfile?.providerSlug ?? null;
+
   const { data: requests = [], isLoading } = useQuery({
-    queryKey: ["enrollment-requests"],
-    queryFn: () => fetchEnrollmentRequests(),
+    queryKey: ["enrollment-requests", providerSlug],
+    queryFn: () => fetchEnrollmentRequests(providerSlug ?? undefined),
+    enabled: !!providerSlug,
   });
 
   const acceptMutation = useMutation({
-    mutationFn: acceptEnrollment,
+    mutationFn: (requestId: string) => acceptEnrollment(requestId, providerSlug ?? undefined),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["enrollment-requests"] });
-      queryClient.invalidateQueries({ queryKey: ["conversations"] });
+      queryClient.invalidateQueries({ queryKey: ["enrollment-requests", providerSlug] });
     },
   });
 
   const rejectMutation = useMutation({
-    mutationFn: rejectEnrollment,
+    mutationFn: (requestId: string) => rejectEnrollment(requestId, providerSlug ?? undefined),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["enrollment-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["enrollment-requests", providerSlug] });
     },
   });
 

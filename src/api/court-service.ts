@@ -1,4 +1,14 @@
 import { courtStore } from "@/api/court-store";
+import {
+  fetchBusinessVenues,
+  fetchBusinessVenueById,
+  createBusinessVenue,
+  updateBusinessVenue,
+  deleteBusinessVenue,
+  fetchBusinessVenueSchedule,
+  fetchBusinessVenueReservations,
+  updateVenueReservationStatus,
+} from "@/api/venues-api";
 import type {
   Court,
   CourtReservation,
@@ -59,36 +69,31 @@ export async function fetchUserCourtReservations(userName: string): Promise<Cour
 // ── Business-facing ──
 
 export async function fetchBusinessCourts(): Promise<Court[]> {
-  await delay(300);
-  return courtStore.getBusinessCourts();
+  return fetchBusinessVenues();
 }
 
 export async function fetchBusinessCourt(id: string): Promise<Court | undefined> {
-  await delay(200);
-  return courtStore.getBusinessCourtById(id);
+  const court = await fetchBusinessVenueById(id);
+  return court ?? undefined;
 }
 
 export async function createBusinessCourt(data: Partial<Court>): Promise<Court> {
-  await delay(400);
-  return courtStore.addBusinessCourt(data);
+  return createBusinessVenue(data);
 }
 
 export async function updateBusinessCourt(id: string, data: Partial<Court>): Promise<Court> {
-  await delay(300);
-  return courtStore.updateBusinessCourt(id, data);
+  return updateBusinessVenue(id, data);
 }
 
 export async function deleteBusinessCourt(id: string): Promise<void> {
-  await delay(300);
-  courtStore.deleteBusinessCourt(id);
+  return deleteBusinessVenue(id);
 }
 
 export async function fetchCourtWeekSlots(
   courtId: string,
   weekStart: string
 ): Promise<TimeSlotAvailability[]> {
-  await delay(300);
-  return courtStore.getBusinessWeekSlots(courtId, weekStart);
+  return fetchBusinessVenueSchedule(courtId, weekStart);
 }
 
 export async function fetchSlotDetails(
@@ -120,8 +125,7 @@ export async function fetchBusinessCourtReservations(
     search?: string;
   }
 ): Promise<CourtReservation[]> {
-  await delay(250);
-  return courtStore.getBusinessReservations(filters);
+  return fetchBusinessVenueReservations(filters?.courtId);
 }
 
 export async function updateReservationStatus(
@@ -129,8 +133,7 @@ export async function updateReservationStatus(
   status: "confirmed" | "rejected" | "cancelled",
   rejectedReason?: string
 ): Promise<CourtReservation | null> {
-  await delay(300);
-  return courtStore.updateReservationStatus(id, status, rejectedReason);
+  return updateVenueReservationStatus(id, status, rejectedReason);
 }
 
 // ── Recurring Blocks ──

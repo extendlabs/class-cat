@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 
-export default function PageContent() {
+export default function PageContent({ next }: { next?: string }) {
   const t = useTranslations("auth");
   const router = useRouter();
   const { login } = useAuth();
@@ -35,7 +35,7 @@ export default function PageContent() {
     setIsSubmitting(true);
     try {
       await login(email, password);
-      router.push("/profile");
+      router.push(next ?? "/profile");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {

@@ -121,12 +121,32 @@ export async function fetchCohortsByActivity(activityId: string): Promise<Cohort
   return cohorts.filter((c) => c.activityId === activityId);
 }
 
-export async function fetchEnrollmentRequests(_businessId?: string): Promise<EnrollmentRequest[]> {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  // In a real app, filter by _businessId. For mock, return all.
-  return enrollmentRequests.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
+export async function fetchEnrollmentRequests(providerSlug?: string): Promise<EnrollmentRequest[]> {
+  if (!providerSlug) return [];
+  const res = await apiFetch(`/activities/provider/${providerSlug}/all-requests/`);
+  if (!res.ok) return [];
+  const data = unwrap(await res.json());
+  const list = Array.isArray(data) ? data : data?.results ?? [];
+  const statusMap: Record<string, EnrollmentRequest["status"]> = {
+    PENDING: "pending",
+    CONFIRMED: "accepted",
+    REJECTED: "rejected",
+    CANCELLED: "rejected",
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return list.map((r: any): EnrollmentRequest => ({
+    id: String(r.id),
+    activityId: r.activitySlug ?? "",
+    activityTitle: r.activityName ?? "",
+    cohortId: "",
+    cohortName: r.message ?? "",
+    userId: r.user?.username ?? "",
+    userName: [r.user?.firstName, r.user?.lastName].filter(Boolean).join(" ") || r.user?.username || "",
+    userAvatar: r.user?.avatar?.file ?? "",
+    status: statusMap[r.status] ?? "pending",
+    conversationId: "",
+    createdAt: r.createdAt ?? new Date().toISOString(),
+  }));
 }
 
 export async function applyForCohort(
@@ -174,41 +194,24 @@ export async function applyForCohort(
   return { request, conversation };
 }
 
-export async function acceptEnrollment(requestId: string): Promise<EnrollmentRequest> {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-
-  const request = enrollmentRequests.find((r) => r.id === requestId);
-  if (!request) throw new Error("Request not found");
-
-  request.status = "accepted";
-
-  // Add user to the cohort's group conversation
-  const cohort = cohorts.find((c) => c.id === request.cohortId);
-  if (cohort) {
-    cohort.currentParticipants += 1;
-    if (cohort.currentParticipants >= cohort.maxParticipants) {
-      cohort.status = "full";
-    }
-
-    addParticipantToConversation(cohort.conversationId, {
-      id: request.userId,
-      name: request.userName,
-      avatar: request.userAvatar,
-      role: "consumer",
-    });
-  }
-
-  return request;
+export async function acceptEnrollment(requestId: string, providerSlug?: string): Promise<EnrollmentRequest> {
+  if (!providerSlug) throw new Error("No provider slug");
+  const res = await apiFetch(`/activities/provider/${providerSlug}/all-requests/${requestId}/`, {
+    method: "PATCH",
+    body: JSON.stringify({ status: "CONFIRMED" }),
+  });
+  if (!res.ok) throw new Error("Failed to accept request");
+  return unwrap(await res.json());
 }
 
-export async function rejectEnrollment(requestId: string): Promise<EnrollmentRequest> {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-
-  const request = enrollmentRequests.find((r) => r.id === requestId);
-  if (!request) throw new Error("Request not found");
-
-  request.status = "rejected";
-  return request;
+export async function rejectEnrollment(requestId: string, providerSlug?: string): Promise<EnrollmentRequest> {
+  if (!providerSlug) throw new Error("No provider slug");
+  const res = await apiFetch(`/activities/provider/${providerSlug}/all-requests/${requestId}/`, {
+    method: "PATCH",
+    body: JSON.stringify({ status: "REJECTED" }),
+  });
+  if (!res.ok) throw new Error("Failed to reject request");
+  return unwrap(await res.json());
 }
 
 export async function fetchUserEnrollments(_userId: string): Promise<EnrollmentRequest[]> {

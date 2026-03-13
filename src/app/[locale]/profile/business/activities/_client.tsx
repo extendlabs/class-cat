@@ -1,6 +1,7 @@
 "use client";
 
 import { useReducer, useState } from "react";
+import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "@phosphor-icons/react";
 import {
@@ -36,8 +37,7 @@ import {
 import type { BusinessActivity } from "@/types/business-portal";
 
 export default function PageContent() {
-  const { user } = useAuth();
-  const businessId = user?.businessId ?? "";
+  const { user, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
   const [state, dispatch] = useReducer(activitiesListReducer, activitiesListInitialState);
   const [sessionsTarget, setSessionsTarget] = useState<BusinessActivity | null>(null);
@@ -45,7 +45,7 @@ export default function PageContent() {
   const { data: businessProfile } = useQuery({
     queryKey: ["my-business-profile"],
     queryFn: fetchMyBusinessProfile,
-    enabled: !!businessId,
+    enabled: isAuthenticated,
   });
   const providerSlug = businessProfile?.providerSlug ?? null;
 
@@ -56,9 +56,9 @@ export default function PageContent() {
   });
 
   const { data: businessInstructors } = useQuery({
-    queryKey: ["business-instructors", businessId],
-    queryFn: () => fetchBusinessInstructors(businessId),
-    enabled: !!businessId,
+    queryKey: ["business-instructors"],
+    queryFn: () => fetchBusinessInstructors(user?.businessId ?? ""),
+    enabled: isAuthenticated,
   });
 
   const activeInstructors = (businessInstructors ?? [])
@@ -68,13 +68,25 @@ export default function PageContent() {
   const createMutation = useMutation({
     mutationFn: ({ data, imageFile }: { data: Partial<BusinessActivity>; imageFile?: File }) =>
       createProviderActivity(providerSlug!, data, imageFile),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["provider-activities", providerSlug] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["provider-activities", providerSlug] });
+      dispatch({ type: "CLOSE_FORM" });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to create activity");
+    },
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data, imageFile }: { id: string; data: Partial<BusinessActivity>; imageFile?: File }) =>
       updateProviderActivity(providerSlug!, id, data, imageFile),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["provider-activities", providerSlug] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["provider-activities", providerSlug] });
+      dispatch({ type: "CLOSE_FORM" });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || "Failed to update activity");
+    },
   });
 
   const deleteMutation = useMutation({

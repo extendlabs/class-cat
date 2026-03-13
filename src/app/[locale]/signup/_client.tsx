@@ -48,7 +48,7 @@ function signupReducer(state: SignupState, action: SignupAction): SignupState {
   }
 }
 
-export default function PageContent() {
+export default function PageContent({ next }: { next?: string }) {
   const t = useTranslations("auth");
   const router = useRouter();
   const { signup } = useAuth();
@@ -77,7 +77,7 @@ export default function PageContent() {
     dispatch({ type: "SET_SUBMITTING", isSubmitting: true });
     try {
       await signup(name, email, password);
-      router.push("/profile");
+      router.push(next ?? "/profile");
     } catch (err) {
       dispatch({ type: "SET_ERROR", error: err instanceof Error ? err.message : "Something went wrong" });
     } finally {
@@ -210,7 +210,7 @@ export default function PageContent() {
             <p className="text-center text-sm text-gray-500 mt-6">
               {t("alreadyHaveAccount")}{" "}
               <Link
-                href="/login"
+                href={next ? `/login?next=${encodeURIComponent(next)}` : "/login"}
                 className="text-coral hover:text-coral-hover font-medium transition-colors"
               >
                 {t("signInLink")}

@@ -4,6 +4,8 @@ import { useTranslations } from "next-intl";
 import { ShieldCheck, BookOpen, Star } from "@phosphor-icons/react";
 import type { ActivityDetail } from "@/types/activity";
 import { useEnrollment } from "@/hooks/use-enrollment";
+import { useAuth } from "@/hooks/use-auth";
+import { useRouter, usePathname } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { BRAND_ACCENT } from "@/lib/constants";
@@ -51,9 +53,20 @@ export function EnrollmentSidebar({
   const t = useTranslations("activity");
   const tCommon = useTranslations("common");
   const currency = activity.currency ?? "zł";
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
 
   const { isOwnActivity, alreadySent, myRequest, sendRequest, isSending } =
     useEnrollment(activity);
+
+  function handleApply() {
+    if (!isAuthenticated) {
+      router.push(`/login?next=${encodeURIComponent(pathname)}`);
+      return;
+    }
+    sendRequest("Dzień dobry chce sie zapisac na zajecia");
+  }
 
   const isPending =
     alreadySent ||
@@ -101,7 +114,7 @@ export function EnrollmentSidebar({
           </button>
         ) : (
           <button
-            onClick={() => sendRequest("")}
+            onClick={handleApply}
             disabled={isSending}
             className="w-full text-white py-4 rounded-xl font-bold text-lg transition-all hover:-translate-y-0.5 active:scale-[0.98] mb-4 bg-coral hover:bg-coral-hover disabled:opacity-50 disabled:pointer-events-none"
             style={{ boxShadow: `0 10px 25px -5px ${BRAND_ACCENT}33` }}

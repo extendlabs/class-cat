@@ -9,6 +9,8 @@ import { BottomNav } from "@/components/layout/bottom-nav";
 import { Footer } from "@/components/layout/footer";
 import { Link } from "@/i18n/navigation";
 import { useReducer } from "react";
+import { useAuth } from "@/hooks/use-auth";
+import { useRouter, usePathname } from "@/i18n/navigation";
 import { toast } from "sonner";
 import { PhotoCarouselModal } from "@/components/features/photo-carousel-modal";
 import { useLikedActivities } from "@/hooks/use-liked-activities";
@@ -35,6 +37,15 @@ export default function ActivityDetailPage({ id }: { id: string }) {
   const tCommon = useTranslations("common");
   const [state, dispatch] = useReducer(activityPageReducer, initialState);
   const { toggleLike, isLiked } = useLikedActivities();
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  function handleMobileApply() {
+    if (!isAuthenticated) {
+      router.push(`/login?next=${encodeURIComponent(pathname)}`);
+    }
+  }
 
   const { data: activity, isLoading } = useQuery({
     queryKey: ["activity", id],
@@ -130,7 +141,7 @@ export default function ActivityDetailPage({ id }: { id: string }) {
       <CtaBand />
 
       {/* Sticky Bottom CTA (mobile only) */}
-      <MobileBottomCta priceAmount={activity.priceAmount} currency={activity.currency} />
+      <MobileBottomCta priceAmount={activity.priceAmount} currency={activity.currency} onApply={handleMobileApply} />
 
       {/* Footer */}
       <Footer className="mt-0" />

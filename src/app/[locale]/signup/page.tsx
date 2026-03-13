@@ -16,6 +16,11 @@ export async function generateMetadata({
   };
 }
 
-export default function Page() {
-  return <PageContent />;
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const { next } = await searchParams;
+  return <PageContent next={next} />;
 }

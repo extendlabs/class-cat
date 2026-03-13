@@ -124,9 +124,6 @@ function ActivityFormDialogContent({
           description: c.description,
         })) ?? [],
     }, pendingImageFile.current);
-    form.reset();
-    pendingImageFile.current = undefined;
-    onClose();
   };
 
   return (
