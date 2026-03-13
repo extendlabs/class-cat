@@ -28,6 +28,7 @@ export interface BusinessLocation {
 
 export interface Business {
   id: string;
+  providerSlug?: string | null;
   name: string;
   tagline: string;
   description: string;

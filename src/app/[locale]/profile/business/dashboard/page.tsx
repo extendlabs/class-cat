@@ -11,12 +11,9 @@ import {
   Clock,
 } from "@phosphor-icons/react";
 import {
-  fetchBusinessStats,
-  fetchBusinessActivities,
-  fetchBusinessNotifications,
-  fetchWeeklyBookings,
+  fetchProviderDashboard,
 } from "@/api/business-portal";
-import { fetchEnrollmentRequests } from "@/api/enrollments";
+import { fetchMyBusinessProfile } from "@/api/business";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   DashboardStats,
@@ -32,35 +29,17 @@ export default function BusinessDashboardPage() {
   const t = useTranslations("businessDashboard");
   const tNotifications = useTranslations("notifications");
 
-  const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ["business-stats"],
-    queryFn: fetchBusinessStats,
+  const { data: businessProfile } = useQuery({
+    queryKey: ["my-business-profile"],
+    queryFn: fetchMyBusinessProfile,
   });
+  const providerSlug = businessProfile?.providerSlug ?? null;
 
-  const { data: activities, isLoading: activitiesLoading } = useQuery({
-    queryKey: ["business-activities"],
-    queryFn: fetchBusinessActivities,
+  const { data: dashboard, isLoading } = useQuery({
+    queryKey: ["provider-dashboard", providerSlug],
+    queryFn: () => fetchProviderDashboard(providerSlug!),
+    enabled: !!providerSlug,
   });
-
-  const { data: notifications, isLoading: notificationsLoading } = useQuery({
-    queryKey: ["business-notifications"],
-    queryFn: fetchBusinessNotifications,
-  });
-
-  const { data: weeklyBookings, isLoading: bookingsLoading } = useQuery({
-    queryKey: ["weekly-bookings"],
-    queryFn: fetchWeeklyBookings,
-  });
-
-  const { data: enrollmentRequests = [] } = useQuery({
-    queryKey: ["enrollment-requests"],
-    queryFn: () => fetchEnrollmentRequests(),
-  });
-
-  const pendingRequests = enrollmentRequests.filter((r) => r.status === "pending");
-
-  const isLoading =
-    statsLoading || activitiesLoading || notificationsLoading || bookingsLoading;
 
   if (isLoading) {
     return (
@@ -83,62 +62,87 @@ export default function BusinessDashboardPage() {
     );
   }
 
-  const upcomingClasses = (activities ?? [])
-    .filter((a) => a.status === "active" && a.nextSessionDate)
-    .sort(
-      (a, b) =>
-        new Date(a.nextSessionDate).getTime() -
-        new Date(b.nextSessionDate).getTime()
-    )
-    .slice(0, 4);
+  const overview = dashboard?.overview;
 
-  const topPerforming = (activities ?? [])
-    .filter((a) => a.status === "active")
-    .sort(
-      (a, b) =>
-        b.enrolledCount / b.maxCapacity - a.enrolledCount / a.maxCapacity
-    )
-    .slice(0, 4);
+  const weeklyBookings = (dashboard?.enrollmentTrends ?? []).map((trend) => ({
+    week: new Date(trend.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+    bookings: trend.count,
+  }));
 
-  const maxBookings = Math.max(
-    ...(weeklyBookings ?? []).map((w) => w.bookings),
-    1
-  );
+  const dashActivities = dashboard?.activities ?? [];
+
+  const upcomingClasses = dashActivities
+    .filter((a) => a.isOpen)
+    .slice(0, 4)
+    .map((a) => ({
+      id: a.slug,
+      title: a.name,
+      nextSessionDate: "",
+      duration: "",
+      enrolledCount: a.enrolledUsers,
+      maxCapacity: 0,
+    }));
+
+  const topPerforming = [...dashActivities]
+    .sort((a, b) => b.enrolledUsers - a.enrolledUsers)
+    .slice(0, 4)
+    .map((a) => ({
+      id: a.slug,
+      title: a.name,
+      enrolledCount: a.enrolledUsers,
+      maxCapacity: 0,
+      rating: a.meanReviewScore ? Math.round((a.meanReviewScore / 10) * 5 * 10) / 10 : 0,
+    }));
+
+  const maxBookings = Math.max(...weeklyBookings.map((w) => w.bookings), 1);
+
+  const latestReviews = dashboard?.reviews?.latest ?? [];
+  const notifications = latestReviews.map((r) => ({
+    id: r.slug,
+    type: "review",
+    title: `New review for "${r.activityName}"`,
+    body: r.comment,
+    timestamp: r.createdAt,
+  }));
+
+  const avgRating = overview?.meanReviewScore
+    ? Math.round((overview.meanReviewScore / 10) * 5 * 10) / 10
+    : 0;
 
   const statCards: StatCardData[] = [
     {
       label: t("students"),
-      value: stats?.totalStudents.toLocaleString() ?? "0",
+      value: (overview?.totalEnrollments ?? 0).toLocaleString(),
       icon: Users,
       color: "text-blue-500 bg-blue-50",
     },
     {
       label: t("bookings"),
-      value: stats?.totalBookings.toLocaleString() ?? "0",
+      value: (overview?.totalEnrollments ?? 0).toLocaleString(),
       icon: CalendarCheck,
       color: "text-coral bg-coral/10",
     },
     {
       label: t("rating"),
-      value: stats?.avgRating.toFixed(1) ?? "0",
+      value: avgRating.toFixed(1),
       icon: Star,
       color: "text-amber-500 bg-amber-50",
     },
     {
       label: t("revenue"),
-      value: `$${stats?.monthlyRevenue.toLocaleString() ?? "0"}`,
+      value: "$0",
       icon: CurrencyDollar,
       color: "text-emerald-500 bg-emerald-50",
     },
     {
       label: t("activities"),
-      value: String(stats?.activitiesCount ?? 0),
+      value: String(overview?.totalActivities ?? 0),
       icon: SquaresFour,
       color: "text-purple-500 bg-purple-50",
     },
     {
       label: t("upcoming"),
-      value: String(stats?.upcomingClasses ?? 0),
+      value: String(overview?.activeActivities ?? 0),
       icon: Clock,
       color: "text-indigo-500 bg-indigo-50",
     },
@@ -167,13 +171,9 @@ export default function BusinessDashboardPage() {
 
       <DashboardStats statCards={statCards} />
 
-      {pendingRequests.length > 0 && (
-        <PendingRequestsCard requests={pendingRequests} />
-      )}
-
       <div className="grid md:grid-cols-2 gap-6">
-        <BookingsTrendChart weeklyBookings={weeklyBookings ?? []} maxBookings={maxBookings} />
-        <RecentActivity notifications={notifications ?? []} formatRelativeTime={formatRelativeTime} />
+        <BookingsTrendChart weeklyBookings={weeklyBookings} maxBookings={maxBookings} />
+        <RecentActivity notifications={notifications} formatRelativeTime={formatRelativeTime} />
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">

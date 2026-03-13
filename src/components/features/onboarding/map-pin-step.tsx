@@ -6,7 +6,7 @@ export function MapPinStep({
   onCoordinateChange,
 }: {
   data: BusinessOnboardingData;
-  onCoordinateChange: (coords: { lat: number; lng: number }) => void;
+  onCoordinateChange: (coords: { lat: number; lon: number }) => void;
 }) {
   return (
     <div>
@@ -18,14 +18,14 @@ export function MapPinStep({
       </p>
       <SidebarMap
         lat={data.coordinates.lat}
-        lng={data.coordinates.lng}
+        lng={data.coordinates.lon}
         address={data.address || "Your location"}
         interactive
-        onCoordinateChange={onCoordinateChange}
+        onCoordinateChange={({ lat, lng }) => onCoordinateChange({ lat, lon: lng })}
       />
       <div className="flex gap-4 mt-4 text-xs text-gray-400">
         <span>Lat: {data.coordinates.lat.toFixed(4)}</span>
-        <span>Lng: {data.coordinates.lng.toFixed(4)}</span>
+        <span>Lon: {data.coordinates.lon.toFixed(4)}</span>
       </div>
     </div>
   );

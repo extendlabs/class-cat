@@ -15,7 +15,7 @@ import {
   OperatingHoursStep,
   TeamStep,
 } from "./onboarding";
-import type { BusinessCategory, BusinessOnboardingData } from "@/types/business-portal";
+import type { BusinessOnboardingData } from "@/types/business-portal";
 
 const DEFAULT_HOURS = [
   { day: "Monday", open: "08:00", close: "18:00", closed: false },
@@ -34,14 +34,15 @@ export function OnboardingWizard() {
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [data, setData] = useState<BusinessOnboardingData>({
-    category: "" as BusinessCategory,
+    category: "",
     companyName: "",
     ownerFirstName: "",
     ownerLastName: "",
     phone: "",
     acceptedPrivacy: false,
     address: "",
-    coordinates: { lat: 50.0647, lng: 19.9450 },
+    city: "",
+    coordinates: { lat: 50.0647, lon: 19.9450 },
     hours: DEFAULT_HOURS.map((h) => ({ ...h })),
     employees: [],
   });
@@ -70,8 +71,9 @@ export function OnboardingWizard() {
       if (!data.phone.trim()) errs.phone = t("validation.required");
       if (!data.acceptedPrivacy) errs.acceptedPrivacy = t("validation.acceptPolicy");
     }
-    if (step === 2 && !data.address.trim()) {
-      errs.address = t("validation.enterAddress");
+    if (step === 2) {
+      if (!data.address.trim()) errs.address = t("validation.enterAddress");
+      if (!data.city.trim()) errs.city = t("validation.required");
     }
 
     setErrors(errs);
@@ -98,7 +100,7 @@ export function OnboardingWizard() {
   };
 
   const handleCoordinateChange = useCallback(
-    (coords: { lat: number; lng: number }) => {
+    (coords: { lat: number; lon: number }) => {
       setData((d) => ({ ...d, coordinates: coords }));
     },
     []

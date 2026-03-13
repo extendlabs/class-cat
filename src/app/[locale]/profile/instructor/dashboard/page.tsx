@@ -27,16 +27,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function InstructorDashboardPage() {
   const t = useTranslations("instructorDashboard");
   const { user } = useAuth();
-  const instructorId = user?.contractorId ?? "inst-6";
+  const instructorId = user?.contractorId ?? "";
 
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["instructor-stats", instructorId],
     queryFn: () => fetchInstructorStats(instructorId),
+    enabled: !!instructorId,
   });
 
   const { data: instructor, isLoading: profileLoading } = useQuery({
     queryKey: ["instructor-profile", instructorId],
     queryFn: () => fetchInstructorProfile(instructorId),
+    enabled: !!instructorId,
   });
 
   const { data: proposals } = useQuery({

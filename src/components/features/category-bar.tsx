@@ -54,6 +54,7 @@ interface CategoryItem {
   id: string | null;
   label: string;
   icon: Icon;
+  iconUrl?: string | null;
 }
 
 interface CategoryBarProps {
@@ -81,6 +82,7 @@ export function CategoryBar({ activeCategory, onCategoryChange, linkMode, embedd
       id: c.slug,
       label: c.name,
       icon: SLUG_TO_ICON[c.slug] ?? SquaresFour,
+      iconUrl: c.icon ?? null,
     })),
   ];
 
@@ -156,11 +158,20 @@ export function CategoryBar({ activeCategory, onCategoryChange, linkMode, embedd
                       : "text-gray-700 group-hover/cat:text-coral group-hover/cat:bg-coral/[0.06] group-hover/cat:scale-110"
                   )}
                 >
-                  <IconComp
-                    size={20}
-                    weight={isActive ? "fill" : "regular"}
-                    className="transition-all duration-200"
-                  />
+                  {cat.iconUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={cat.iconUrl}
+                      alt={label}
+                      className={cn("w-5 h-5 object-contain transition-all duration-200", isActive ? "opacity-100" : "opacity-70 group-hover/cat:opacity-100")}
+                    />
+                  ) : (
+                    <IconComp
+                      size={20}
+                      weight={isActive ? "fill" : "regular"}
+                      className="transition-all duration-200"
+                    />
+                  )}
                 </div>
 
                 {/* Label */}

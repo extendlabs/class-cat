@@ -3,6 +3,7 @@
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { useQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
   Baby,
@@ -14,13 +15,27 @@ import {
   ChatCircleText,
 } from "@phosphor-icons/react";
 import type { Icon } from "@phosphor-icons/react";
+import { apiFetch, unwrap } from "@/lib/api-client";
+
+interface CollectionsStats {
+  kids: number;
+  youth: number;
+  families: number;
+  adults: number;
+}
+
+async function fetchCollectionsStats(): Promise<CollectionsStats> {
+  const res = await apiFetch("/activities/collections-stats/");
+  if (!res.ok) return { kids: 0, youth: 0, families: 0, adults: 0 };
+  return unwrap(await res.json()) as CollectionsStats;
+}
 
 interface CollectionCard {
   titleKey: string;
   subtitleKey: string;
   descriptionKey: string;
   image: string;
-  classCount: number;
+  countKey: keyof CollectionsStats;
   icon: Icon;
   accent: string;
   ageRange: string;
@@ -31,7 +46,7 @@ const collections: CollectionCard[] = [
     titleKey: "kids",
     subtitleKey: "kidsAge",
     descriptionKey: "kidsDescription",
-    classCount: 124,
+    countKey: "kids",
     icon: Baby,
     accent: "from-amber-400 to-orange-400",
     ageRange: "0-6",
@@ -42,7 +57,7 @@ const collections: CollectionCard[] = [
     titleKey: "youth",
     subtitleKey: "youthAge",
     descriptionKey: "youthDescription",
-    classCount: 98,
+    countKey: "youth",
     icon: Backpack,
     accent: "from-coral to-coral-hover",
     ageRange: "12-18",
@@ -53,7 +68,7 @@ const collections: CollectionCard[] = [
     titleKey: "families",
     subtitleKey: "familiesAge",
     descriptionKey: "familiesDescription",
-    classCount: 76,
+    countKey: "families",
     icon: Users,
     accent: "from-teal-400 to-emerald-400",
     ageRange: "all",
@@ -64,7 +79,7 @@ const collections: CollectionCard[] = [
     titleKey: "adults",
     subtitleKey: "adultsAge",
     descriptionKey: "adultsDescription",
-    classCount: 215,
+    countKey: "adults",
     icon: Briefcase,
     accent: "from-violet-400 to-indigo-400",
     ageRange: "18+",
@@ -73,7 +88,7 @@ const collections: CollectionCard[] = [
   },
 ];
 
-function CollectionCardItem({ col, className, t, tCommon }: { col: CollectionCard; className?: string; t: ReturnType<typeof useTranslations>; tCommon: ReturnType<typeof useTranslations> }) {
+function CollectionCardItem({ col, count, className, t, tCommon }: { col: CollectionCard; count: number; className?: string; t: ReturnType<typeof useTranslations>; tCommon: ReturnType<typeof useTranslations> }) {
   const Icon = col.icon;
   return (
     <Link
@@ -97,7 +112,7 @@ function CollectionCardItem({ col, className, t, tCommon }: { col: CollectionCar
         </div>
         {/* Class count */}
         <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-          {col.classCount} {tCommon("classes")}
+          {count} {tCommon("classes")}
         </div>
       </div>
 
@@ -127,6 +142,13 @@ function CollectionCardItem({ col, className, t, tCommon }: { col: CollectionCar
 export function CollectionsGrid() {
   const t = useTranslations("collections");
   const tCommon = useTranslations("common");
+
+  const { data: stats } = useQuery({
+    queryKey: ["collections-stats"],
+    queryFn: fetchCollectionsStats,
+    staleTime: 10 * 60 * 1000,
+  });
+
   return (
     <section>
       {/* Header */}
@@ -145,7 +167,13 @@ export function CollectionsGrid() {
       {/* Bento grid — 2 cols top, featured bottom */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {collections.map((col) => (
-          <CollectionCardItem key={col.titleKey} col={col} t={t} tCommon={tCommon} />
+          <CollectionCardItem
+            key={col.titleKey}
+            col={col}
+            count={stats?.[col.countKey] ?? 0}
+            t={t}
+            tCommon={tCommon}
+          />
         ))}
       </div>
 

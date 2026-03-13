@@ -26,7 +26,7 @@ import { HoursEditDialog } from "@/components/features/business-profile/hours-ed
 import { InstructorDialog } from "@/components/features/business-profile/instructor-dialog";
 import { LocationDialog } from "@/components/features/business-profile/location-dialog";
 import type { Instructor } from "@/types/activity";
-import type { BusinessPageState, BusinessPageAction, BusinessData } from "@/types/business-profile";
+import type { BusinessPageState, BusinessPageAction, BusinessData, ManagedPhoto } from "@/types/business-profile";
 
 export function EditDialog({
   open,
@@ -69,6 +69,8 @@ export function BusinessDialogs({
   onConfirmDeleteInstructor,
   onSaveLocation,
   onConfirmDeleteLocation,
+  onSavePhotos,
+  isSavingPhotos,
 }: {
   state: BusinessPageState;
   business: BusinessData;
@@ -83,6 +85,8 @@ export function BusinessDialogs({
   onConfirmDeleteInstructor: () => void;
   onSaveLocation: () => void;
   onConfirmDeleteLocation: () => void;
+  onSavePhotos?: (photos: ManagedPhoto[]) => void;
+  isSavingPhotos?: boolean;
 }) {
   return (
     <>
@@ -93,6 +97,8 @@ export function BusinessDialogs({
         dragIdx={state.dragIdx}
         dispatch={dispatch}
         photoUploadRef={photoUploadRef}
+        onSave={onSavePhotos}
+        isSaving={isSavingPhotos}
       />
 
       <HoursEditDialog

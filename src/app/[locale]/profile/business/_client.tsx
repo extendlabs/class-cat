@@ -1,9 +1,11 @@
 "use client";
 
 import { useRef, useReducer } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ShieldCheck, X } from "@phosphor-icons/react";
-import { getBusinessById } from "@/api/business";
+import { fetchMyBusinessProfile } from "@/api/business";
+import { uploadProviderImage } from "@/api/business-portal";
+import type { ManagedPhoto } from "@/types/business-profile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AVAILABLE_CATEGORIES } from "@/types/business-profile";
 import { businessProfileReducer, initialState } from "@/hooks/use-business-profile-reducer";
@@ -19,15 +21,41 @@ import {
 
 export default function BusinessProfilePage() {
   const [state, dispatch] = useReducer(businessProfileReducer, initialState);
+  const queryClient = useQueryClient();
 
   const logoInputRef = useRef<HTMLInputElement>(null);
   const photoUploadRef = useRef<HTMLInputElement>(null);
   const instructorAvatarInputRef = useRef<HTMLInputElement>(null);
 
   const { data: business, isLoading } = useQuery({
-    queryKey: ["business", "biz-1"],
-    queryFn: () => getBusinessById("biz-1"),
+    queryKey: ["my-business-profile"],
+    queryFn: fetchMyBusinessProfile,
   });
+
+  const uploadImageMutation = useMutation({
+    mutationFn: ({ providerSlug, file }: { providerSlug: string; file: File }) =>
+      uploadProviderImage(providerSlug, file),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["my-business-profile"] }),
+  });
+
+  const handleSavePhotos = (photos: ManagedPhoto[]) => {
+    const coverPhoto = photos[0];
+    const providerSlug = business?.providerSlug;
+    if (coverPhoto?.file && providerSlug) {
+      uploadImageMutation.mutate(
+        { providerSlug, file: coverPhoto.file },
+        {
+          onSuccess: () => {
+            dispatch({ type: "SET_MANAGED_PHOTOS", payload: photos.map((p) => ({ ...p, file: undefined })) });
+            dispatch({ type: "SET_PHOTO_MANAGER_OPEN", payload: false });
+          },
+        }
+      );
+    } else {
+      dispatch({ type: "SET_MANAGED_PHOTOS", payload: photos });
+      dispatch({ type: "SET_PHOTO_MANAGER_OPEN", payload: false });
+    }
+  };
 
   // Derived state
   const currentInstructors = state.instructors ?? business?.instructors ?? [];
@@ -184,6 +212,8 @@ export default function BusinessProfilePage() {
         onConfirmDeleteInstructor={confirmDeleteInstructor}
         onSaveLocation={saveLocation}
         onConfirmDeleteLocation={confirmDeleteLocation}
+        onSavePhotos={handleSavePhotos}
+        isSavingPhotos={uploadImageMutation.isPending}
       />
 
       {/* Account creation toast */}

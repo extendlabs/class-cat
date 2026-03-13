@@ -19,6 +19,8 @@ export function PhotoManagerDialog({
   dragIdx,
   dispatch,
   photoUploadRef,
+  onSave,
+  isSaving,
 }: {
   open: boolean;
   managedPhotos: ManagedPhoto[] | null;
@@ -26,6 +28,8 @@ export function PhotoManagerDialog({
   dragIdx: number | null;
   dispatch: React.Dispatch<BusinessPageAction>;
   photoUploadRef: React.RefObject<HTMLInputElement | null>;
+  onSave?: (photos: ManagedPhoto[]) => void;
+  isSaving?: boolean;
 }) {
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -35,6 +39,7 @@ export function PhotoManagerDialog({
       src: URL.createObjectURL(file),
       alt: file.name,
       caption: "",
+      file,
     }));
     dispatch({ type: "SET_MANAGED_PHOTOS", payload: [...managedPhotos, ...newPhotos] });
     e.target.value = "";
@@ -44,7 +49,7 @@ export function PhotoManagerDialog({
     const file = e.target.files?.[0];
     if (!file || !managedPhotos) return;
     const updated = [...managedPhotos];
-    updated[index] = { ...updated[index], src: URL.createObjectURL(file) };
+    updated[index] = { ...updated[index], src: URL.createObjectURL(file), file };
     dispatch({ type: "SET_MANAGED_PHOTOS", payload: updated });
   };
 
@@ -126,8 +131,18 @@ export function PhotoManagerDialog({
           <Button variant="outline" className="rounded-full" onClick={() => { dispatch({ type: "SET_MANAGED_PHOTOS", payload: null }); dispatch({ type: "SET_PHOTO_MANAGER_OPEN", payload: false }); }}>
             Cancel
           </Button>
-          <Button className="rounded-full bg-coral hover:bg-coral-hover text-white" onClick={() => dispatch({ type: "SET_PHOTO_MANAGER_OPEN", payload: false })}>
-            Save Changes
+          <Button
+            className="rounded-full bg-coral hover:bg-coral-hover text-white"
+            disabled={isSaving}
+            onClick={() => {
+              if (managedPhotos && onSave) {
+                onSave(managedPhotos);
+              } else {
+                dispatch({ type: "SET_PHOTO_MANAGER_OPEN", payload: false });
+              }
+            }}
+          >
+            {isSaving ? "Saving..." : "Save Changes"}
           </Button>
         </DialogFooter>
       </DialogContent>

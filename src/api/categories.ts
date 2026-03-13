@@ -3,6 +3,7 @@ import { apiFetch, unwrap } from "@/lib/api-client";
 export interface BackendCategory {
   slug: string;
   name: string;
+  icon: string | null;
   numberOfActivities: number | null;
 }
 

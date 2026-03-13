@@ -488,8 +488,22 @@ export async function fetchInstructorProfile(
 export async function fetchInstructorStats(
   _id: string
 ): Promise<InstructorStats> {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  return MOCK_STATS;
+  const res = await apiFetch("/activities/contractor/me/dashboard/");
+  if (!res.ok) return MOCK_STATS;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const data: any = unwrap(await res.json());
+  return {
+    totalStudents: data.totalStudents ?? 0,
+    activeClasses: data.activeClasses ?? 0,
+    avgRating: data.avgRating ?? 0,
+    totalReviews: data.totalReviews ?? 0,
+    upcomingClasses: data.upcomingClasses ?? 0,
+    freelanceClasses: data.freelanceClasses ?? 0,
+    affiliatedBusinesses: data.affiliatedBusinesses ?? 0,
+    monthlyEarnings: data.monthlyEarnings ?? 0,
+    freelanceEarnings: data.freelanceEarnings ?? 0,
+    businessEarnings: data.businessEarnings ?? 0,
+  };
 }
 
 export async function fetchInstructorSchedule(

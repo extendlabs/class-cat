@@ -18,13 +18,22 @@ export function AddressStep({
       <p className="text-sm text-gray-500 mb-6">
         Where is your business located?
       </p>
-      <FieldInput
-        label="Address"
-        value={data.address}
-        onChange={(v) => setData((d) => ({ ...d, address: v }))}
-        error={errors.address}
-        placeholder="e.g. ul. Dietla 50, 31-039 Kraków"
-      />
+      <div className="space-y-4">
+        <FieldInput
+          label="Street address"
+          value={data.address}
+          onChange={(v) => setData((d) => ({ ...d, address: v }))}
+          error={errors.address}
+          placeholder="e.g. ul. Dietla 50"
+        />
+        <FieldInput
+          label="City"
+          value={data.city}
+          onChange={(v) => setData((d) => ({ ...d, city: v }))}
+          error={errors.city}
+          placeholder="e.g. Kraków"
+        />
+      </div>
     </div>
   );
 }

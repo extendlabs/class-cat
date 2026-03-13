@@ -9,6 +9,7 @@ export interface ManagedPhoto {
   src: string;
   alt: string;
   caption?: string;
+  file?: File;
 }
 
 export interface InstructorFormData {

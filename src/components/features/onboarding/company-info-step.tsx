@@ -1,5 +1,6 @@
 import { Label } from "@/components/ui/label";
 import { FieldInput } from "./field-input";
+import { PhoneInput } from "@/components/ui/phone-input";
 import type { BusinessOnboardingData } from "@/types/business-portal";
 
 export function CompanyInfoStep({
@@ -40,13 +41,14 @@ export function CompanyInfoStep({
             error={errors.ownerLastName}
           />
         </div>
-        <FieldInput
-          label="Phone Number"
-          value={data.phone}
-          onChange={(v) => setData((d) => ({ ...d, phone: v }))}
-          error={errors.phone}
-          type="tel"
-        />
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-gray-700">Phone Number</Label>
+          <PhoneInput
+            value={data.phone}
+            onChange={(v) => setData((d) => ({ ...d, phone: v }))}
+            error={errors.phone}
+          />
+        </div>
         <div className="flex items-center gap-3 pt-2">
           <input
             type="checkbox"

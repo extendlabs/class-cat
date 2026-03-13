@@ -4,12 +4,13 @@ import { useReducer, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "@phosphor-icons/react";
 import {
-  fetchBusinessActivities,
-  createBusinessActivity,
-  updateBusinessActivity,
-  deleteBusinessActivity,
+  fetchProviderActivities,
+  createProviderActivity,
+  updateProviderActivity,
+  deleteProviderActivity,
   fetchBusinessInstructors,
 } from "@/api/business-portal";
+import { fetchMyBusinessProfile } from "@/api/business";
 import { useAuth } from "@/hooks/use-auth";
 import { ActivityFormDialog } from "@/components/features/activity-form-dialog";
 import {
@@ -36,19 +37,28 @@ import type { BusinessActivity } from "@/types/business-portal";
 
 export default function PageContent() {
   const { user } = useAuth();
-  const businessId = user?.businessId ?? "biz-1";
+  const businessId = user?.businessId ?? "";
   const queryClient = useQueryClient();
   const [state, dispatch] = useReducer(activitiesListReducer, activitiesListInitialState);
   const [sessionsTarget, setSessionsTarget] = useState<BusinessActivity | null>(null);
 
+  const { data: businessProfile } = useQuery({
+    queryKey: ["my-business-profile"],
+    queryFn: fetchMyBusinessProfile,
+    enabled: !!businessId,
+  });
+  const providerSlug = businessProfile?.providerSlug ?? null;
+
   const { data: activities, isLoading } = useQuery({
-    queryKey: ["business-activities"],
-    queryFn: fetchBusinessActivities,
+    queryKey: ["provider-activities", providerSlug],
+    queryFn: () => fetchProviderActivities(providerSlug!),
+    enabled: !!providerSlug,
   });
 
   const { data: businessInstructors } = useQuery({
     queryKey: ["business-instructors", businessId],
     queryFn: () => fetchBusinessInstructors(businessId),
+    enabled: !!businessId,
   });
 
   const activeInstructors = (businessInstructors ?? [])
@@ -56,19 +66,20 @@ export default function PageContent() {
     .map((i) => ({ contractorId: i.contractorId, name: i.name }));
 
   const createMutation = useMutation({
-    mutationFn: createBusinessActivity,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["business-activities"] }),
+    mutationFn: ({ data, imageFile }: { data: Partial<BusinessActivity>; imageFile?: File }) =>
+      createProviderActivity(providerSlug!, data, imageFile),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["provider-activities", providerSlug] }),
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<BusinessActivity> }) =>
-      updateBusinessActivity(id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["business-activities"] }),
+    mutationFn: ({ id, data, imageFile }: { id: string; data: Partial<BusinessActivity>; imageFile?: File }) =>
+      updateProviderActivity(providerSlug!, id, data, imageFile),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["provider-activities", providerSlug] }),
   });
 
   const deleteMutation = useMutation({
-    mutationFn: deleteBusinessActivity,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["business-activities"] }),
+    mutationFn: (id: string) => deleteProviderActivity(providerSlug!, id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["provider-activities", providerSlug] }),
   });
 
   const filtered = (activities ?? []).filter((a) => {
@@ -82,16 +93,16 @@ export default function PageContent() {
     return true;
   });
 
-  const handleFormSubmit = (data: Partial<BusinessActivity>) => {
+  const handleFormSubmit = (data: Partial<BusinessActivity>, imageFile?: File) => {
     if (state.formMode === "create") {
-      createMutation.mutate(data);
+      createMutation.mutate({ data, imageFile });
     } else if (state.editingActivity) {
-      updateMutation.mutate({ id: state.editingActivity.id, data });
+      updateMutation.mutate({ id: state.editingActivity.id, data, imageFile });
     }
   };
 
   const handleDeleteConfirm = () => {
-    if (state.deleteTarget) {
+    if (state.deleteTarget && providerSlug) {
       deleteMutation.mutate(state.deleteTarget.id);
       dispatch({ type: "SET_DELETE_TARGET", payload: null });
     }
@@ -162,7 +173,8 @@ export default function PageContent() {
 
       <button
         onClick={() => dispatch({ type: "OPEN_CREATE_FORM" })}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-coral hover:bg-coral-hover text-white rounded-full shadow-lg shadow-coral/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95 z-40"
+        disabled={!providerSlug}
+        className="fixed bottom-6 right-6 w-14 h-14 bg-coral hover:bg-coral-hover disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-full shadow-lg shadow-coral/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95 z-40"
       >
         <Plus size={24} weight="bold" />
       </button>

@@ -8,26 +8,217 @@ import type {
   WeeklyBookingsData,
 } from "@/types/business-portal";
 import type { Business } from "@/types/business";
+import { apiFetch, unwrap } from "@/lib/api-client";
 
 const delay = (ms: number = 300) => new Promise((r) => setTimeout(r, ms));
 
 // ── Stats ──
 
-const MOCK_STATS: BusinessStats = {
-  totalStudents: 2047,
-  totalBookings: 8432,
-  avgRating: 4.8,
-  monthlyRevenue: 12580,
-  activitiesCount: 6,
-  upcomingClasses: 14,
-};
-
-export async function fetchBusinessStats(): Promise<BusinessStats> {
-  await delay(250);
-  return { ...MOCK_STATS };
+export interface ProviderDashboard {
+  slug: string;
+  name: string;
+  overview: {
+    totalActivities: number;
+    activeActivities: number;
+    promotedActivities: number;
+    totalLocations: number;
+    isVerified: boolean;
+    meanReviewScore: number | null;
+    totalEnrollments: number;
+  };
+  activities: {
+    slug: string;
+    name: string;
+    isOpen: boolean;
+    isPromoted: boolean;
+    enrolledUsers: number;
+    meanReviewScore: number | null;
+    likedByCount: number;
+    prices: { name: string; amount: number }[];
+    primaryImage: { url: string } | null;
+  }[];
+  reviews: {
+    latest: { slug: string; rating: number; comment: string; activityName: string; authorName: string; createdAt: string }[];
+    ratingDistribution: { score: number; count: number; percent: number }[];
+  };
+  members: { slug: string; displayName: string; role: string; title: string; email: string }[];
+  availability: { day: number; startTime: string; endTime: string }[];
+  enrollmentTrends: { date: string; count: number }[];
 }
 
-// ── Activities ──
+export async function fetchProviderDashboard(providerSlug: string): Promise<ProviderDashboard | null> {
+  const res = await apiFetch("/activities/provider/dashboard/");
+  if (!res.ok) return null;
+  return unwrap(await res.json()) as ProviderDashboard;
+}
+
+export async function fetchBusinessStats(providerSlug?: string): Promise<BusinessStats> {
+  if (!providerSlug) {
+    return { totalStudents: 0, totalBookings: 0, avgRating: 0, monthlyRevenue: 0, activitiesCount: 0, upcomingClasses: 0 };
+  }
+  const dashboard = await fetchProviderDashboard(providerSlug);
+  if (!dashboard) {
+    return { totalStudents: 0, totalBookings: 0, avgRating: 0, monthlyRevenue: 0, activitiesCount: 0, upcomingClasses: 0 };
+  }
+  return {
+    totalStudents: dashboard.overview.totalEnrollments,
+    totalBookings: dashboard.overview.totalEnrollments,
+    avgRating: dashboard.overview.meanReviewScore
+      ? round((dashboard.overview.meanReviewScore / 10) * 5, 1)
+      : 0,
+    monthlyRevenue: 0,
+    activitiesCount: dashboard.overview.totalActivities,
+    upcomingClasses: dashboard.overview.activeActivities,
+  };
+}
+
+function round(n: number, decimals: number) {
+  return Math.round(n * 10 ** decimals) / 10 ** decimals;
+}
+
+// ── Activities (real API) ──
+
+export async function fetchProviderActivities(providerSlug: string): Promise<BusinessActivity[]> {
+  const res = await apiFetch(`/activities/provider/${providerSlug}/activity/?limit=100`);
+  if (!res.ok) return [];
+  const json = unwrap(await res.json());
+  const items: Record<string, unknown>[] = Array.isArray(json) ? json : (json?.results ?? []);
+  return items.map((a) => ({
+    id: String(a.slug),
+    title: String(a.name ?? ""),
+    description: String(a.description ?? ""),
+    category: (a.categories as { slug: string }[])?.[0]?.slug ?? "",
+    provider: { name: (a.provider as { name: string })?.name ?? "" },
+    image: (a.primaryImage as { url: string } | null)?.url ?? "",
+    rating: Number((a.reviewScore as number | null) ?? 0),
+    reviewCount: 0,
+    price: "$",
+    priceAmount: 0,
+    distance: 0,
+    location: "",
+    timeSlots: [],
+    status: "active" as BusinessActivity["status"],
+    enrolledCount: 0,
+    maxCapacity: Number(a.capacity ?? 0),
+    nextSessionDate: "",
+    createdAt: String(a.addedAt ?? ""),
+    duration: a.durationMinutes ? `${a.durationMinutes} min` : "",
+    ageRange: a.ageMin != null ? `${a.ageMin}+` : "All ages",
+    skillLevel: String(a.skillLevel ?? "All levels"),
+    maxStudents: Number(a.capacity ?? 0),
+  }));
+}
+
+export async function uploadProviderImage(providerSlug: string, imageFile: File): Promise<string> {
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+  const token = typeof window !== "undefined"
+    ? (() => { try { return JSON.parse(localStorage.getItem("classcat-auth") ?? "{}").token ?? null; } catch { return null; } })()
+    : null;
+  const formData = new FormData();
+  formData.append("image", imageFile);
+  const res = await fetch(`${API_BASE}/activities/provider/${providerSlug}/upload-image/`, {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+  if (!res.ok) throw new Error("Image upload failed");
+  const data = await res.json();
+  return data.url as string;
+}
+
+export async function createProviderActivity(
+  providerSlug: string,
+  data: Partial<BusinessActivity>,
+  imageFile?: File
+): Promise<BusinessActivity> {
+  if (!providerSlug) throw new Error("No provider slug");
+
+  const payload: Record<string, unknown> = {
+    name: data.title,
+    description: data.description ?? "",
+    ...(data.category ? { categories: [data.category] } : {}),
+    ...(data.maxStudents != null ? { capacity: data.maxStudents } : {}),
+    ...(data.skillLevel ? { skill_level: data.skillLevel } : {}),
+    ...(data.materialsIncluded ? { materials_included: data.materialsIncluded } : {}),
+    what_you_learn: data.whatYouLearn ?? [],
+    curriculum: data.curriculum ?? [],
+  };
+  const res = await apiFetch(`/activities/provider/${providerSlug}/activity/`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(JSON.stringify(unwrap(err) ?? err));
+  }
+  const created = unwrap(await res.json());
+  const activitySlug = String(created.slug);
+
+  if (imageFile) {
+    await uploadProviderActivityImage(providerSlug, activitySlug, imageFile);
+  }
+
+  return { ...data, id: activitySlug } as BusinessActivity;
+}
+
+export async function updateProviderActivity(
+  providerSlug: string,
+  activitySlug: string,
+  data: Partial<BusinessActivity>,
+  imageFile?: File
+): Promise<void> {
+  const payload: Record<string, unknown> = {};
+  if (data.title !== undefined) payload.name = data.title;
+  if (data.description !== undefined) payload.description = data.description;
+  if (data.category !== undefined) payload.categories = [data.category];
+  if (data.maxStudents !== undefined) payload.capacity = data.maxStudents;
+  if (data.skillLevel !== undefined) payload.skill_level = data.skillLevel;
+  if (data.materialsIncluded !== undefined) payload.materials_included = data.materialsIncluded;
+  if (data.whatYouLearn !== undefined) payload.what_you_learn = data.whatYouLearn;
+  if (data.curriculum !== undefined) payload.curriculum = data.curriculum;
+
+  const res = await apiFetch(`/activities/provider/${providerSlug}/activity/${activitySlug}/`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(JSON.stringify(unwrap(err) ?? err));
+  }
+
+  if (imageFile) {
+    await uploadProviderActivityImage(providerSlug, activitySlug, imageFile);
+  }
+}
+
+export async function deleteProviderActivity(
+  providerSlug: string,
+  activitySlug: string
+): Promise<void> {
+  await apiFetch(`/activities/provider/${providerSlug}/activity/${activitySlug}/`, {
+    method: "DELETE",
+  });
+}
+
+async function uploadProviderActivityImage(
+  providerSlug: string,
+  activitySlug: string,
+  imageFile: File
+): Promise<void> {
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+  const token = typeof window !== "undefined"
+    ? (() => { try { return JSON.parse(localStorage.getItem("classcat-auth") ?? "{}").token ?? null; } catch { return null; } })()
+    : null;
+  const formData = new FormData();
+  formData.append("image", imageFile);
+  await fetch(`${API_BASE}/activities/provider/${providerSlug}/activity/${activitySlug}/image/`, {
+    method: "POST",
+    body: formData,
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+}
+
+// ── Activities (mock fallback) ──
 
 const MOCK_BUSINESS_ACTIVITIES: BusinessActivity[] = [
   {
@@ -346,18 +537,62 @@ export async function fetchBusinessSettings(): Promise<BusinessSettings> {
 
 // ── Onboarding ──
 
+const DAY_NAME_TO_INT: Record<string, number> = {
+  monday: 0, tuesday: 1, wednesday: 2, thursday: 3,
+  friday: 4, saturday: 5, sunday: 6,
+};
+
 export async function createBusinessAccount(
   data: BusinessOnboardingData
 ): Promise<Business> {
-  await delay(800);
+  const payload = {
+    business_name: data.companyName,
+    first_name: data.ownerFirstName,
+    last_name: data.ownerLastName,
+    phone_number: data.phone,
+    category_slugs: [data.category],
+    address: {
+      address_line: data.address,
+      city: data.city,
+      coordinates: data.coordinates
+        ? { lat: data.coordinates.lat, lon: data.coordinates.lon }
+        : undefined,
+    },
+    opening_hours: data.hours
+      .filter((h) => !h.closed)
+      .map((h) => ({
+        day: DAY_NAME_TO_INT[h.day.toLowerCase()] ?? 0,
+        start_time: h.open,
+        end_time: h.close,
+      })),
+    members: data.employees.map((e) => ({
+      name: e.name,
+      title: e.specialty,
+      role: "EMPLOYEE",
+    })),
+  };
+
+  const res = await apiFetch("/users/business-registration/", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(JSON.stringify(unwrap(err) ?? err));
+  }
+
+  const json = await res.json();
+  const created = unwrap(json);
+
   return {
-    id: `biz-${Date.now()}`,
+    id: String(created.id ?? `biz-${Date.now()}`),
     name: data.companyName,
     tagline: "",
     description: "",
     category: data.category,
-    coverImage: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=1200&h=500&fit=crop",
-    logo: "https://images.unsplash.com/photo-1599447421416-3414500d18a5?w=200&h=200&fit=crop&crop=center",
+    coverImage: "",
+    logo: "",
     rating: 0,
     reviewCount: 0,
     verified: false,
@@ -369,18 +604,14 @@ export async function createBusinessAccount(
       close: h.close,
       closed: h.closed,
     })),
-    contact: {
-      phone: data.phone,
-      email: "",
-      website: "",
-    },
+    contact: { phone: data.phone, email: "", website: "" },
     social: {},
     activities: [],
     instructors: data.employees.map((e, i) => ({
       id: `new-i-${i}`,
       name: e.name,
       title: e.specialty,
-      avatar: e.avatarUrl || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face",
+      avatar: e.avatarUrl || "",
       experience: "",
       bio: "",
       verified: false,

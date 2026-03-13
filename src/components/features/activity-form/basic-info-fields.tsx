@@ -16,15 +16,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CATEGORIES } from "@/lib/activity-form-schema";
 import type { TabFieldsProps } from "@/lib/activity-form-schema";
 import { ImageUploadZone } from "./image-upload-zone";
+import { useQuery } from "@tanstack/react-query";
+import { fetchCategories } from "@/api/categories";
 
 interface BasicInfoFieldsProps extends TabFieldsProps {
   instructors?: { contractorId: string; name: string }[];
 }
 
 export function ActivityBasicInfoFields({ form, instructors, onImageFile }: BasicInfoFieldsProps) {
+  const { data: categories = [] } = useQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+    staleTime: 5 * 60 * 1000,
+  });
+
   return (
     <div className="space-y-4">
       <FormField
@@ -74,9 +81,9 @@ export function ActivityBasicInfoFields({ form, instructors, onImageFile }: Basi
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {CATEGORIES.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      <span className="capitalize">{cat}</span>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.slug} value={cat.slug}>
+                      {cat.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -1,4 +1,4 @@
-import { ALL_ACTIVITIES, PROMOTED_ACTIVITIES, type BrowseActivity } from "@/api/mock-data";
+import { ALL_ACTIVITIES, PROMOTED_ACTIVITIES, type BrowseActivity, type TrendingClass } from "@/api/mock-data";
 import { apiFetch, unwrap } from "@/lib/api-client";
 
 export interface BrowseFilters {
@@ -233,5 +233,47 @@ export async function fetchPopularActivities(
     activities: all.slice(start, start + limit),
     nextPage: start + limit < all.length ? page + 1 : null,
     total: all.length,
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapActivityToTrendingClass(a: any): TrendingClass {
+  const ageMin = a.ageMin ?? null;
+  const ageMax = a.ageMax ?? null;
+  let ageRange = "All ages";
+  if (ageMin !== null && ageMax !== null) ageRange = `${ageMin}–${ageMax}`;
+  else if (ageMin !== null) ageRange = `${ageMin}+`;
+  else if (ageMax !== null) ageRange = `0–${ageMax}`;
+
+  return {
+    id: a.slug ?? "",
+    title: a.name ?? "",
+    image: a.primaryImage?.file ?? "",
+    rating: a.reviewScore ?? 0,
+    description: a.description ?? "",
+    ageRange,
+    price: 0,
+    currency: "zł",
+  };
+}
+
+export interface CategorizedActivities {
+  liked: TrendingClass[];
+  newest: TrendingClass[];
+  promoted: TrendingClass[];
+  growing: TrendingClass[];
+}
+
+export async function fetchCategorizedActivities(limit = 8): Promise<CategorizedActivities> {
+  const res = await apiFetch(`/activities/activities-categorized/?limit=${limit}`);
+  if (!res.ok) {
+    return { liked: [], newest: [], promoted: [], growing: [] };
+  }
+  const raw = unwrap(await res.json());
+  return {
+    liked: (raw.liked ?? []).map(mapActivityToTrendingClass),
+    newest: (raw.newest ?? []).map(mapActivityToTrendingClass),
+    promoted: (raw.promoted ?? []).map(mapActivityToTrendingClass),
+    growing: (raw.growing ?? []).map(mapActivityToTrendingClass),
   };
 }

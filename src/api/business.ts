@@ -1,5 +1,6 @@
 import type { Business } from "@/types/business";
 import { MOCK_COURTS } from "@/api/mock-courts";
+import { apiFetch, unwrap } from "@/lib/api-client";
 
 const MOCK_BUSINESSES: Record<string, Business> = {
   "biz-1": {
@@ -477,4 +478,61 @@ export async function getBusinessById(
 ): Promise<Business | null> {
   await new Promise((resolve) => setTimeout(resolve, 600));
   return MOCK_BUSINESSES[id] ?? null;
+}
+
+export async function fetchMyBusinessProfile(): Promise<Business | null> {
+  const res = await apiFetch("/users/business-profile/me/");
+  if (!res.ok) return null;
+  const raw = unwrap(await res.json());
+
+  return {
+    id: raw.slug ?? "",
+    providerSlug: raw.providerSlug ?? null,
+    name: raw.name ?? "",
+    tagline: "",
+    description: "",
+    category: raw.categories?.[0]?.name ?? "",
+    coverImage: raw.coverImageUrl ?? "",
+    logo: raw.coverImageUrl ?? "",
+    rating: 0,
+    reviewCount: 0,
+    verified: raw.isVerified ?? false,
+    address: raw.locations?.[0]
+      ? `${raw.locations[0].addressLine}, ${raw.locations[0].city}`
+      : "",
+    coordinates: { lat: 0, lng: 0 },
+    locations: (raw.locations ?? []).map((l: Record<string, string>) => ({
+      id: l.id,
+      name: l.name,
+      address: `${l.addressLine}, ${l.city}`,
+      coordinates: { lat: 0, lng: 0 },
+    })),
+    hours: (raw.openingHours ?? []).map((h: { day: number; startTime: string; endTime: string }) => ({
+      day: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"][h.day] ?? String(h.day),
+      open: h.startTime,
+      close: h.endTime,
+    })),
+    contact: {
+      phone: raw.phoneNumber ?? "",
+      email: raw.email ?? "",
+      website: raw.websiteUrl ?? "",
+    },
+    social: {},
+    activities: [],
+    instructors: (raw.members ?? []).map((m: Record<string, string>, i: number) => ({
+      id: `member-${i}`,
+      name: m.name,
+      title: m.title,
+      avatar: "",
+      experience: "",
+      bio: "",
+      verified: false,
+      specialty: m.title,
+      rating: 0,
+    })),
+    reviews: [],
+    ratingDistribution: [],
+    gallery: [],
+    courts: MOCK_COURTS.filter((c) => c.businessId === raw.slug),
+  };
 }

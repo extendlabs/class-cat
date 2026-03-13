@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useUrlSearchParams } from "@/hooks/use-url-search-params";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Navbar } from "@/components/layout/navbar";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { CategoryBar } from "@/components/features/category-bar";
@@ -20,7 +20,7 @@ import {
 } from "@/components/features/browse";
 import { isValidCategory } from "@/lib/categories";
 import { trendingClasses } from "@/api/mock-data";
-import { fetchActivities, fetchPopularActivities } from "@/api/activities";
+import { fetchActivities, fetchPopularActivities, fetchCategorizedActivities } from "@/api/activities";
 import type { BrowseFilters } from "@/api/activities";
 interface BrowsePageProps {
   category: string | null;
@@ -140,6 +140,18 @@ export function BrowsePage({ category: initialCategory }: BrowsePageProps) {
   }, [updateParam]);
 
   // ── Queries ──
+  const { data: categorized } = useQuery({
+    queryKey: ["categorized-activities"],
+    queryFn: () => fetchCategorizedActivities(8),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const trendingItems = (categorized?.growing.length ?? 0) > 0
+    ? categorized!.growing
+    : (categorized?.newest.length ?? 0) > 0
+    ? categorized!.newest
+    : trendingClasses;
+
   const {
     data: popularData,
     fetchNextPage: fetchNextPopular,
@@ -272,7 +284,7 @@ export function BrowsePage({ category: initialCategory }: BrowsePageProps) {
 
         {/* 4. Trending Classes Carousel */}
         <AnimateIn delay={100}>
-          <TrendingCarousel classes={trendingClasses} />
+          <TrendingCarousel classes={trendingItems} />
         </AnimateIn>
 
         {/* 5. Collections Grid */}

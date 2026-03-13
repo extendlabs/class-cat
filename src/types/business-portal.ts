@@ -15,14 +15,15 @@ export type BusinessCategory =
 export type BusinessActivityStatus = "active" | "draft" | "paused";
 
 export interface BusinessOnboardingData {
-  category: BusinessCategory;
+  category: string;
   companyName: string;
   ownerFirstName: string;
   ownerLastName: string;
   phone: string;
   acceptedPrivacy: boolean;
   address: string;
-  coordinates: { lat: number; lng: number };
+  city: string;
+  coordinates: { lat: number; lon: number };
   hours: {
     day: string;
     open: string;
