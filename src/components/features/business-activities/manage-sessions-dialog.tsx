@@ -10,38 +10,38 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { fetchActivitySessions, cancelCalendarEntry } from "@/api/instructor";
+import {
+  fetchProviderActivitySessions,
+  cancelProviderActivitySession,
+} from "@/api/business-portal";
 import type { BusinessActivity } from "@/types/business-portal";
-import type { CalendarEntry } from "@/types/affiliation";
 
 export function ManageSessionsDialog({
   activity,
+  providerSlug,
   onClose,
 }: {
   activity: BusinessActivity | null;
+  providerSlug: string;
   onClose: () => void;
 }) {
   const queryClient = useQueryClient();
-  const [cancellingId, setCancellingId] = useState<string | null>(null);
-  const [cancelNote, setCancelNote] = useState("");
+  const [cancellingId, setCancellingId] = useState<number | null>(null);
 
   const { data: sessions, isLoading } = useQuery({
-    queryKey: ["activity-sessions", activity?.id],
-    queryFn: () => fetchActivitySessions(activity!.id),
-    enabled: !!activity,
+    queryKey: ["activity-sessions", providerSlug, activity?.id],
+    queryFn: () => fetchProviderActivitySessions(providerSlug, activity!.id),
+    enabled: !!activity && !!providerSlug,
   });
 
   const cancelMutation = useMutation({
-    mutationFn: ({ entry, note }: { entry: CalendarEntry; note?: string }) =>
-      cancelCalendarEntry(entry, note),
+    mutationFn: (sessionId: number) =>
+      cancelProviderActivitySession(providerSlug, activity!.id, sessionId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["activity-sessions", activity?.id] });
-      queryClient.invalidateQueries({ queryKey: ["instructor-calendar"] });
+      queryClient.invalidateQueries({ queryKey: ["activity-sessions", providerSlug, activity?.id] });
       setCancellingId(null);
-      setCancelNote("");
     },
   });
 
@@ -67,12 +67,12 @@ export function ManageSessionsDialog({
             </div>
           ) : !sessions?.length ? (
             <div className="text-center py-8 text-sm text-gray-400">
-              No upcoming sessions found.
+              No sessions found. Add a date in the Schedule tab when editing the activity.
             </div>
           ) : (
             <div className="space-y-2 py-2">
               {sessions.map((session) => {
-                const isCancelled = session.status === "cancelled";
+                const isCancelled = session.is_cancelled;
                 const isCancellingThis = cancellingId === session.id;
 
                 return (
@@ -93,43 +93,30 @@ export function ManageSessionsDialog({
                             isCancelled && "line-through"
                           )}
                         >
-                          {new Date(session.date + "T00:00:00").toLocaleDateString("en-US", {
+                          {new Date(session.date + "T00:00:00").toLocaleDateString("pl-PL", {
                             weekday: "short",
                             month: "short",
                             day: "numeric",
                           })}
                         </p>
-                        <p
-                          className={cn(
-                            "text-xs text-gray-500 mt-0.5",
-                            isCancelled && "line-through"
-                          )}
-                        >
-                          {session.startTime} – {session.endTime}
-                        </p>
+                        {(session.start_time || session.end_time) && (
+                          <p className={cn("text-xs text-gray-500 mt-0.5", isCancelled && "line-through")}>
+                            {session.start_time ?? "??"} – {session.end_time ?? "??"}
+                          </p>
+                        )}
                       </div>
 
                       {isCancelled ? (
-                        <div className="text-right shrink-0">
-                          <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-                            <Warning size={10} />
-                            Cancelled
-                          </span>
-                          {session.cancellationNote && (
-                            <p className="text-[11px] text-gray-400 mt-1 max-w-[180px] truncate">
-                              {session.cancellationNote}
-                            </p>
-                          )}
-                        </div>
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full shrink-0">
+                          <Warning size={10} />
+                          Cancelled
+                        </span>
                       ) : isCancellingThis ? null : (
                         <Button
                           variant="outline"
                           size="sm"
                           className="rounded-full text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 shrink-0"
-                          onClick={() => {
-                            setCancellingId(session.id);
-                            setCancelNote("");
-                          }}
+                          onClick={() => setCancellingId(session.id)}
                         >
                           Cancel
                         </Button>
@@ -138,22 +125,12 @@ export function ManageSessionsDialog({
 
                     {isCancellingThis && (
                       <div className="mt-3 pt-3 border-t border-gray-100 space-y-2">
-                        <Textarea
-                          placeholder="Cancellation note (optional)..."
-                          value={cancelNote}
-                          onChange={(e) => setCancelNote(e.target.value)}
-                          className="rounded-xl resize-none text-sm"
-                          rows={2}
-                        />
                         <div className="flex items-center justify-end gap-2">
                           <Button
                             variant="ghost"
                             size="sm"
                             className="rounded-full text-xs"
-                            onClick={() => {
-                              setCancellingId(null);
-                              setCancelNote("");
-                            }}
+                            onClick={() => setCancellingId(null)}
                           >
                             Back
                           </Button>
@@ -161,12 +138,7 @@ export function ManageSessionsDialog({
                             size="sm"
                             className="rounded-full bg-red-600 hover:bg-red-700 text-white text-xs"
                             disabled={cancelMutation.isPending}
-                            onClick={() => {
-                              cancelMutation.mutate({
-                                entry: session,
-                                note: cancelNote.trim() || undefined,
-                              });
-                            }}
+                            onClick={() => cancelMutation.mutate(session.id)}
                           >
                             {cancelMutation.isPending ? "Cancelling..." : "Confirm Cancel"}
                           </Button>

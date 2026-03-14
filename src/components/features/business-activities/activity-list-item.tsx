@@ -96,14 +96,30 @@ export function ActivityListItem({
         </div>
       </TableCell>
       <TableCell className="py-4">
-        <span className="text-sm text-gray-500">
-          {activity.nextSessionDate
-            ? new Date(activity.nextSessionDate).toLocaleDateString(
-                "en-US",
-                { month: "short", day: "numeric" }
-              )
-            : "\u2014"}
-        </span>
+        {(() => {
+          const today = new Date().toISOString().slice(0, 10);
+          const upcoming = (activity.sessions ?? [])
+            .filter((s) => !s.isCancelled && s.date >= today)
+            .slice(0, 3);
+          if (upcoming.length === 0) {
+            return <span className="text-sm text-gray-300">&mdash;</span>;
+          }
+          return (
+            <div className="flex flex-col gap-1">
+              {upcoming.map((s) => (
+                <span
+                  key={s.id}
+                  className="inline-flex items-center text-xs font-medium text-gray-600 bg-gray-100/80 px-2 py-0.5 rounded-full w-fit"
+                >
+                  {new Date(s.date).toLocaleDateString("pl-PL", { month: "short", day: "numeric" })}
+                  {s.startTime && (
+                    <span className="ml-1 text-gray-400">{s.startTime}</span>
+                  )}
+                </span>
+              ))}
+            </div>
+          );
+        })()}
       </TableCell>
       <TableCell className="py-4 pr-4">
         <DropdownMenu>

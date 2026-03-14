@@ -1,6 +1,6 @@
 import type { InstructorDetail, InstructorStats, InstructorScheduleSlot, InstructorSettings } from "@/types/instructor";
 import type { InstructorAffiliation, CalendarEntry, SlotProposal } from "@/types/affiliation";
-import { MOCK_AFFILIATIONS, MOCK_CALENDAR_ENTRIES, MOCK_SLOT_PROPOSALS } from "./mock-affiliations";
+import { MOCK_CALENDAR_ENTRIES, MOCK_SLOT_PROPOSALS } from "./mock-affiliations";
 import { getBusinessActivitiesByInstructor } from "./business-portal";
 import { apiFetch, unwrap } from "@/lib/api-client";
 import type { Activity } from "@/types/activity";
@@ -553,29 +553,54 @@ export async function fetchInstructorSettings(
 
 // ── Affiliations ──
 
-let affiliations = [...MOCK_AFFILIATIONS];
-
 export async function fetchInstructorAffiliations(
-  instructorId: string
+  _instructorId: string
 ): Promise<InstructorAffiliation[]> {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  return affiliations.filter((a) => a.contractorId === instructorId);
+  const res = await apiFetch("/activities/contractor/me/affiliations/");
+  if (!res.ok) return [];
+  const json = await res.json();
+  // Renderer wraps in { success, data } — handle both
+  const items: Array<Record<string, unknown>> = Array.isArray(json.data) ? json.data : json;
+  return items.map((item) => ({
+    contractorId: _instructorId,
+    businessId: item.businessId as string,
+    businessName: item.businessName as string,
+    role: item.role as "contractor" | "employee",
+    status: item.status as "pending" | "active" | "ended",
+    startDate: (item.startDate as string | null) ?? new Date().toISOString().slice(0, 10),
+    endDate: (item.endDate as string | null) ?? undefined,
+    // Keep slug for respond endpoint
+    slug: item.slug as string,
+  }));
 }
 
 export async function respondToAffiliation(
-  instructorId: string,
+  _instructorId: string,
   businessId: string,
   accept: boolean
-): Promise<InstructorAffiliation> {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  affiliations = affiliations.map((a) =>
-    a.contractorId === instructorId && a.businessId === businessId
-      ? { ...a, status: accept ? "active" : "ended" }
-      : a
+): Promise<InstructorAffiliation | null> {
+  // We need the membership slug — fetch current affiliations first
+  const current = await fetchInstructorAffiliations(_instructorId);
+  const aff = current.find((a) => a.businessId === businessId) as (InstructorAffiliation & { slug?: string }) | undefined;
+  if (!aff?.slug) return null;
+
+  const res = await apiFetch(
+    `/activities/contractor/me/affiliations/${aff.slug}/respond/`,
+    { method: "POST", body: JSON.stringify({ accept }) }
   );
-  return affiliations.find(
-    (a) => a.contractorId === instructorId && a.businessId === businessId
-  )!;
+  if (res.status === 204) return null; // declined — membership deleted
+  if (!res.ok) throw new Error("Failed to respond to affiliation");
+  const json = await res.json();
+  const item: Record<string, unknown> = json.data ?? json;
+  return {
+    contractorId: _instructorId,
+    businessId: item.businessId as string,
+    businessName: item.businessName as string,
+    role: item.role as "contractor" | "employee",
+    status: item.status as "pending" | "active" | "ended",
+    startDate: (item.startDate as string | null) ?? new Date().toISOString().slice(0, 10),
+    endDate: (item.endDate as string | null) ?? undefined,
+  };
 }
 
 // ── Calendar ──

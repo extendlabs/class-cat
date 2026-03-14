@@ -100,12 +100,20 @@ export async function fetchProviderActivities(providerSlug: string): Promise<Bus
     status: "active" as BusinessActivity["status"],
     enrolledCount: 0,
     maxCapacity: Number(a.capacity ?? 0),
-    nextSessionDate: "",
+    nextSessionDate: String(a.nextSessionDate ?? ""),
     createdAt: String(a.addedAt ?? ""),
     duration: a.durationMinutes ? `${a.durationMinutes} min` : "",
     ageRange: a.ageMin != null ? `${a.ageMin}+` : "All ages",
     skillLevel: String(a.skillLevel ?? "All levels"),
     maxStudents: Number(a.capacity ?? 0),
+    sessions: ((a.sessions as Record<string, unknown>[] | null) ?? []).map((s) => ({
+      id: Number(s.id),
+      date: String(s.date),
+      isCancelled: Boolean(s.isCancelled),
+      capacityOverride: (s.capacityOverride as number | null) ?? null,
+      startTime: (s.startTime as string | null) ?? null,
+      endTime: (s.endTime as string | null) ?? null,
+    })),
   }));
 }
 
@@ -124,6 +132,21 @@ export async function uploadProviderImage(providerSlug: string, imageFile: File)
   if (!res.ok) throw new Error("Image upload failed");
   const data = await res.json();
   return data.url as string;
+}
+
+async function createActivitySessions(
+  providerSlug: string,
+  activitySlug: string,
+  dates: string[]
+): Promise<void> {
+  for (const date of dates) {
+    await apiFetch(
+      `/activities/provider/${providerSlug}/activity/${activitySlug}/sessions/`,
+      { method: "POST", body: JSON.stringify({ date }) }
+    ).catch(() => {
+      // ignore 400/409 if session for this date already exists
+    });
+  }
 }
 
 export async function createProviderActivity(
@@ -158,6 +181,11 @@ export async function createProviderActivity(
     await uploadProviderActivityImage(providerSlug, activitySlug, imageFile);
   }
 
+  const sessionDates = buildSessionDates(data);
+  if (sessionDates.length) {
+    await createActivitySessions(providerSlug, activitySlug, sessionDates);
+  }
+
   return { ...data, id: activitySlug } as BusinessActivity;
 }
 
@@ -189,6 +217,61 @@ export async function updateProviderActivity(
   if (imageFile) {
     await uploadProviderActivityImage(providerSlug, activitySlug, imageFile);
   }
+
+  const sessionDates = buildSessionDates(data);
+  if (sessionDates.length) {
+    await createActivitySessions(providerSlug, activitySlug, sessionDates);
+  }
+}
+
+/**
+ * Derive session dates from activity data.
+ * nextDate → one session on that date.
+ * availableTimes are per-day times, not separate dates — one session per nextDate is sufficient.
+ */
+function buildSessionDates(data: Partial<BusinessActivity>): string[] {
+  if (data.nextDate) return [data.nextDate];
+  return [];
+}
+
+// ── Activity Sessions (real API) ──
+
+export interface ProviderActivitySession {
+  id: number;
+  date: string;
+  is_cancelled: boolean;
+  start_time: string | null;
+  end_time: string | null;
+}
+
+export async function fetchProviderActivitySessions(
+  providerSlug: string,
+  activitySlug: string
+): Promise<ProviderActivitySession[]> {
+  const res = await apiFetch(
+    `/activities/provider/${providerSlug}/activity/${activitySlug}/sessions/`
+  );
+  if (!res.ok) return [];
+  const json = unwrap(await res.json());
+  const items: Record<string, unknown>[] = Array.isArray(json) ? json : (json?.results ?? []);
+  return items.map((s) => ({
+    id: Number(s.id),
+    date: String(s.date),
+    is_cancelled: Boolean(s.is_cancelled),
+    start_time: (s.start_time as string | null) ?? null,
+    end_time: (s.end_time as string | null) ?? null,
+  }));
+}
+
+export async function cancelProviderActivitySession(
+  providerSlug: string,
+  activitySlug: string,
+  sessionId: number
+): Promise<void> {
+  await apiFetch(
+    `/activities/provider/${providerSlug}/activity/${activitySlug}/sessions/${sessionId}/`,
+    { method: "PATCH", body: JSON.stringify({ is_cancelled: true }) }
+  );
 }
 
 export async function deleteProviderActivity(
@@ -694,7 +777,7 @@ export async function createPromotion(
 export interface BusinessInstructor {
   contractorId: string;
   name: string;
-  avatar: string;
+  avatar: string | null;
   specialty: string;
   affiliation: {
     status: "active" | "pending" | "ended";
@@ -727,10 +810,26 @@ const MOCK_BUSINESS_INSTRUCTORS: BusinessInstructor[] = [
 ];
 
 export async function fetchBusinessInstructors(
-  _businessId: string
+  providerSlug: string
 ): Promise<BusinessInstructor[]> {
-  await delay(300);
-  return [...MOCK_BUSINESS_INSTRUCTORS];
+  if (!providerSlug) return [];
+  const res = await apiFetch(`/activities/provider/${providerSlug}/members/`);
+  if (!res.ok) return [];
+  const json = unwrap(await res.json());
+  const items: Record<string, unknown>[] = Array.isArray(json) ? json : (json?.results ?? []);
+  return items
+    .filter((m) => String(m.role) !== "OWNER")
+    .map((m) => ({
+      contractorId: String(m.slug ?? ""),
+      name: String(m.displayName ?? m.name ?? ""),
+      avatar: (m.avatar as string | null) ?? null,
+      specialty: String(m.title ?? ""),
+      affiliation: {
+        status: m.isInvited ? "pending" as const : "active" as const,
+        role: String(m.role) === "EMPLOYEE" ? "employee" as const : "contractor" as const,
+        startDate: "",
+      },
+    }));
 }
 
 export async function fetchInstructorAvailability(
@@ -758,6 +857,30 @@ export async function proposeSlotToInstructor(
 ): Promise<{ id: string; status: "pending" }> {
   await delay(400);
   return { id: `prop-${Date.now()}`, status: "pending" };
+}
+
+export async function lookupUserByEmail(email: string): Promise<{
+  found: boolean;
+  email: string;
+  name?: string;
+  isContractor?: boolean;
+  avatar?: string;
+}> {
+  const res = await apiFetch(`/activities/invite-lookup/?email=${encodeURIComponent(email)}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return unwrap(await res.json());
+}
+
+export async function inviteContractor(
+  providerSlug: string,
+  data: { email: string; role?: string; title?: string }
+): Promise<{ membershipSlug: string; userFound: boolean; isContractor: boolean; invitationSent: boolean }> {
+  const res = await apiFetch(`/activities/provider/${providerSlug}/invite/`, {
+    method: "POST",
+    body: JSON.stringify({ email: data.email, role: data.role ?? "EMPLOYEE", title: data.title ?? "" }),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return unwrap(await res.json());
 }
 
 // ── Business Courts (delegated to court-service) ──

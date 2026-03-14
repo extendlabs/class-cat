@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -15,12 +16,16 @@ import { AnimateIn } from "@/components/ui/animate-in";
 import {
   Users,
   CalendarBlank,
+  UserPlus,
 } from "@phosphor-icons/react";
+import { InviteContractorDialog } from "@/components/features/business-instructors/invite-contractor-dialog";
 
 export default function BusinessInstructorsPage() {
   const { user } = useAuth();
   const t = useTranslations("businessInstructors");
-  const businessId = user?.businessId ?? "biz-1";
+  const businessId = user?.businessId ?? "";
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const providerSlug = businessId;
 
   const { data: instructors, isLoading } = useQuery({
     queryKey: ["business-instructors", businessId],
@@ -46,11 +51,21 @@ export default function BusinessInstructorsPage() {
 
   return (
     <div className="max-w-7xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-          {t("title")}
-        </h1>
-        <p className="text-sm text-gray-500 mt-1">{t("subtitle")}</p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+            {t("title")}
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">{t("subtitle")}</p>
+        </div>
+        <Button
+          onClick={() => setInviteOpen(true)}
+          className="bg-coral hover:bg-coral-hover text-white rounded-full flex items-center gap-2"
+          size="sm"
+        >
+          <UserPlus size={16} weight="bold" />
+          Zaproś
+        </Button>
       </div>
 
       {!instructors?.length ? (
@@ -66,7 +81,7 @@ export default function BusinessInstructorsPage() {
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <Avatar className="w-12 h-12">
-                      <AvatarImage src={inst.avatar} alt={inst.name} />
+                      <AvatarImage src={inst.avatar ?? undefined} alt={inst.name} />
                       <AvatarFallback className="bg-coral/10 text-coral font-bold">
                         {inst.name.split(" ").map((n) => n[0]).join("")}
                       </AvatarFallback>
@@ -103,6 +118,11 @@ export default function BusinessInstructorsPage() {
         </div>
       )}
 
+      <InviteContractorDialog
+        open={inviteOpen}
+        onClose={() => setInviteOpen(false)}
+        providerSlug={providerSlug}
+      />
     </div>
   );
 }

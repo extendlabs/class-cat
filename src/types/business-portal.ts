@@ -55,11 +55,21 @@ export interface BusinessStats {
   upcomingClasses: number;
 }
 
+export interface ActivitySession {
+  id: number;
+  date: string;
+  isCancelled: boolean;
+  capacityOverride: number | null;
+  startTime: string | null;
+  endTime: string | null;
+}
+
 export interface BusinessActivity extends Activity {
   status: BusinessActivityStatus;
   enrolledCount: number;
   maxCapacity: number;
   nextSessionDate: string;
+  sessions: ActivitySession[];
   createdAt: string;
   duration: string;
   ageRange: string;

@@ -476,8 +476,103 @@ const MOCK_BUSINESSES: Record<string, Business> = {
 export async function getBusinessById(
   id: string
 ): Promise<Business | null> {
-  await new Promise((resolve) => setTimeout(resolve, 600));
-  return MOCK_BUSINESSES[id] ?? null;
+  const [providerRes, activitiesRes, membersRes] = await Promise.all([
+    apiFetch(`/activities/provider/${id}/`),
+    apiFetch(`/activities/provider/${id}/activity/?limit=100`),
+    apiFetch(`/activities/provider/${id}/members/`),
+  ]);
+
+  if (!providerRes.ok) return null;
+
+  const provider = unwrap(await providerRes.json()) as Record<string, unknown>;
+  const activitiesJson = activitiesRes.ok ? unwrap(await activitiesRes.json()) : null;
+  const membersJson = membersRes.ok ? unwrap(await membersRes.json()) : null;
+
+  const activitiesRaw: Record<string, unknown>[] = Array.isArray(activitiesJson)
+    ? activitiesJson
+    : (activitiesJson?.results ?? []);
+  const membersRaw: Record<string, unknown>[] = Array.isArray(membersJson)
+    ? membersJson
+    : (membersJson?.results ?? []);
+
+  const locations = (provider.locations as Record<string, unknown>[] | null) ?? [];
+  const firstLocation = locations[0] as Record<string, unknown> | undefined;
+  const address = firstLocation
+    ? `${(firstLocation.address as Record<string, unknown>)?.street ?? ""}, ${(firstLocation.address as Record<string, unknown>)?.city ?? ""}`.trim().replace(/^,\s*/, "")
+    : "";
+  const coords = firstLocation?.coordinates as { lat: number; lon: number } | undefined;
+
+  const activities = activitiesRaw.map((a) => ({
+    id: String(a.slug),
+    title: String(a.name ?? ""),
+    description: String(a.description ?? ""),
+    category: ((a.categories as { slug: string }[])?.[0]?.slug ?? "education"),
+    provider: { name: String((provider.name as string) ?? "") },
+    image: (a.primaryImage as { file: string } | null)?.file ?? "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=400&h=300&fit=crop",
+    rating: Number(a.reviewScore ?? 0),
+    reviewCount: 0,
+    price: "",
+    priceAmount: 0,
+    distance: 0,
+    location: address,
+    timeSlots: [],
+    spotsLeft: Number(a.capacity ?? 0),
+    nextDate: String(a.nextSessionDate ?? ""),
+    isPromoted: Boolean(a.isPromoted),
+  }));
+
+  const instructors = membersRaw
+    .filter((m) => String(m.role) !== "OWNER")
+    .map((m) => ({
+      id: String(m.slug ?? ""),
+      name: String(m.displayName ?? m.name ?? ""),
+      title: String(m.title ?? ""),
+      bio: "",
+      avatar: (m.avatar as string | null) ?? "",
+      rating: 0,
+      reviewCount: 0,
+      experience: "",
+      verified: false,
+      specialties: [],
+    }));
+
+  return {
+    id: String(provider.slug),
+    providerSlug: String(provider.slug),
+    name: String(provider.name ?? ""),
+    tagline: "",
+    description: String(provider.description ?? ""),
+    category: "",
+    coverImage: "https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=1200&h=600&fit=crop",
+    logo: "",
+    rating: 0,
+    reviewCount: 0,
+    verified: Boolean(provider.isVerified),
+    address,
+    coordinates: { lat: coords?.lat ?? 0, lng: coords?.lon ?? 0 },
+    hours: [],
+    contact: {
+      phone: String(provider.phoneNumber ?? ""),
+      email: String(provider.email ?? ""),
+      website: String(provider.websiteUrl ?? ""),
+    },
+    social: {},
+    activities,
+    instructors,
+    reviews: [],
+    ratingDistribution: [],
+    gallery: [],
+    locations: locations.map((loc, i) => {
+      const addr = loc.address as Record<string, unknown> | undefined;
+      const c = loc.coordinates as { lat: number; lon: number } | undefined;
+      return {
+        id: String(loc.id ?? i),
+        name: String(loc.name ?? ""),
+        address: `${addr?.street ?? ""} ${addr?.city ?? ""}`.trim(),
+        coordinates: { lat: c?.lat ?? 0, lng: c?.lon ?? 0 },
+      };
+    }),
+  };
 }
 
 export async function fetchMyBusinessProfile(): Promise<Business | null> {

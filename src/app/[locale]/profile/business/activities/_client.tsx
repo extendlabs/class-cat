@@ -159,7 +159,7 @@ export default function PageContent() {
                 <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Status</TableHead>
                 <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Enrolled</TableHead>
                 <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Rating</TableHead>
-                <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Next Session</TableHead>
+                <TableHead className="py-3.5 text-xs font-semibold uppercase tracking-wider text-gray-500">Upcoming Sessions</TableHead>
                 <TableHead className="w-12"></TableHead>
               </TableRow>
             </TableHeader>
@@ -208,6 +208,7 @@ export default function PageContent() {
 
       <ManageSessionsDialog
         activity={sessionsTarget}
+        providerSlug={providerSlug ?? ""}
         onClose={() => setSessionsTarget(null)}
       />
     </div>
